@@ -1,51 +1,141 @@
-import { Wallet, Plus, ArrowRightLeft } from "lucide-react";
-import { Button } from "@/presentation/components/ui/button";
+import { requireAuth } from "@/lib/auth";
+import { CashService } from "@/application/use-cases/cash/cash-service";
+import { formatCurrency } from "@/lib/decimal";
+import { Wallet, ShieldAlert, ArrowRightLeft, ArrowDownUp } from "lucide-react";
+import { CashAccountDialog } from "@/presentation/components/cash/cash-account-dialog";
+import { InternalTransferDialog } from "@/presentation/components/cash/internal-transfer-dialog";
+import { CashAccountsTable } from "@/presentation/components/cash/cash-accounts-table";
+import { CashMovementsTable } from "@/presentation/components/cash/cash-movements-table";
+import { EmergencyFundCard } from "@/presentation/components/cash/emergency-fund-card";
 
-export default function CashPage() {
+export default async function CashPage() {
+  const session = await requireAuth();
+
+  const [accounts, movements, summary] = await Promise.all([
+    CashService.listCashAccounts(session.userId),
+    CashService.listMovements(session.userId, 50),
+    CashService.getCashSummary(session.userId),
+  ]);
+
+  const accountTransferOptions = accounts.map((a) => ({
+    id: a.id,
+    name: a.name,
+    institution: a.institution,
+    currentBalance: a.currentBalance,
+  }));
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-[#E4E8EF]">
         <div>
           <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-purple-600 block mb-0.5">
-            LIKUIDITAS & REKENING
+            LIKUIDITAS &amp; REKENING
           </span>
-          <h1 className="text-2xl font-bold tracking-tight text-[#1E293B]">Kas & Simpanan</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-[#1E293B]">Kas &amp; Simpanan</h1>
           <p className="text-sm text-[#64748B]">
             Manajemen saldo rekening bank, dompet digital (e-wallet), kas tunai, dan dana darurat.
           </p>
         </div>
         <div className="flex items-center gap-2.5">
-          <Button variant="outline" size="sm" className="gap-2 h-9 border-[#E4E8EF] bg-white text-[#1E293B] hover:bg-[#F8FAFC]">
-            <ArrowRightLeft className="h-4 w-4 text-[#64748B]" />
-            Transfer Internal
-          </Button>
-          <Button size="sm" className="gap-2 h-9 bg-blue-600 hover:bg-blue-700 text-white shadow-sm">
-            <Plus className="h-4 w-4" />
-            Tambah Rekening
-          </Button>
+          {accounts.length >= 2 && (
+            <InternalTransferDialog accounts={accountTransferOptions} />
+          )}
+          <CashAccountDialog />
         </div>
       </div>
 
-      {/* Main Adminator Card */}
-      <div className="adm-card p-6">
-        <div className="flex items-center justify-between border-b border-[#EEF1F5] pb-4 mb-6">
-          <div className="flex items-center gap-2.5">
-            <Wallet className="h-5 w-5 text-purple-600" />
-            <div>
-              <h2 className="text-base font-bold text-[#1E293B]">Daftar Akun Kas & Tabungan</h2>
-              <p className="text-xs text-[#94A3B8]">Transfer internal berpasangan net-to-zero dan rekonsiliasi berkala</p>
+      {/* KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* KPI 1: Total Saldo Kas */}
+        <div className="rounded-2xl border border-[#E4E8EF] bg-white p-5 shadow-card flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-medium text-[#64748B]">Total Kas &amp; Likuiditas</span>
+            <Wallet className="h-4 w-4 text-purple-600" />
+          </div>
+          <div>
+            <div className="text-2xl font-bold tracking-tight text-[#1E293B] font-mono">
+              {formatCurrency(summary.totalCashBalance, "IDR")}
             </div>
+            <p className="text-[11px] text-[#64748B] mt-1">
+              Dari {summary.accountCount} akun terdaftar
+            </p>
           </div>
         </div>
 
-        <div className="min-h-[300px] flex flex-col items-center justify-center text-center p-8 bg-[#F8FAFC] rounded-xl border border-dashed border-[#E4E8EF]">
-          <Wallet className="h-8 w-8 text-[#94A3B8] mb-3" strokeWidth={1.5} />
-          <h3 className="text-sm font-bold text-[#1E293B]">Belum Ada Akun Kas Terdaftar</h3>
-          <p className="text-xs text-[#64748B] max-w-sm mt-1 leading-relaxed">
-            Pencatatan saldo kas, mutasi transfer internal, dan alokasi dana darurat siap dikonfigurasi.
-          </p>
+        {/* KPI 2: Dana Darurat */}
+        <div className="rounded-2xl border border-[#E4E8EF] bg-white p-5 shadow-card flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-medium text-[#64748B]">Dana Darurat (Emergency)</span>
+            <ShieldAlert className="h-4 w-4 text-emerald-600" />
+          </div>
+          <div>
+            <div className="text-2xl font-bold tracking-tight text-emerald-600 font-mono">
+              {formatCurrency(summary.emergencyFundCurrent, "IDR")}
+            </div>
+            <p className="text-[11px] text-[#64748B] mt-1">
+              Tercapai {summary.emergencyFundCoverage}% dari target
+            </p>
+          </div>
         </div>
+
+        {/* KPI 3: Jumlah Rekening */}
+        <div className="rounded-2xl border border-[#E4E8EF] bg-white p-5 shadow-card flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-medium text-[#64748B]">Akun Terdaftar</span>
+            <ArrowRightLeft className="h-4 w-4 text-blue-600" />
+          </div>
+          <div>
+            <div className="text-2xl font-bold tracking-tight text-[#1E293B] font-mono">
+              {summary.accountCount} Rekening
+            </div>
+            <p className="text-[11px] text-[#64748B] mt-1">
+              Bank, E-Wallet, &amp; Kas Fisik
+            </p>
+          </div>
+        </div>
+
+        {/* KPI 4: Aktivitas Mutasi */}
+        <div className="rounded-2xl border border-[#E4E8EF] bg-white p-5 shadow-card flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-medium text-[#64748B]">Buku Besar Mutasi</span>
+            <ArrowDownUp className="h-4 w-4 text-amber-600" />
+          </div>
+          <div>
+            <div className="text-2xl font-bold tracking-tight text-[#1E293B] font-mono">
+              {movements.length} Mutasi
+            </div>
+            <p className="text-[11px] text-[#64748B] mt-1">
+              Riwayat transaksi kas aktif
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Emergency Fund Card */}
+      <EmergencyFundCard
+        currentAmount={summary.emergencyFundCurrent}
+        targetAmount={summary.emergencyFundTarget}
+        coveragePercent={summary.emergencyFundCoverage}
+        accountCount={accounts.filter((a) => a.isEmergencyFund).length}
+      />
+
+      {/* Cash Accounts Table */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-base font-bold text-[#1E293B]">Daftar Rekening Kas</h2>
+            <p className="text-xs text-[#64748B]">
+              Daftar rekening bank, e-wallet, dan kas tunai aktif beserta saldo terkini
+            </p>
+          </div>
+        </div>
+        <CashAccountsTable accounts={accounts} />
+      </div>
+
+      {/* Cash Movements Ledger Table */}
+      <div className="space-y-3">
+        <CashMovementsTable movements={movements} />
       </div>
     </div>
   );

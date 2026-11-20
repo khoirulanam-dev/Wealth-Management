@@ -18,6 +18,8 @@ import { HoldingsService } from "@/application/use-cases/portfolio/holdings-serv
 import { AccountsService } from "@/application/use-cases/portfolio/accounts-service";
 import { InstrumentsService } from "@/application/use-cases/portfolio/instruments-service";
 import { MarketDataSyncService } from "@/application/use-cases/portfolio/market-data-sync-service";
+import { CashService } from "@/application/use-cases/cash/cash-service";
+import { Decimal } from "decimal.js";
 import { RecordTransactionDialog } from "@/presentation/components/portfolio/record-transaction-dialog";
 
 export default async function OverviewPage() {
@@ -26,17 +28,20 @@ export default async function OverviewPage() {
   // Automatic daily price sync check (triggers if quotes are > 24 hours old)
   await MarketDataSyncService.autoSyncIfStale(session.userId);
 
-  const [{ summary, assetBreakdown }, accounts, instruments] = await Promise.all([
+  const [{ summary, assetBreakdown }, accounts, instruments, cashSummary] = await Promise.all([
     HoldingsService.listActiveHoldings(session.userId),
     AccountsService.listAccounts(session.userId),
     InstrumentsService.listInstruments(session.userId),
+    CashService.getCashSummary(session.userId),
   ]);
 
   const userName = session.email ? session.email.split("@")[0] : "Investor";
   const capitalUserName = userName.charAt(0).toUpperCase() + userName.slice(1);
 
-  // Total net worth currently = investments (cash and liabilities will be added in M3 & M4)
-  const netWorth = summary.totalMarketValue;
+  // Total net worth = investments + cash & liquid savings (liabilities deducted in M4)
+  const netWorth = new Decimal(summary.totalMarketValue)
+    .plus(cashSummary.totalCashBalance)
+    .toFixed(2);
 
   return (
     <div className="space-y-6">
@@ -119,21 +124,21 @@ export default async function OverviewPage() {
         <article className="adm-card p-5 flex flex-col justify-between gap-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Wallet className="h-4 w-4 text-[#64748B]" />
+              <Wallet className="h-4 w-4 text-purple-600" />
               <span className="text-xs font-medium text-[#64748B]">Kas & Simpanan</span>
             </div>
-            <span className="text-xs font-medium text-[#64748B]">
+            <span className="text-xs font-medium text-purple-600">
               Likuid
             </span>
           </div>
           <div>
             <div className="text-3xl font-bold tracking-tight tabular-nums text-[#1E293B]">
-              {formatCurrency(0, "IDR")}
+              {formatCurrency(cashSummary.totalCashBalance, "IDR")}
             </div>
           </div>
           <div className="pt-3 border-t border-dashed border-[#EEF1F5] text-xs text-[#94A3B8] flex items-center justify-between">
             <span>Bank & Dana Darurat</span>
-            <span className="font-mono text-[#475569]">Siap dihubungkan</span>
+            <span className="font-mono text-[#475569]">{cashSummary.accountCount} Akun Aktif</span>
           </div>
         </article>
 
@@ -255,10 +260,16 @@ export default async function OverviewPage() {
         <div className="adm-card p-6 flex items-center justify-between">
           <div className="space-y-1">
             <span className="text-xs font-semibold text-[#64748B]">Dana Darurat Terkumpul</span>
-            <div className="text-2xl font-bold tabular-nums text-[#1E293B]">{formatCurrency(0, "IDR")}</div>
-            <p className="text-xs text-[#94A3B8]">Alokasi likuid cadangan darurat</p>
+            <div className="text-2xl font-bold tabular-nums text-[#1E293B]">
+              {formatCurrency(cashSummary.emergencyFundCurrent, "IDR")}
+            </div>
+            <p className="text-xs text-[#94A3B8]">
+              {parseFloat(cashSummary.emergencyFundCoverage) > 0
+                ? `Tercapai ${cashSummary.emergencyFundCoverage}% dari target`
+                : "Cadangan likuid darurat"}
+            </p>
           </div>
-          <ShieldCheck className="h-6 w-6 text-blue-600" strokeWidth={1.5} />
+          <ShieldCheck className="h-6 w-6 text-emerald-600" strokeWidth={1.5} />
         </div>
 
         <div className="adm-card p-6 flex items-center justify-between">

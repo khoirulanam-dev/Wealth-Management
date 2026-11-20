@@ -1,0 +1,142 @@
+"use client";
+
+import { Wallet, Landmark, Smartphone, Banknote, ShieldAlert } from "lucide-react";
+import { formatCurrency } from "@/lib/decimal";
+import { CashMovementDialog } from "./cash-movement-dialog";
+import { ReconcileDialog } from "./reconcile-dialog";
+
+export interface CashAccountItem {
+  id: string;
+  financialAccountId: string;
+  name: string;
+  institution: string;
+  accountType: string;
+  openingBalance: string;
+  currentBalance: string;
+  isEmergencyFund: boolean;
+  emergencyFundTarget: string | null;
+  currency: string;
+  updatedAt: Date;
+}
+
+interface CashAccountsTableProps {
+  accounts: CashAccountItem[];
+}
+
+export function CashAccountsTable({ accounts }: CashAccountsTableProps) {
+  if (accounts.length === 0) {
+    return (
+      <div className="rounded-2xl border border-[#E4E8EF] bg-white p-12 text-center shadow-card">
+        <Wallet className="h-8 w-8 text-[#94A3B8] mx-auto mb-3" strokeWidth={1.5} />
+        <h3 className="text-base font-bold text-[#1E293B]">Belum Ada Rekening Kas</h3>
+        <p className="text-xs text-[#64748B] max-w-md mx-auto mt-1 leading-relaxed">
+          Tambahkan rekening bank utama (BCA, Mandiri), e-wallet (GoPay, OVO), atau kas tunai fisik Anda untuk mulai mencatat likuiditas dan dana darurat.
+        </p>
+      </div>
+    );
+  }
+
+  const accountOptions = accounts.map((a) => ({
+    id: a.id,
+    name: a.name,
+    institution: a.institution,
+    currentBalance: a.currentBalance,
+  }));
+
+  return (
+    <div className="rounded-2xl border border-[#E4E8EF] bg-white shadow-card overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="w-full text-left text-xs border-collapse">
+          <thead>
+            <tr className="border-b border-[#E4E8EF] bg-[#F8FAFC] text-[#64748B] font-semibold uppercase tracking-wider text-[11px]">
+              <th className="py-3.5 px-4">Rekening &amp; Institusi</th>
+              <th className="py-3.5 px-4">Jenis Akun</th>
+              <th className="py-3.5 px-4 text-center">Status Alokasi</th>
+              <th className="py-3.5 px-4 text-right">Saldo Saat Ini</th>
+              <th className="py-3.5 px-4 text-center">Aksi Cepat</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-[#E4E8EF] text-[#1E293B]">
+            {accounts.map((acc) => {
+              const balNum = parseFloat(acc.currentBalance);
+
+              return (
+                <tr key={acc.id} className="hover:bg-slate-50/80 transition-colors">
+                  {/* Account & Institution */}
+                  <td className="py-3.5 px-4">
+                    <div className="flex items-center gap-2.5">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+                        {acc.accountType === "e_wallet" ? (
+                          <Smartphone className="h-4 w-4" />
+                        ) : acc.accountType === "cash" ? (
+                          <Banknote className="h-4 w-4" />
+                        ) : (
+                          <Landmark className="h-4 w-4" />
+                        )}
+                      </div>
+                      <div>
+                        <span className="font-bold text-[#1E293B] block">{acc.name}</span>
+                        <span className="text-[11px] text-[#64748B]">{acc.institution}</span>
+                      </div>
+                    </div>
+                  </td>
+
+                  {/* Account Type */}
+                  <td className="py-3.5 px-4 text-[#64748B] capitalize">
+                    {acc.accountType === "bank"
+                      ? "Rekening Bank"
+                      : acc.accountType === "e_wallet"
+                      ? "Dompet Digital"
+                      : "Kas Tunai"}
+                  </td>
+
+                  {/* Emergency Fund Badge */}
+                  <td className="py-3.5 px-4 text-center">
+                    {acc.isEmergencyFund ? (
+                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600">
+                        <ShieldAlert className="h-3.5 w-3.5 text-emerald-600" />
+                        Dana Darurat
+                      </span>
+                    ) : (
+                      <span className="text-[11px] text-[#94A3B8]">Operasional / Umum</span>
+                    )}
+                  </td>
+
+                  {/* Balance */}
+                  <td className="py-3.5 px-4 text-right font-mono font-bold text-sm text-[#1E293B]">
+                    {formatCurrency(balNum)}
+                  </td>
+
+                  {/* Actions */}
+                  <td className="py-3.5 px-4 text-center">
+                    <div className="flex items-center justify-center gap-2">
+                      <CashMovementDialog
+                        accounts={accountOptions}
+                        triggerButton={
+                          <button className="text-[11px] font-semibold text-blue-600 hover:underline">
+                            Setor/Tarik
+                          </button>
+                        }
+                      />
+                      <span className="text-[#CBD5E1]">·</span>
+                      <ReconcileDialog
+                        accounts={accountOptions}
+                        defaultAccountId={acc.id}
+                        triggerButton={
+                          <button className="text-[11px] font-semibold text-amber-600 hover:underline">
+                            Rekonsiliasi
+                          </button>
+                        }
+                      />
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
