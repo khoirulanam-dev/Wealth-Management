@@ -47,7 +47,7 @@ export default function CashPage() {
           </div>
           <h3 className="text-sm font-bold text-[#1E293B]">Belum Ada Akun Kas Terdaftar</h3>
           <p className="text-xs text-[#64748B] max-w-sm mt-1 leading-relaxed">
-            Pencatatan saldo kas, mutasi transfer internal, dan penandaan dana darurat dijadwalkan pada Milestone 3.
+            Pencatatan saldo kas, mutasi transfer internal, dan alokasi dana darurat siap dikonfigurasi.
           </p>
         </div>
       </div>

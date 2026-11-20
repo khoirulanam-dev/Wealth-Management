@@ -43,7 +43,7 @@ export default function MarketDataPage() {
           </div>
           <h3 className="text-sm font-bold text-[#1E293B]">Belum Ada Kuotasi Terdaftar</h3>
           <p className="text-xs text-[#64748B] max-w-sm mt-1 leading-relaxed">
-            Orkestrasi pembaruan harga manual, penyimpanan sumber data, dan koreksi nilai instrumen dijadwalkan pada Milestone 5.
+            Pembaruan kuotasi harga pasar dan riwayat nilai wajar instrumen investasi siap dikelola.
           </p>
         </div>
       </div>

@@ -43,7 +43,7 @@ export default function WatchlistPage() {
           </div>
           <h3 className="text-sm font-bold text-[#1E293B]">Watchlist Masih Kosong</h3>
           <p className="text-xs text-[#64748B] max-w-sm mt-1 leading-relaxed">
-            Tambahkan saham atau reksa dana yang ingin dipantau pada Milestone 5 tanpa mempengaruhi saldo kepemilikan Anda.
+            Pantau saham atau reksa dana pilihan tanpa mempengaruhi saldo kepemilikan Anda.
           </p>
         </div>
       </div>

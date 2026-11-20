@@ -8,6 +8,7 @@ const SECRET_KEY = new TextEncoder().encode(env.AUTH_SECRET);
 
 export interface SessionUser {
   id: string;
+  userId: string;
   email: string;
   reportingCurrency: string;
 }
@@ -48,6 +49,7 @@ export async function getSession(): Promise<SessionUser | null> {
     const { payload } = await jwtVerify(token, SECRET_KEY);
     return {
       id: payload.id as string,
+      userId: payload.id as string,
       email: payload.email as string,
       reportingCurrency: (payload.reportingCurrency as string) || "IDR",
     };

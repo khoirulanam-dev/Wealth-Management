@@ -43,7 +43,7 @@ export default function LiabilitiesPage() {
           </div>
           <h3 className="text-sm font-bold text-[#1E293B]">Bebas dari Liabilitas</h3>
           <p className="text-xs text-[#64748B] max-w-sm mt-1 leading-relaxed">
-            Modul jadwal cicilan, kalkulasi jatuh tempo, dan riwayat pembayaran utang dijadwalkan pada Milestone 4.
+            Pencatatan kewajiban, jadwal pembayaran cicilan, dan kalkulasi jatuh tempo utang siap dikonfigurasi.
           </p>
         </div>
       </div>

@@ -1,7 +1,22 @@
-import { History, Filter, Download } from "lucide-react";
-import { Button } from "@/presentation/components/ui/button";
+import { requireAuth } from "@/lib/auth";
+import { TransactionsService } from "@/application/use-cases/portfolio/transactions-service";
+import { AccountsService } from "@/application/use-cases/portfolio/accounts-service";
+import { InstrumentsService } from "@/application/use-cases/portfolio/instruments-service";
+import { TransactionsTable, TransactionItem } from "@/presentation/components/portfolio/transactions-table";
+import { RecordTransactionDialog } from "@/presentation/components/portfolio/record-transaction-dialog";
+import { AccountDialog } from "@/presentation/components/portfolio/account-dialog";
+import { InstrumentDialog } from "@/presentation/components/portfolio/instrument-dialog";
+import { History } from "lucide-react";
 
-export default function TransactionsPage() {
+export default async function TransactionsPage() {
+  const session = await requireAuth();
+
+  const [transactions, accounts, instruments] = await Promise.all([
+    TransactionsService.listTransactions(session.userId),
+    AccountsService.listAccounts(session.userId),
+    InstrumentsService.listInstruments(session.userId),
+  ]);
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -10,46 +25,38 @@ export default function TransactionsPage() {
           <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-blue-600 block mb-0.5">
             LOG AKTIVITAS KEUANGAN
           </span>
-          <h1 className="text-2xl font-bold tracking-tight text-[#1E293B]">Riwayat Transaksi</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-[#1E293B]">Buku Besar Transaksi</h1>
           <p className="text-sm text-[#64748B]">
-            Pencatatan kronologis aktivitas beli, jual, transfer, setoran, dan pembayaran liabilitas.
+            Pencatatan kronologis aktivitas beli, jual, langganan, dan penebusan aset investasi.
           </p>
         </div>
-        <div className="flex items-center gap-2.5">
-          <Button variant="outline" size="sm" className="gap-2 h-9 border-[#E4E8EF] bg-white text-[#1E293B] hover:bg-[#F8FAFC]">
-            <Filter className="h-4 w-4 text-[#64748B]" />
-            Filter
-          </Button>
-          <Button variant="outline" size="sm" className="gap-2 h-9 border-[#E4E8EF] bg-white text-[#1E293B] hover:bg-[#F8FAFC]">
-            <Download className="h-4 w-4 text-[#64748B]" />
-            Ekspor CSV
-          </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <AccountDialog />
+          <InstrumentDialog />
+          <RecordTransactionDialog
+            accounts={accounts}
+            instruments={instruments}
+          />
         </div>
       </div>
 
-      {/* Main Adminator Card */}
-      <div className="adm-card p-6">
-        <div className="flex items-center justify-between border-b border-[#EEF1F5] pb-4 mb-6">
-          <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
-              <History className="h-5 w-5" />
+      {/* Main Ledger Card */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600 font-bold">
+              <History className="h-4 w-4" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-[#1E293B]">Buku Besar Transaksi Terpadu</h2>
-              <p className="text-xs text-[#94A3B8]">Audit trail immutable dengan dukungan koreksi pembalikan (reversal)</p>
+              <h2 className="text-sm font-bold text-[#1E293B]">Riwayat Ledger Terpadu</h2>
+              <p className="text-[11px] text-[#64748B]">
+                Total {transactions.length} transaksi tercatat di database
+              </p>
             </div>
           </div>
         </div>
 
-        <div className="min-h-[300px] flex flex-col items-center justify-center text-center p-8 bg-[#F8FAFC] rounded-xl border border-dashed border-[#E4E8EF]">
-          <div className="h-12 w-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mb-3">
-            <History className="h-6 w-6" />
-          </div>
-          <h3 className="text-sm font-bold text-[#1E293B]">Belum Ada Riwayat Transaksi</h3>
-          <p className="text-xs text-[#64748B] max-w-sm mt-1 leading-relaxed">
-            Seluruh transaksi investasi dan mutasi kas yang diposting akan tercatat secara permanen di sini.
-          </p>
-        </div>
+        <TransactionsTable transactions={transactions as unknown as TransactionItem[]} />
       </div>
     </div>
   );

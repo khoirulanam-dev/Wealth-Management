@@ -47,7 +47,7 @@ export default function IncomePage() {
           </div>
           <h3 className="text-sm font-bold text-[#1E293B]">Belum Ada Pendapatan Dicatat</h3>
           <p className="text-xs text-[#64748B] max-w-sm mt-1 leading-relaxed">
-            Pencatatan riil dividen diterima, kalender cum/ex date, dan yield on cost dijadwalkan pada Milestone 6.
+            Pencatatan riil dividen diterima, kalender hasil investasi, dan yield on cost siap digunakan.
           </p>
         </div>
       </div>

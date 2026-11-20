@@ -33,6 +33,7 @@ export async function loginAction(formData: FormData) {
 
     await createSession({
       id: user.id,
+      userId: user.id,
       email: user.email,
       reportingCurrency: user.reportingCurrency || "IDR",
     });

@@ -51,3 +51,10 @@ export function formatQuantity(value: Decimal.Value, unit?: string): string {
   return unit ? `${formatted} ${unit}` : formatted;
 }
 
+export function formatNumber(value: Decimal.Value | number, maximumFractionDigits: number = 2): string {
+  const dec = toDecimal(value);
+  return new Intl.NumberFormat("id-ID", {
+    maximumFractionDigits,
+  }).format(dec.toNumber());
+}
+

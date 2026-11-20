@@ -1,7 +1,25 @@
-import { TrendingUp, Plus, Filter } from "lucide-react";
-import { Button } from "@/presentation/components/ui/button";
+import { requireAuth } from "@/lib/auth";
+import { HoldingsService } from "@/application/use-cases/portfolio/holdings-service";
+import { AccountsService } from "@/application/use-cases/portfolio/accounts-service";
+import { InstrumentsService } from "@/application/use-cases/portfolio/instruments-service";
+import { formatCurrency } from "@/lib/decimal";
+import { HoldingsTable, HoldingItem } from "@/presentation/components/portfolio/holdings-table";
+import { AccountDialog } from "@/presentation/components/portfolio/account-dialog";
+import { InstrumentDialog } from "@/presentation/components/portfolio/instrument-dialog";
+import { RecordTransactionDialog } from "@/presentation/components/portfolio/record-transaction-dialog";
+import { TrendingUp, TrendingDown, Layers, PieChart } from "lucide-react";
 
-export default function InvestmentsPage() {
+export default async function InvestmentsPage() {
+  const session = await requireAuth();
+
+  const [{ holdings, summary }, accounts, instruments] = await Promise.all([
+    HoldingsService.listActiveHoldings(session.userId),
+    AccountsService.listAccounts(session.userId),
+    InstrumentsService.listInstruments(session.userId),
+  ]);
+
+  const isProfit = parseFloat(summary.totalUnrealizedPL) >= 0;
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -12,45 +30,106 @@ export default function InvestmentsPage() {
           </span>
           <h1 className="text-2xl font-bold tracking-tight text-[#1E293B]">Portofolio Investasi</h1>
           <p className="text-sm text-[#64748B]">
-            Pencatatan kepemilikan saham, reksa dana, emas, obligasi, dan aset investasi lainnya.
+            Pencatatan kepemilikan saham, reksa dana, emas, dan obligasi dengan weighted-average cost.
           </p>
         </div>
-        <div className="flex items-center gap-2.5">
-          <Button variant="outline" size="sm" className="gap-2 h-9 border-[#E4E8EF] bg-white text-[#1E293B] hover:bg-[#F8FAFC]">
-            <Filter className="h-4 w-4 text-[#64748B]" />
-            Filter
-          </Button>
-          <Button size="sm" className="gap-2 h-9 bg-blue-600 hover:bg-blue-700 text-white shadow-sm">
-            <Plus className="h-4 w-4" />
-            Tambah Investasi
-          </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <AccountDialog />
+          <InstrumentDialog />
+          <RecordTransactionDialog
+            accounts={accounts}
+            instruments={instruments}
+          />
         </div>
       </div>
 
-      {/* Main Adminator Card */}
-      <div className="adm-card p-6">
-        <div className="flex items-center justify-between border-b border-[#EEF1F5] pb-4 mb-6">
-          <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
-              <TrendingUp className="h-5 w-5" />
-            </div>
-            <div>
-              <h2 className="text-base font-bold text-[#1E293B]">Daftar Aset Portofolio (Holdings)</h2>
-              <p className="text-xs text-[#94A3B8]">Dihitung berbasis Weighted Average Cost dan harga pasar terakhir</p>
+      {/* 4 KPI Summary Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Total Market Value */}
+        <div className="adm-card p-5">
+          <div className="flex items-center justify-between text-xs text-[#64748B] mb-2">
+            <span className="font-semibold uppercase tracking-wider">Nilai Pasar Portofolio</span>
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+              <PieChart className="h-4 w-4" />
             </div>
           </div>
+          <div className="text-2xl font-bold text-[#1E293B] font-mono">
+            {formatCurrency(summary.totalMarketValue)}
+          </div>
+          <span className="text-[11px] text-[#94A3B8] mt-1 block">
+            Berdasarkan valuasi harga pasar terkini
+          </span>
         </div>
 
-        <div className="min-h-[300px] flex flex-col items-center justify-center text-center p-8 bg-[#F8FAFC] rounded-xl border border-dashed border-[#E4E8EF]">
-          <div className="h-12 w-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mb-3">
-            <TrendingUp className="h-6 w-6" />
+        {/* Total Cost Basis */}
+        <div className="adm-card p-5">
+          <div className="flex items-center justify-between text-xs text-[#64748B] mb-2">
+            <span className="font-semibold uppercase tracking-wider">Total Modal Terinvestasi</span>
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-[#475569]">
+              <Layers className="h-4 w-4" />
+            </div>
           </div>
-          <h3 className="text-sm font-bold text-[#1E293B]">Belum Ada Posisi Investasi</h3>
-          <p className="text-xs text-[#64748B] max-w-sm mt-1 leading-relaxed">
-            Mesin pencatat transaksi saham, reksa dana, emas, dan obligasi dengan weighted-average cost akan aktif pada Milestone 2.
-          </p>
+          <div className="text-2xl font-bold text-[#1E293B] font-mono">
+            {formatCurrency(summary.totalCostBasis)}
+          </div>
+          <span className="text-[11px] text-[#94A3B8] mt-1 block">
+            Total modal pokok (Weighted Average Basis)
+          </span>
+        </div>
+
+        {/* Total Unrealized P/L */}
+        <div className="adm-card p-5">
+          <div className="flex items-center justify-between text-xs text-[#64748B] mb-2">
+            <span className="font-semibold uppercase tracking-wider">Unrealized P/L</span>
+            <div
+              className={`flex h-7 w-7 items-center justify-center rounded-lg ${
+                isProfit ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-600"
+              }`}
+            >
+              {isProfit ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+            </div>
+          </div>
+          <div
+            className={`text-2xl font-bold font-mono ${
+              isProfit ? "text-emerald-600" : "text-red-600"
+            }`}
+          >
+            {isProfit ? "+" : ""}
+            {formatCurrency(summary.totalUnrealizedPL)}
+          </div>
+          <span
+            className={`text-[11px] font-semibold mt-1 block ${
+              isProfit ? "text-emerald-600" : "text-red-600"
+            }`}
+          >
+            {isProfit ? "+" : ""}
+            {summary.totalUnrealizedPLPercentage}% terhadap modal
+          </span>
+        </div>
+
+        {/* Position Count */}
+        <div className="adm-card p-5">
+          <div className="flex items-center justify-between text-xs text-[#64748B] mb-2">
+            <span className="font-semibold uppercase tracking-wider">Posisi Aktif</span>
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
+              <Layers className="h-4 w-4" />
+            </div>
+          </div>
+          <div className="text-2xl font-bold text-[#1E293B] font-mono">
+            {summary.positionCount}
+          </div>
+          <span className="text-[11px] text-[#94A3B8] mt-1 block">
+            Instrumen dengan saldo kepemilikan &gt; 0
+          </span>
         </div>
       </div>
+
+      {/* Holdings Table */}
+      <HoldingsTable
+        holdings={holdings as unknown as HoldingItem[]}
+        accounts={accounts}
+        instruments={instruments}
+      />
     </div>
   );
 }

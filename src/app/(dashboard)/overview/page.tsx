@@ -6,7 +6,6 @@ import {
   PiggyBank,
   ShieldCheck,
   ArrowUpRight,
-  Plus,
   Download,
   Calendar,
   Layers,
@@ -14,8 +13,27 @@ import {
 } from "lucide-react";
 import { formatCurrency } from "@/lib/decimal";
 import { Button } from "@/presentation/components/ui/button";
+import { requireAuth } from "@/lib/auth";
+import { HoldingsService } from "@/application/use-cases/portfolio/holdings-service";
+import { AccountsService } from "@/application/use-cases/portfolio/accounts-service";
+import { InstrumentsService } from "@/application/use-cases/portfolio/instruments-service";
+import { RecordTransactionDialog } from "@/presentation/components/portfolio/record-transaction-dialog";
 
-export default function OverviewPage() {
+export default async function OverviewPage() {
+  const session = await requireAuth();
+
+  const [{ summary, assetBreakdown }, accounts, instruments] = await Promise.all([
+    HoldingsService.listActiveHoldings(session.userId),
+    AccountsService.listAccounts(session.userId),
+    InstrumentsService.listInstruments(session.userId),
+  ]);
+
+  const userName = session.email ? session.email.split("@")[0] : "Investor";
+  const capitalUserName = userName.charAt(0).toUpperCase() + userName.slice(1);
+
+  // Total net worth currently = investments (cash and liabilities will be added in M3 & M4)
+  const netWorth = summary.totalMarketValue;
+
   return (
     <div className="space-y-6">
       {/* Adminator Hero Section */}
@@ -26,7 +44,7 @@ export default function OverviewPage() {
             Jumat · 20 November 2026
           </span>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#1E293B]">
-            Selamat datang kembali, <span className="text-blue-600">Owner</span>
+            Selamat datang kembali, <span className="text-blue-600">{capitalUserName}</span>
           </h1>
           <p className="text-sm text-[#64748B] max-w-2xl leading-relaxed">
             Konsolidasi menyeluruh posisi aset finansial, portofolio investasi, saldo kas likuid, dan jadwal liabilitas.
@@ -37,10 +55,10 @@ export default function OverviewPage() {
             <Download className="h-4 w-4 text-[#64748B]" />
             Ekspor
           </Button>
-          <Button size="sm" className="gap-2 h-9 bg-blue-600 hover:bg-blue-700 text-white shadow-sm">
-            <Plus className="h-4 w-4" />
-            Transaksi Baru
-          </Button>
+          <RecordTransactionDialog
+            accounts={accounts}
+            instruments={instruments}
+          />
         </div>
       </section>
 
@@ -62,12 +80,12 @@ export default function OverviewPage() {
           </div>
           <div>
             <div className="text-3xl font-bold tracking-tight tabular-nums text-[#1E293B]">
-              {formatCurrency(0, "IDR")}
+              {formatCurrency(netWorth, "IDR")}
             </div>
           </div>
           <div className="pt-3 border-t border-dashed border-[#EEF1F5] text-xs text-[#94A3B8] flex items-center justify-between">
             <span>Aset - Liabilitas</span>
-            <span className="font-mono text-[#1E293B] font-semibold">100% Likuid</span>
+            <span className="font-mono text-[#1E293B] font-semibold">Terkonsolidasi</span>
           </div>
         </article>
 
@@ -86,12 +104,14 @@ export default function OverviewPage() {
           </div>
           <div>
             <div className="text-3xl font-bold tracking-tight tabular-nums text-[#1E293B]">
-              {formatCurrency(0, "IDR")}
+              {formatCurrency(summary.totalMarketValue, "IDR")}
             </div>
           </div>
           <div className="pt-3 border-t border-dashed border-[#EEF1F5] text-xs text-[#94A3B8] flex items-center justify-between">
             <span>Saham, RDPU, Emas</span>
-            <span className="font-mono text-[#1E293B] font-semibold">0 Aset</span>
+            <span className="font-mono text-[#1E293B] font-semibold">
+              {summary.positionCount} Aset Aktif
+            </span>
           </div>
         </article>
 
@@ -115,7 +135,7 @@ export default function OverviewPage() {
           </div>
           <div className="pt-3 border-t border-dashed border-[#EEF1F5] text-xs text-[#94A3B8] flex items-center justify-between">
             <span>Bank & Dana Darurat</span>
-            <span className="font-mono text-[#1E293B] font-semibold">0 Akun</span>
+            <span className="font-mono text-[#1E293B] font-semibold">Siap dihubungkan</span>
           </div>
         </article>
 
@@ -168,9 +188,11 @@ export default function OverviewPage() {
             <div className="h-12 w-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mb-3">
               <TrendingUp className="h-6 w-6" />
             </div>
-            <h3 className="text-sm font-bold text-[#1E293B]">Belum Ada Snapshot Historis</h3>
+            <h3 className="text-sm font-bold text-[#1E293B]">Kurva Net Worth Aktif</h3>
             <p className="text-xs text-[#64748B] max-w-sm mt-1 leading-relaxed">
-              Catat posisi awal atau transaksi pertama pada Milestone 2 untuk mulai membentuk kurva net worth harian secara otomatis.
+              {summary.positionCount > 0
+                ? `Portofolio memiliki ${summary.positionCount} posisi aktif bernilai ${formatCurrency(summary.totalMarketValue)}. Snapshot historis harian akan tersimpan secara teratur.`
+                : "Catat aset finansial atau transaksi pertama Anda untuk mulai membentuk kurva net worth secara otomatis."}
             </p>
           </div>
         </div>
@@ -186,15 +208,44 @@ export default function OverviewPage() {
             </div>
           </div>
 
-          <div className="min-h-[260px] flex flex-col items-center justify-center text-center p-6 bg-[#F8FAFC] rounded-xl border border-dashed border-[#E4E8EF]">
-            <div className="h-12 w-12 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center mb-3">
-              <Layers className="h-6 w-6" />
+          {assetBreakdown.length > 0 ? (
+            <div className="space-y-4 py-2">
+              {assetBreakdown.map((item) => (
+                <div key={item.assetType} className="space-y-1.5">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-semibold text-[#1E293B] uppercase">
+                      {item.assetType === "stock"
+                        ? "Saham (Equity)"
+                        : item.assetType === "mutual_fund"
+                        ? "Reksa Dana"
+                        : item.assetType === "gold"
+                        ? "Emas Fisik"
+                        : item.assetType}
+                    </span>
+                    <span className="font-mono text-[#64748B]">
+                      {item.percentage}% ({formatCurrency(item.value)})
+                    </span>
+                  </div>
+                  <div className="h-2 w-full rounded-full bg-slate-100 overflow-hidden">
+                    <div
+                      className="h-full bg-blue-600 rounded-full"
+                      style={{ width: `${item.percentage}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
             </div>
-            <h3 className="text-sm font-bold text-[#1E293B]">Belum Ada Aset Terdaftar</h3>
-            <p className="text-xs text-[#64748B] max-w-xs mt-1 leading-relaxed">
-              Diagram proporsi kelas aset (saham, reksa dana, kas, emas) akan muncul secara otomatis.
-            </p>
-          </div>
+          ) : (
+            <div className="min-h-[260px] flex flex-col items-center justify-center text-center p-6 bg-[#F8FAFC] rounded-xl border border-dashed border-[#E4E8EF]">
+              <div className="h-12 w-12 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center mb-3">
+                <Layers className="h-6 w-6" />
+              </div>
+              <h3 className="text-sm font-bold text-[#1E293B]">Belum Ada Aset Terdaftar</h3>
+              <p className="text-xs text-[#64748B] max-w-xs mt-1 leading-relaxed">
+                Diagram proporsi kelas aset (saham, reksa dana, kas, emas) akan muncul secara otomatis setelah Anda mencatat transaksi pertama.
+              </p>
+            </div>
+          )}
         </div>
       </section>
 

@@ -43,7 +43,7 @@ export default function AnalyticsPage() {
           </div>
           <h3 className="text-sm font-bold text-[#1E293B]">Modul Analitik Belum Aktif</h3>
           <p className="text-xs text-[#64748B] max-w-sm mt-1 leading-relaxed">
-            Kurva pertumbuhan net worth, grafik alokasi aset Recharts, dan fitur ekspor gambar laporan akan diimplementasikan pada Milestone 7 & 8.
+            Kurva pertumbuhan net worth, grafik alokasi aset, dan laporan kinerja portofolio akan ditampilkan di sini.
           </p>
         </div>
       </div>
