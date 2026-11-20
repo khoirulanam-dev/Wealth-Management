@@ -3,7 +3,10 @@ import { HoldingsService } from "@/application/use-cases/portfolio/holdings-serv
 import { AccountsService } from "@/application/use-cases/portfolio/accounts-service";
 import { InstrumentsService } from "@/application/use-cases/portfolio/instruments-service";
 import { formatCurrency } from "@/lib/decimal";
-import { HoldingsTable, HoldingItem } from "@/presentation/components/portfolio/holdings-table";
+import { HoldingItem } from "@/presentation/components/portfolio/holdings-table";
+import { AccountItem } from "@/presentation/components/portfolio/accounts-table";
+import { InstrumentItem } from "@/presentation/components/portfolio/instruments-table";
+import { InvestmentsTabsView } from "@/presentation/components/portfolio/investments-tabs-view";
 import { AccountDialog } from "@/presentation/components/portfolio/account-dialog";
 import { InstrumentDialog } from "@/presentation/components/portfolio/instrument-dialog";
 import { RecordTransactionDialog } from "@/presentation/components/portfolio/record-transaction-dialog";
@@ -116,11 +119,11 @@ export default async function InvestmentsPage() {
         </div>
       </div>
 
-      {/* Holdings Table */}
-      <HoldingsTable
+      {/* Tabs View (Holdings, Accounts, Instruments) */}
+      <InvestmentsTabsView
         holdings={holdings as unknown as HoldingItem[]}
-        accounts={accounts}
-        instruments={instruments}
+        accounts={accounts as unknown as AccountItem[]}
+        instruments={instruments as unknown as InstrumentItem[]}
       />
     </div>
   );

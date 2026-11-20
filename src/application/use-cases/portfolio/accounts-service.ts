@@ -52,11 +52,31 @@ export class AccountsService {
     return newAccount;
   }
 
-  static async deleteAccount(userId: string, id: string) {
-    // Soft delete
+  static async updateAccount(userId: string, id: string, dto: Partial<CreateAccountDTO>) {
+    if (dto.name !== undefined && !dto.name.trim()) {
+      throw new Error("Nama akun tidak boleh kosong");
+    }
+    if (dto.institution !== undefined && !dto.institution.trim()) {
+      throw new Error("Nama institusi tidak boleh kosong");
+    }
+
     await db
       .update(financialAccounts)
-      .set({ isActive: false, updatedAt: new Date() })
+      .set({
+        ...(dto.name ? { name: dto.name.trim() } : {}),
+        ...(dto.institution ? { institution: dto.institution.trim() } : {}),
+        ...(dto.accountType ? { accountType: dto.accountType } : {}),
+        ...(dto.currency ? { currency: dto.currency } : {}),
+        ...(dto.notes !== undefined ? { notes: dto.notes?.trim() || null } : {}),
+        updatedAt: new Date(),
+      })
+      .where(and(eq(financialAccounts.id, id), eq(financialAccounts.userId, userId)));
+  }
+
+  static async deleteAccount(userId: string, id: string) {
+    // Delete account from database
+    await db
+      .delete(financialAccounts)
       .where(and(eq(financialAccounts.id, id), eq(financialAccounts.userId, userId)));
   }
 }

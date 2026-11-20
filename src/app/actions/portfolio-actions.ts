@@ -127,3 +127,81 @@ export async function voidTransactionAction(transactionId: string) {
     return { success: false, error: message };
   }
 }
+
+export async function updateAccountAction(accountId: string, formData: FormData) {
+  const session = await requireAuth();
+  const name = formData.get("name") as string;
+  const institution = formData.get("institution") as string;
+  const accountType = formData.get("accountType") as string;
+  const currency = formData.get("currency") as string;
+  const notes = formData.get("notes") as string;
+
+  try {
+    await AccountsService.updateAccount(session.userId, accountId, {
+      name,
+      institution,
+      accountType,
+      currency,
+      notes,
+    });
+    revalidatePath("/investments");
+    revalidatePath("/transactions");
+    revalidatePath("/overview");
+    return { success: true };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Gagal memperbarui akun";
+    return { success: false, error: message };
+  }
+}
+
+export async function deleteAccountAction(accountId: string) {
+  const session = await requireAuth();
+  try {
+    await AccountsService.deleteAccount(session.userId, accountId);
+    revalidatePath("/investments");
+    revalidatePath("/transactions");
+    revalidatePath("/overview");
+    return { success: true };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Gagal menghapus akun";
+    return { success: false, error: message };
+  }
+}
+
+export async function updateInstrumentAction(instrumentId: string, formData: FormData) {
+  const session = await requireAuth();
+  const name = formData.get("name") as string;
+  const symbol = formData.get("symbol") as string;
+  const assetType = formData.get("assetType") as string;
+  const market = formData.get("market") as string;
+  const unit = formData.get("unit") as string;
+
+  try {
+    await InstrumentsService.updateInstrument(session.userId, instrumentId, {
+      name,
+      symbol,
+      assetType,
+      market,
+      unit,
+    });
+    revalidatePath("/investments");
+    revalidatePath("/transactions");
+    return { success: true };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Gagal memperbarui instrumen";
+    return { success: false, error: message };
+  }
+}
+
+export async function deleteInstrumentAction(instrumentId: string) {
+  const session = await requireAuth();
+  try {
+    await InstrumentsService.deleteInstrument(session.userId, instrumentId);
+    revalidatePath("/investments");
+    revalidatePath("/transactions");
+    return { success: true };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Gagal menghapus instrumen";
+    return { success: false, error: message };
+  }
+}

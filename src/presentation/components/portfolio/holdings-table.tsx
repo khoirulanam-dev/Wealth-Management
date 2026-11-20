@@ -38,7 +38,9 @@ export function HoldingsTable({ holdings, accounts, instruments }: HoldingsTable
         <Wallet className="h-8 w-8 text-[#94A3B8] mx-auto mb-3" strokeWidth={1.5} />
         <h3 className="text-base font-bold text-[#1E293B]">Portofolio Investasi Masih Kosong</h3>
         <p className="text-xs text-[#64748B] max-w-md mx-auto mt-1 mb-6 leading-relaxed">
-          Mulai catat transaksi pembelian saham, unit reksa dana, atau emas fisik Anda untuk menghitung biaya rata-rata (weighted-average cost) dan nilai pasar portofolio secara otomatis.
+          {accounts.length > 0
+            ? `${accounts.length} akun finansial telah terdaftar (${accounts.map((a) => `${a.name} - ${a.institution}`).slice(0, 2).join(", ")}). Catat transaksi pembelian saham atau instrumen pertama Anda untuk mulai membentuk portofolio.`
+            : "Mulai catat transaksi pembelian saham, unit reksa dana, atau emas fisik Anda untuk menghitung biaya rata-rata (weighted-average cost) dan nilai pasar portofolio secara otomatis."}
         </p>
         <div className="flex justify-center gap-3">
           <RecordTransactionDialog

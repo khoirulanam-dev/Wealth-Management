@@ -58,4 +58,28 @@ export class InstrumentsService {
     await db.insert(instruments).values(newInstrument);
     return newInstrument;
   }
+
+  static async updateInstrument(userId: string, id: string, dto: Partial<CreateInstrumentDTO>) {
+    if (dto.name !== undefined && !dto.name.trim()) {
+      throw new Error("Nama instrumen tidak boleh kosong");
+    }
+
+    await db
+      .update(instruments)
+      .set({
+        ...(dto.name ? { name: dto.name.trim() } : {}),
+        ...(dto.symbol !== undefined ? { symbol: dto.symbol?.trim().toUpperCase() || null } : {}),
+        ...(dto.assetType ? { assetType: dto.assetType } : {}),
+        ...(dto.market ? { market: dto.market.trim().toUpperCase() } : {}),
+        ...(dto.unit ? { unit: dto.unit } : {}),
+        updatedAt: new Date(),
+      })
+      .where(and(eq(instruments.id, id), eq(instruments.userId, userId)));
+  }
+
+  static async deleteInstrument(userId: string, id: string) {
+    await db
+      .delete(instruments)
+      .where(and(eq(instruments.id, id), eq(instruments.userId, userId)));
+  }
 }
