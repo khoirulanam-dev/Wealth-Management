@@ -1,0 +1,53 @@
+import Decimal from "decimal.js";
+
+// Global precision configuration: 28 significant digits, standard financial rounding
+Decimal.set({ precision: 28, rounding: Decimal.ROUND_HALF_UP });
+
+export { Decimal };
+
+export function toDecimal(value: Decimal.Value | null | undefined): Decimal {
+  if (value === null || value === undefined || value === "") {
+    return new Decimal(0);
+  }
+  return new Decimal(value);
+}
+
+export function formatCurrency(
+  value: Decimal.Value,
+  currency: string = "IDR",
+  locale: string = "id-ID"
+): string {
+  const dec = toDecimal(value);
+  const num = dec.toNumber();
+
+  if (currency === "IDR") {
+    // Indonesian Rupiah format: Rp 1.500.000
+    const formatted = new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency: "IDR",
+      maximumFractionDigits: 0,
+      minimumFractionDigits: 0,
+    }).format(num);
+    return formatted.replace("IDR", "Rp").trim();
+  }
+
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: currency,
+    maximumFractionDigits: 2,
+    minimumFractionDigits: 2,
+  }).format(num);
+}
+
+export function formatPercent(value: Decimal.Value, decimals: number = 2): string {
+  const dec = toDecimal(value);
+  const sign = dec.isPositive() && !dec.isZero() ? "+" : "";
+  return `${sign}${dec.toFixed(decimals)}%`;
+}
+
+export function formatQuantity(value: Decimal.Value, unit?: string): string {
+  const dec = toDecimal(value);
+  const formatted = dec.toString();
+  return unit ? `${formatted} ${unit}` : formatted;
+}
+
