@@ -46,7 +46,14 @@ export function RecordTransactionDialog({
 
   // Form states
   const [selectedAccount, setSelectedAccount] = useState(defaultAccountId || accounts[0]?.id || "");
-  const [selectedInstrument, setSelectedInstrument] = useState(defaultInstrumentId || instruments[0]?.id || "");
+  const [isNewInstrument, setIsNewInstrument] = useState(instruments.length === 0);
+  const [selectedInstrument, setSelectedInstrument] = useState(
+    defaultInstrumentId || instruments[0]?.id || (instruments.length > 0 ? instruments[0].id : "NEW")
+  );
+  const [newSymbol, setNewSymbol] = useState("");
+  const [newName, setNewName] = useState("");
+  const [newAssetType, setNewAssetType] = useState("stock");
+
   const [type, setType] = useState<"buy" | "sell">(defaultType);
   const [tradeDate, setTradeDate] = useState(() => new Date().toISOString().split("T")[0]);
   const [quantity, setQuantity] = useState("");
@@ -69,7 +76,7 @@ export function RecordTransactionDialog({
   } | null>(null);
 
   const activeInstrument = instruments.find((i) => i.id === selectedInstrument);
-  const isStock = activeInstrument?.assetType === "stock";
+  const isStock = isNewInstrument ? newAssetType === "stock" : activeInstrument?.assetType === "stock";
 
   // Effective share quantity for calculations
   const effectiveQuantity = isStock && isLotMode && quantity
@@ -78,7 +85,8 @@ export function RecordTransactionDialog({
 
   // Real-time preview effect
   useEffect(() => {
-    if (!selectedAccount || !selectedInstrument || !effectiveQuantity || !unitPrice) {
+    const instId = isNewInstrument ? "NEW" : selectedInstrument;
+    if (!selectedAccount || !instId || !effectiveQuantity || !unitPrice) {
       setPreview(null);
       return;
     }
@@ -86,7 +94,7 @@ export function RecordTransactionDialog({
     const timer = setTimeout(() => {
       startTransition(async () => {
         const result = await previewTransactionAction(
-          selectedInstrument,
+          instId,
           selectedAccount,
           type,
           effectiveQuantity,
@@ -97,7 +105,7 @@ export function RecordTransactionDialog({
     }, 200);
 
     return () => clearTimeout(timer);
-  }, [selectedAccount, selectedInstrument, type, effectiveQuantity, unitPrice]);
+  }, [selectedAccount, selectedInstrument, isNewInstrument, type, effectiveQuantity, unitPrice]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -105,13 +113,21 @@ export function RecordTransactionDialog({
     setError(null);
 
     const formData = new FormData();
-    formData.append("instrumentId", selectedInstrument);
     formData.append("accountId", selectedAccount);
     formData.append("type", type);
     formData.append("tradeDate", tradeDate);
     formData.append("quantity", effectiveQuantity);
     formData.append("unitPrice", unitPrice);
     formData.append("note", note);
+
+    if (isNewInstrument) {
+      formData.append("instrumentId", "NEW");
+      formData.append("newSymbol", newSymbol);
+      formData.append("newName", newName || newSymbol);
+      formData.append("newAssetType", newAssetType);
+    } else {
+      formData.append("instrumentId", selectedInstrument);
+    }
 
     const result = await recordTransactionAction(formData);
 
@@ -121,6 +137,8 @@ export function RecordTransactionDialog({
       setQuantity("");
       setUnitPrice("");
       setNote("");
+      setNewSymbol("");
+      setNewName("");
       if (onSuccess) onSuccess();
     } else {
       setError(result.error || "Gagal mencatat transaksi");
@@ -181,12 +199,12 @@ export function RecordTransactionDialog({
               </div>
             )}
 
-            {accounts.length === 0 || instruments.length === 0 ? (
+            {accounts.length === 0 ? (
               <div className="mt-6 text-center py-6 border border-dashed border-[#CBD5E1] rounded-xl bg-slate-50 p-4">
                 <Info className="h-8 w-8 text-blue-500 mx-auto mb-2" />
-                <h4 className="text-sm font-semibold text-[#1E293B]">Setup Awal Diperlukan</h4>
+                <h4 className="text-sm font-semibold text-[#1E293B]">Akun Sekuritas/Bank Belum Ada</h4>
                 <p className="text-xs text-[#64748B] max-w-xs mx-auto mt-1">
-                  Harap tambahkan minimal 1 Akun Sekuritas/Bank dan 1 Instrumen Investasi terlebih dahulu sebelum mencatat transaksi.
+                  Harap tambahkan minimal 1 Akun Sekuritas atau Bank terlebih dahulu sebelum mencatat transaksi.
                 </p>
                 <div className="mt-4 flex justify-center gap-2">
                   <Button variant="outline" size="sm" onClick={() => setIsOpen(false)}>
@@ -224,33 +242,50 @@ export function RecordTransactionDialog({
                   </button>
                 </div>
 
-                {/* Account & Instrument Selectors */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="space-y-1.5">
+                {/* Account Selection */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
+                    Pilih Akun / Sekuritas
+                  </label>
+                  <select
+                    value={selectedAccount}
+                    onChange={(e) => setSelectedAccount(e.target.value)}
+                    required
+                    className="flex h-10 w-full rounded-lg border border-[#E4E8EF] bg-white px-3 py-2 text-sm text-[#1E293B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+                  >
+                    {accounts.map((acc) => (
+                      <option key={acc.id} value={acc.id}>
+                        {acc.name} ({acc.institution})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Instrument Section: Select from list or Quick Type */}
+                <div className="space-y-2 p-3 bg-[#F8FAFC] rounded-xl border border-[#E4E8EF]">
+                  <div className="flex items-center justify-between">
                     <label className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
-                      Pilih Akun / Sekuritas
+                      Instrumen Investasi
                     </label>
-                    <select
-                      value={selectedAccount}
-                      onChange={(e) => setSelectedAccount(e.target.value)}
-                      required
-                      className="flex h-10 w-full rounded-lg border border-[#E4E8EF] bg-white px-3 py-2 text-sm text-[#1E293B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+                    <button
+                      type="button"
+                      onClick={() => setIsNewInstrument(!isNewInstrument)}
+                      className="text-[11px] font-semibold text-blue-600 hover:underline"
                     >
-                      {accounts.map((acc) => (
-                        <option key={acc.id} value={acc.id}>
-                          {acc.name} ({acc.institution})
-                        </option>
-                      ))}
-                    </select>
+                      {isNewInstrument ? "← Pilih dari Daftar" : "+ Ketik Saham/Aset Baru"}
+                    </button>
                   </div>
 
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
-                      Pilih Instrumen
-                    </label>
+                  {!isNewInstrument && instruments.length > 0 ? (
                     <select
                       value={selectedInstrument}
-                      onChange={(e) => setSelectedInstrument(e.target.value)}
+                      onChange={(e) => {
+                        if (e.target.value === "NEW") {
+                          setIsNewInstrument(true);
+                        } else {
+                          setSelectedInstrument(e.target.value);
+                        }
+                      }}
                       required
                       className="flex h-10 w-full rounded-lg border border-[#E4E8EF] bg-white px-3 py-2 text-sm text-[#1E293B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 font-mono"
                     >
@@ -260,8 +295,46 @@ export function RecordTransactionDialog({
                           {inst.name}
                         </option>
                       ))}
+                      <option value="NEW">+ Tambah Saham/Aset Lain...</option>
                     </select>
-                  </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <span className="text-[11px] text-[#64748B] block mb-1">Ticker / Kode</span>
+                          <Input
+                            placeholder="Contoh: BBCA, BBRI, ANTAM"
+                            value={newSymbol}
+                            onChange={(e) => setNewSymbol(e.target.value.toUpperCase())}
+                            required={isNewInstrument}
+                            className="h-9 text-xs font-mono uppercase bg-white"
+                          />
+                        </div>
+                        <div>
+                          <span className="text-[11px] text-[#64748B] block mb-1">Kelas Aset</span>
+                          <select
+                            value={newAssetType}
+                            onChange={(e) => setNewAssetType(e.target.value)}
+                            className="flex h-9 w-full rounded-lg border border-[#E4E8EF] bg-white px-2 py-1 text-xs text-[#1E293B]"
+                          >
+                            <option value="stock">Saham (Stocks)</option>
+                            <option value="mutual_fund">Reksa Dana</option>
+                            <option value="gold">Emas Batangan</option>
+                            <option value="bond">Obligasi</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-[11px] text-[#64748B] block mb-1">Nama Perusahaan / Aset</span>
+                        <Input
+                          placeholder="Contoh: Bank Central Asia Tbk"
+                          value={newName}
+                          onChange={(e) => setNewName(e.target.value)}
+                          className="h-9 text-xs bg-white"
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Trade Date & Lot Toggle */}
@@ -357,7 +430,7 @@ export function RecordTransactionDialog({
                           <span className="text-[#64748B] block text-[11px]">Kuantitas Akhir</span>
                           <span className="font-bold font-mono text-sm text-[#1E293B]">
                             {formatNumber(preview.projectedQuantity || "0")}{" "}
-                            {isStock ? "lembar" : activeInstrument?.unit}
+                            {isStock ? "lembar" : activeInstrument?.unit || "unit"}
                           </span>
                         </div>
                         <div>

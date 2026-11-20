@@ -68,6 +68,25 @@ export async function previewTransactionAction(
 ) {
   const session = await requireAuth();
   try {
+    if (instrumentId === "NEW" || !instrumentId) {
+      const q = parseFloat(quantity || "0");
+      const p = parseFloat(unitPrice || "0");
+      if (q <= 0 || p <= 0) {
+        return { isValid: false, error: "Kuantitas dan harga satuan harus bernilai lebih dari 0" };
+      }
+      const gross = q * p;
+      return {
+        isValid: true,
+        grossAmount: gross.toString(),
+        currentQuantity: "0",
+        currentAverageCost: "0",
+        projectedQuantity: q.toString(),
+        projectedAverageCost: p.toFixed(4),
+        projectedTotalCostBasis: gross.toFixed(2),
+        projectedRealizedPL: "0",
+      };
+    }
+
     return await TransactionsService.previewTransaction(
       session.userId,
       instrumentId,
@@ -84,7 +103,7 @@ export async function previewTransactionAction(
 
 export async function recordTransactionAction(formData: FormData) {
   const session = await requireAuth();
-  const instrumentId = formData.get("instrumentId") as string;
+  let instrumentId = formData.get("instrumentId") as string;
   const accountId = formData.get("accountId") as string;
   const type = formData.get("type") as string;
   const tradeDate = formData.get("tradeDate") as string;
@@ -93,6 +112,24 @@ export async function recordTransactionAction(formData: FormData) {
   const note = formData.get("note") as string;
 
   try {
+    // If user created an instrument on the fly
+    if (instrumentId === "NEW") {
+      const newSymbol = (formData.get("newSymbol") as string)?.trim().toUpperCase() || "";
+      const newName = (formData.get("newName") as string)?.trim() || newSymbol;
+      const newAssetType = (formData.get("newAssetType") as string) || "stock";
+
+      if (!newName && !newSymbol) {
+        return { success: false, error: "Ticker atau nama instrumen baru wajib diisi" };
+      }
+
+      const created = await InstrumentsService.createInstrument(session.userId, {
+        name: newName,
+        symbol: newSymbol,
+        assetType: newAssetType,
+      });
+      instrumentId = created.id;
+    }
+
     const tx = await TransactionsService.recordTransaction(session.userId, {
       instrumentId,
       accountId,
