@@ -35,11 +35,11 @@ export function MobileNav() {
               key={item.name}
               href={item.href}
               className={cn(
-                "flex flex-col items-center justify-center gap-1 py-1 text-[11px] font-medium transition-colors",
+                "flex flex-col items-center justify-center gap-1 py-1 text-xs font-medium transition-colors",
                 isActive ? "text-primary font-semibold" : "text-muted-foreground hover:text-foreground"
               )}
             >
-              <Icon className="h-4 w-4" />
+              <Icon className="h-5 w-5" />
               <span>{item.name}</span>
             </Link>
           );
@@ -48,4 +48,3 @@ export function MobileNav() {
     </div>
   );
 }
-

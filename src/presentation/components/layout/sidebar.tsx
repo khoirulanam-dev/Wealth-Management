@@ -36,13 +36,13 @@ export function Sidebar() {
   return (
     <aside className="hidden lg:flex w-64 flex-col border-r border-border bg-card/60 backdrop-blur-md">
       {/* Brand Header */}
-      <div className="flex h-16 items-center gap-2 px-6 border-b border-border">
-        <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
+      <div className="flex h-16 items-center gap-2.5 px-6 border-b border-border">
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm">
           <ShieldCheck className="h-5 w-5" />
         </div>
         <div className="flex flex-col">
           <span className="text-sm font-bold tracking-tight text-foreground">WEALTH OS</span>
-          <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Private Terminal</span>
+          <span className="text-xs text-muted-foreground tracking-normal">Wealth Management</span>
         </div>
       </div>
 
@@ -74,9 +74,9 @@ export function Sidebar() {
       {/* Footer Info */}
       <div className="p-4 border-t border-border text-xs text-muted-foreground">
         <div className="flex items-center justify-between">
-          <span>Mode: Private</span>
-          <span className="inline-flex items-center gap-1">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+          <span>Private Mode</span>
+          <span className="inline-flex items-center gap-1.5 font-medium">
+            <span className="h-2 w-2 rounded-full bg-emerald-500" />
             Online
           </span>
         </div>
@@ -84,4 +84,3 @@ export function Sidebar() {
     </aside>
   );
 }
-
