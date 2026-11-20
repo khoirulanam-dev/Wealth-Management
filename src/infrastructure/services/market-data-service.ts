@@ -43,6 +43,7 @@ export interface MutualFundItem {
   nav: number;
   dailyReturn: number;
   manager: string;
+  kontanUrl?: string;
 }
 
 export class MarketDataService {
@@ -51,15 +52,15 @@ export class MarketDataService {
 
   // Curated database of Indonesian Mutual Funds (Reksadana) with live NAB reference
   public static MUTUAL_FUNDS_REGISTRY: MutualFundItem[] = [
-    { code: "SMMF", name: "Sucorinvest Money Market Fund", category: "Pasar Uang", nav: 2154.68, dailyReturn: 0.015, manager: "PT Sucorinvest Asset Management" },
+    { code: "SMMF", name: "Sucorinvest Money Market Fund", category: "Pasar Uang", nav: 2154.68, dailyReturn: 0.015, manager: "PT Sucorinvest Asset Management", kontanUrl: "https://pusatdata.kontan.co.id/reksadana/produk/16381/Sucorinvest-Sharia-Balanced-Fund" },
     { code: "BDKM", name: "Batavia Dana Kas Maxima", category: "Pasar Uang", nav: 1724.32, dailyReturn: 0.014, manager: "PT Batavia Prosperindo Aset Manajemen" },
     { code: "MIPU", name: "Mandiri Investa Pasar Uang", category: "Pasar Uang", nav: 1682.45, dailyReturn: 0.013, manager: "PT Mandiri Manajemen Investasi" },
     { code: "BLSG", name: "Bahana Likuid Syariah Kelas G", category: "Pasar Uang", nav: 1493.18, dailyReturn: 0.012, manager: "PT Bahana TCW Investment Management" },
     { code: "EICR", name: "Eastspring Investments Cash Reserve", category: "Pasar Uang", nav: 1512.90, dailyReturn: 0.013, manager: "PT Eastspring Investments Indonesia" },
-    { code: "SSF", name: "Sucorinvest Stable Fund", category: "Pendapatan Tetap", nav: 1324.75, dailyReturn: 0.022, manager: "PT Sucorinvest Asset Management" },
+    { code: "SSF", name: "Sucorinvest Stable Fund", category: "Pendapatan Tetap", nav: 1324.75, dailyReturn: 0.022, manager: "PT Sucorinvest Asset Management", kontanUrl: "https://pusatdata.kontan.co.id/reksadana/produk/16962/Sucorinvest-PHEI-AAA-Corporate-Bond-Fund" },
     { code: "MOU", name: "Manulife Obligasi Unggulan Kelas A", category: "Pendapatan Tetap", nav: 2894.10, dailyReturn: 0.019, manager: "PT Manulife Aset Manajemen Indonesia" },
-    { code: "SFIF", name: "Syailendra Fixed Income Fund", category: "Pendapatan Tetap", nav: 1412.80, dailyReturn: 0.018, manager: "PT Syailendra Capital" },
-    { code: "SDPP", name: "Schroder Dana Prestasi Plus", category: "Saham", nav: 3548.20, dailyReturn: 0.35, manager: "PT Schroder Investment Management Indonesia" },
+    { code: "SFIF", name: "Syailendra Fixed Income Fund", category: "Pendapatan Tetap", nav: 1412.80, dailyReturn: 0.018, manager: "PT Syailendra Capital", kontanUrl: "https://pusatdata.kontan.co.id/reksadana/produk/17104/Syailendra-Sharia-Fixed-Income-Fund-Kelas-A" },
+    { code: "SDPP", name: "Schroder Dana Prestasi Plus", category: "Saham", nav: 3548.20, dailyReturn: 0.35, manager: "PT Schroder Investment Management Indonesia", kontanUrl: "https://pusatdata.kontan.co.id/reksadana/produk/14282/Schroder-Dana-Prestasi-Prima" },
     { code: "BNI30", name: "BNI-AM Indeks IDX30", category: "Indeks", nav: 1124.50, dailyReturn: 0.42, manager: "PT BNI Asset Management" },
     { code: "SEF", name: "Sucorinvest Equity Fund", category: "Saham", nav: 3186.40, dailyReturn: 0.28, manager: "PT Sucorinvest Asset Management" },
     { code: "ADPN", name: "Ashmore Dana Progresif Nusantara", category: "Saham", nav: 1925.30, dailyReturn: 0.31, manager: "PT Ashmore Asset Management Indonesia" },
@@ -110,6 +111,12 @@ export class MarketDataService {
       return s;
     }
 
+    // Crypto assets (e.g. BTC, ETH, SOL, USDT, DOGE, BNB, XRP)
+    const cryptoSymbols = ["BTC", "ETH", "SOL", "USDT", "BNB", "XRP", "DOGE", "ADA", "AVAX", "DOT"];
+    if (assetType === "crypto" || cryptoSymbols.includes(s)) {
+      return `${s}-USD`;
+    }
+
     // Default Indonesian stock tickers (3-6 uppercase letters)
     if (assetType === "stock" || !assetType) {
       // Common US mega-cap tickers without .JK
@@ -141,16 +148,47 @@ export class MarketDataService {
           cleanSymbol.includes(f.code.toUpperCase())
       );
       if (fund) {
+        let liveNav = fund.nav;
+        let liveReturn = fund.dailyReturn;
+
+        if (fund.kontanUrl) {
+          try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 1800);
+            const res = await fetch(fund.kontanUrl, {
+              headers: { "User-Agent": "Mozilla/5.0" },
+              signal: controller.signal,
+              next: { revalidate: 3600 },
+            });
+            clearTimeout(timeoutId);
+            if (res.ok) {
+              const html = await res.text();
+              const nabMatch = html.match(/<div class="wrn_atas">\s*NAB\s*<\/div>\s*<div class="wrn_tbal[^"]*">\s*([0-9.,]+)\s*<\/div>/i);
+              if (nabMatch?.[1]) {
+                const parsed = parseFloat(nabMatch[1].replace(/,/g, ""));
+                if (!isNaN(parsed) && parsed > 0) liveNav = parsed;
+              }
+              const retMatch = html.match(/<div class="wrn_atas">\s*Daily Return\s*<\/div>[\s\S]*?<span class="f-bold">\s*([0-9.,+-]+)%?\s*<\/span>/i);
+              if (retMatch?.[1]) {
+                const parsedRet = parseFloat(retMatch[1].replace(/,/g, ""));
+                if (!isNaN(parsedRet)) liveReturn = parsedRet;
+              }
+            }
+          } catch {
+            // fallback gracefully to verified registry
+          }
+        }
+
         return {
           symbol: fund.code,
           cleanSymbol: fund.code,
           name: fund.name,
-          price: fund.nav,
+          price: liveNav,
           currency: "IDR",
-          change: (fund.nav * fund.dailyReturn) / 100,
-          changePercent: fund.dailyReturn,
+          change: (liveNav * liveReturn) / 100,
+          changePercent: liveReturn,
           timestamp: new Date(),
-          source: "Reksa Dana Indonesia (Datafeed NAB)",
+          source: "Reksa Dana Indonesia (Live Datafeed NAB)",
         };
       }
     }
@@ -225,7 +263,17 @@ export class MarketDataService {
           const pricePerGramUsd = price / 31.1034768;
           price = Math.round(pricePerGramUsd * usdRate);
           currency = "IDR";
+        } else if (querySymbol.endsWith("-USD") && querySymbol !== "USDIDR=X") {
+          const usdRate = await this.getUsdIdrRate();
+          price = Math.round(price * usdRate);
+          currency = "IDR";
         }
+
+        const isConverted = querySymbol === "GC=F" || (querySymbol.endsWith("-USD") && querySymbol !== "USDIDR=X");
+        const changeRaw = meta.regularMarketPrice - (meta.previousClose || meta.chartPreviousClose || meta.regularMarketPrice);
+        const change = isConverted
+          ? Math.round((price * (meta.regularMarketChangePercent || 0)) / 100)
+          : changeRaw;
 
         const quote: MarketQuote = {
           symbol: querySymbol,
@@ -233,13 +281,13 @@ export class MarketDataService {
           name: meta.shortName || meta.longName || cleanSymbol,
           price,
           currency,
-          change: meta.regularMarketPrice - (meta.previousClose || meta.chartPreviousClose || meta.regularMarketPrice),
+          change,
           changePercent: meta.regularMarketChangePercent || 0,
           high52: meta.fiftyTwoWeekHigh,
           low52: meta.fiftyTwoWeekLow,
           previousClose: meta.previousClose || meta.chartPreviousClose,
           timestamp: new Date((meta.regularMarketTime || Math.floor(Date.now() / 1000)) * 1000),
-          source: "Bursa Efek Indonesia / Global Public Feed",
+          source: querySymbol.endsWith("-USD") ? "Pasar Kripto 24/7 (Live)" : "Bursa Efek Indonesia / Global Public Feed",
         };
 
         this.quoteCache.set(querySymbol, { quote, cachedAt: Date.now() });

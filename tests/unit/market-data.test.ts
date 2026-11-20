@@ -19,6 +19,10 @@ describe("MarketDataService Unit Tests", () => {
     // Gold commodities
     expect(MarketDataService.resolveQuerySymbol("ANTAM", "gold")).toBe("GC=F");
     expect(MarketDataService.resolveQuerySymbol("GOLD", "gold")).toBe("GC=F");
+
+    // Crypto assets
+    expect(MarketDataService.resolveQuerySymbol("BTC", "crypto")).toBe("BTC-USD");
+    expect(MarketDataService.resolveQuerySymbol("ETH", "crypto")).toBe("ETH-USD");
   });
 
   it("provides curated Indonesian stocks with valid structure", () => {
