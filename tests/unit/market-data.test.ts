@@ -3,9 +3,13 @@ import { MarketDataService } from "@/infrastructure/services/market-data-service
 
 describe("MarketDataService Unit Tests", () => {
   it("resolves ticker symbols appropriately for IDX and global markets", () => {
-    // IDX stocks should append .JK if not present
+    // IDX stocks should append .JK if not present (covers all small/mid/mega caps)
     expect(MarketDataService.resolveQuerySymbol("BBCA", "stock")).toBe("BBCA.JK");
     expect(MarketDataService.resolveQuerySymbol("BBRI", "stock")).toBe("BBRI.JK");
+    expect(MarketDataService.resolveQuerySymbol("BREN", "stock")).toBe("BREN.JK");
+    expect(MarketDataService.resolveQuerySymbol("CUAN", "stock")).toBe("CUAN.JK");
+    expect(MarketDataService.resolveQuerySymbol("AALI", "stock")).toBe("AALI.JK");
+    expect(MarketDataService.resolveQuerySymbol("ZYRX", "stock")).toBe("ZYRX.JK");
     expect(MarketDataService.resolveQuerySymbol("TLKM.JK", "stock")).toBe("TLKM.JK");
 
     // US stocks should remain as-is
