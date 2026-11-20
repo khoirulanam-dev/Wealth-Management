@@ -4,8 +4,16 @@ import { useState } from "react";
 import { Building2, Pencil, Trash2, Loader2, X, AlertCircle } from "lucide-react";
 import { Button } from "@/presentation/components/ui/button";
 import { Input } from "@/presentation/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/presentation/components/ui/select";
 import { updateAccountAction, deleteAccountAction } from "@/app/actions/portfolio-actions";
 import { AccountDialog } from "./account-dialog";
+import { useToast } from "@/presentation/components/ui/toast";
 
 export interface AccountItem {
   id: string;
@@ -23,10 +31,22 @@ interface AccountsTableProps {
 
 export function AccountsTable({ accounts }: AccountsTableProps) {
   const [editingAccount, setEditingAccount] = useState<AccountItem | null>(null);
+  const [editAccountType, setEditAccountType] = useState("broker");
+  const [editCurrency, setEditCurrency] = useState("IDR");
+
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const toast = useToast();
+
+  function startEditing(acc: AccountItem) {
+    setEditingAccount(acc);
+    setEditAccountType(acc.accountType || "broker");
+    setEditCurrency(acc.currency || "IDR");
+    setError(null);
+  }
 
   async function handleUpdate(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -35,22 +55,33 @@ export function AccountsTable({ accounts }: AccountsTableProps) {
     setError(null);
 
     const formData = new FormData(e.currentTarget);
+    formData.set("accountType", editAccountType);
+    formData.set("currency", editCurrency);
+
     const result = await updateAccountAction(editingAccount.id, formData);
 
     if (result.success) {
       setIsSubmitting(false);
       setEditingAccount(null);
+      toast.success("Perubahan akun berhasil disimpan!", "Data akun telah diperbarui di database.");
     } else {
       setError(result.error || "Gagal memperbarui akun");
+      toast.error("Gagal memperbarui akun", result.error);
       setIsSubmitting(false);
     }
   }
 
   async function handleDelete(id: string) {
     setDeletingId(id);
-    await deleteAccountAction(id);
+    const result = await deleteAccountAction(id);
     setDeletingId(null);
     setConfirmDeleteId(null);
+
+    if (result.success) {
+      toast.success("Akun berhasil dihapus!", "Akun finansial telah dihapus dari database.");
+    } else {
+      toast.error("Gagal menghapus akun", result.error);
+    }
   }
 
   if (accounts.length === 0) {
@@ -117,7 +148,7 @@ export function AccountsTable({ accounts }: AccountsTableProps) {
                           <button
                             disabled={deletingId === acc.id}
                             onClick={() => handleDelete(acc.id)}
-                            className="rounded bg-red-600 px-2 py-1 text-[10px] font-bold text-white hover:bg-red-700"
+                            className="rounded bg-red-600 px-2.5 py-1 text-[11px] font-bold text-white hover:bg-red-700"
                           >
                             {deletingId === acc.id ? (
                               <Loader2 className="h-3 w-3 animate-spin" />
@@ -127,7 +158,7 @@ export function AccountsTable({ accounts }: AccountsTableProps) {
                           </button>
                           <button
                             onClick={() => setConfirmDeleteId(null)}
-                            className="rounded bg-slate-200 px-2 py-1 text-[10px] text-slate-700 hover:bg-slate-300"
+                            className="rounded bg-slate-200 px-2 py-1 text-[11px] text-slate-700 hover:bg-slate-300"
                           >
                             Batal
                           </button>
@@ -135,7 +166,7 @@ export function AccountsTable({ accounts }: AccountsTableProps) {
                       ) : (
                         <>
                           <button
-                            onClick={() => setEditingAccount(acc)}
+                            onClick={() => startEditing(acc)}
                             title="Edit Akun"
                             className="p-1.5 rounded-lg text-[#64748B] hover:text-blue-600 hover:bg-blue-50 transition-colors"
                           >
@@ -213,32 +244,34 @@ export function AccountsTable({ accounts }: AccountsTableProps) {
                   <label className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
                     Tipe Platform
                   </label>
-                  <select
-                    name="accountType"
-                    defaultValue={editingAccount.accountType}
-                    className="flex h-10 w-full rounded-lg border border-[#E4E8EF] bg-white px-3 py-2 text-sm text-[#1E293B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
-                  >
-                    <option value="broker">Sekuritas Saham</option>
-                    <option value="mutual_fund_platform">Platform Reksa Dana</option>
-                    <option value="gold_platform">Platform Emas</option>
-                    <option value="bank">Rekening Bank</option>
-                    <option value="e_wallet">Dompet Digital</option>
-                    <option value="manual">Penyimpanan Fisik / Manual</option>
-                  </select>
+                  <Select value={editAccountType} onValueChange={setEditAccountType}>
+                    <SelectTrigger className="h-10">
+                      <SelectValue placeholder="Pilih tipe" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="broker">Sekuritas Saham</SelectItem>
+                      <SelectItem value="mutual_fund_platform">Platform Reksa Dana</SelectItem>
+                      <SelectItem value="gold_platform">Platform Emas</SelectItem>
+                      <SelectItem value="bank">Rekening Bank</SelectItem>
+                      <SelectItem value="e_wallet">Dompet Digital</SelectItem>
+                      <SelectItem value="manual">Penyimpanan Fisik / Manual</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
                     Mata Uang
                   </label>
-                  <select
-                    name="currency"
-                    defaultValue={editingAccount.currency}
-                    className="flex h-10 w-full rounded-lg border border-[#E4E8EF] bg-white px-3 py-2 text-sm text-[#1E293B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
-                  >
-                    <option value="IDR">IDR (Rupiah)</option>
-                    <option value="USD">USD (US Dollar)</option>
-                  </select>
+                  <Select value={editCurrency} onValueChange={setEditCurrency}>
+                    <SelectTrigger className="h-10">
+                      <SelectValue placeholder="Pilih mata uang" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="IDR">IDR (Rupiah)</SelectItem>
+                      <SelectItem value="USD">USD (US Dollar)</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 

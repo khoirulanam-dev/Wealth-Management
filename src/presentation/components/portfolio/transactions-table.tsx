@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ArrowDownRight, ArrowUpRight, Ban, Loader2 } from "lucide-react";
 import { formatCurrency, formatNumber } from "@/lib/decimal";
+import { useToast } from "@/presentation/components/ui/toast";
 import { voidTransactionAction } from "@/app/actions/portfolio-actions";
 
 export interface TransactionItem {
@@ -33,10 +34,16 @@ interface TransactionsTableProps {
 export function TransactionsTable({ transactions }: TransactionsTableProps) {
   const [voidingId, setVoidingId] = useState<string | null>(null);
   const [confirmId, setConfirmId] = useState<string | null>(null);
+  const { toast } = useToast();
 
   async function handleVoid(id: string) {
     setVoidingId(id);
-    await voidTransactionAction(id);
+    const result = await voidTransactionAction(id);
+    if (result.success) {
+      toast.success("Transaksi berhasil dibatalkan (voided)!");
+    } else {
+      toast.error(result.error || "Gagal membatalkan transaksi");
+    }
     setVoidingId(null);
     setConfirmId(null);
   }

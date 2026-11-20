@@ -4,6 +4,14 @@ import { useState } from "react";
 import { LineChart, Pencil, Trash2, Loader2, X, AlertCircle } from "lucide-react";
 import { Button } from "@/presentation/components/ui/button";
 import { Input } from "@/presentation/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/presentation/components/ui/select";
+import { useToast } from "@/presentation/components/ui/toast";
 import { updateInstrumentAction, deleteInstrumentAction } from "@/app/actions/portfolio-actions";
 import { InstrumentDialog } from "./instrument-dialog";
 
@@ -24,10 +32,18 @@ interface InstrumentsTableProps {
 
 export function InstrumentsTable({ instruments }: InstrumentsTableProps) {
   const [editingInstrument, setEditingInstrument] = useState<InstrumentItem | null>(null);
+  const [editAssetType, setEditAssetType] = useState<string>("stock");
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  const openEditModal = (inst: InstrumentItem) => {
+    setEditingInstrument(inst);
+    setEditAssetType(inst.assetType);
+    setError(null);
+  };
 
   async function handleUpdate(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -36,20 +52,30 @@ export function InstrumentsTable({ instruments }: InstrumentsTableProps) {
     setError(null);
 
     const formData = new FormData(e.currentTarget);
+    formData.set("assetType", editAssetType);
+
     const result = await updateInstrumentAction(editingInstrument.id, formData);
 
     if (result.success) {
+      toast.success("Instrumen berhasil diperbarui!");
       setIsSubmitting(false);
       setEditingInstrument(null);
     } else {
-      setError(result.error || "Gagal memperbarui instrumen");
+      const errMsg = result.error || "Gagal memperbarui instrumen";
+      setError(errMsg);
+      toast.error(errMsg);
       setIsSubmitting(false);
     }
   }
 
   async function handleDelete(id: string) {
     setDeletingId(id);
-    await deleteInstrumentAction(id);
+    const result = await deleteInstrumentAction(id);
+    if (result.success) {
+      toast.success("Instrumen berhasil dihapus!");
+    } else {
+      toast.error(result.error || "Gagal menghapus instrumen");
+    }
     setDeletingId(null);
     setConfirmDeleteId(null);
   }
@@ -136,7 +162,7 @@ export function InstrumentsTable({ instruments }: InstrumentsTableProps) {
                       ) : (
                         <>
                           <button
-                            onClick={() => setEditingInstrument(inst)}
+                            onClick={() => openEditModal(inst)}
                             title="Edit Instrumen"
                             className="p-1.5 rounded-lg text-[#64748B] hover:text-blue-600 hover:bg-blue-50 transition-colors"
                           >
@@ -226,17 +252,18 @@ export function InstrumentsTable({ instruments }: InstrumentsTableProps) {
                   <label className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
                     Kelas Aset
                   </label>
-                  <select
-                    name="assetType"
-                    defaultValue={editingInstrument.assetType}
-                    className="flex h-10 w-full rounded-lg border border-[#E4E8EF] bg-white px-3 py-2 text-sm text-[#1E293B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
-                  >
-                    <option value="stock">Saham (Stocks)</option>
-                    <option value="mutual_fund">Reksa Dana</option>
-                    <option value="gold">Emas Fisik</option>
-                    <option value="bond">Obligasi</option>
-                    <option value="deposit">Deposito</option>
-                  </select>
+                  <Select value={editAssetType} onValueChange={setEditAssetType}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Pilih kelas aset" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="stock">Saham (Stocks)</SelectItem>
+                      <SelectItem value="mutual_fund">Reksa Dana</SelectItem>
+                      <SelectItem value="gold">Emas Fisik</SelectItem>
+                      <SelectItem value="bond">Obligasi</SelectItem>
+                      <SelectItem value="deposit">Deposito</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-1.5">

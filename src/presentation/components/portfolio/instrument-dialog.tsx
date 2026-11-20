@@ -4,6 +4,14 @@ import { useState } from "react";
 import { Plus, LineChart, AlertCircle, Loader2, X } from "lucide-react";
 import { Button } from "@/presentation/components/ui/button";
 import { Input } from "@/presentation/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/presentation/components/ui/select";
+import { useToast } from "@/presentation/components/ui/toast";
 import { createInstrumentAction } from "@/app/actions/portfolio-actions";
 
 export function InstrumentDialog({ onInstrumentCreated }: { onInstrumentCreated?: () => void }) {
@@ -11,6 +19,17 @@ export function InstrumentDialog({ onInstrumentCreated }: { onInstrumentCreated?
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [assetType, setAssetType] = useState("stock");
+  const [unit, setUnit] = useState("share");
+  const [currency, setCurrency] = useState("IDR");
+  const { toast } = useToast();
+
+  const handleAssetTypeChange = (val: string) => {
+    setAssetType(val);
+    if (val === "stock") setUnit("share");
+    else if (val === "gold") setUnit("gram");
+    else if (val === "mutual_fund") setUnit("unit");
+    else setUnit("nominal");
+  };
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -18,14 +37,21 @@ export function InstrumentDialog({ onInstrumentCreated }: { onInstrumentCreated?
     setError(null);
 
     const formData = new FormData(e.currentTarget);
+    formData.set("assetType", assetType);
+    formData.set("unit", unit);
+    formData.set("currency", currency);
+
     const result = await createInstrumentAction(formData);
 
     if (result.success) {
+      toast.success("Instrumen investasi berhasil ditambahkan!");
       setIsLoading(false);
       setIsOpen(false);
       if (onInstrumentCreated) onInstrumentCreated();
     } else {
-      setError(result.error || "Gagal membuat instrumen");
+      const errMsg = result.error || "Gagal membuat instrumen";
+      setError(errMsg);
+      toast.error(errMsg);
       setIsLoading(false);
     }
   }
@@ -77,18 +103,18 @@ export function InstrumentDialog({ onInstrumentCreated }: { onInstrumentCreated?
                 <label className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
                   Kelas Aset
                 </label>
-                <select
-                  name="assetType"
-                  value={assetType}
-                  onChange={(e) => setAssetType(e.target.value)}
-                  className="flex h-10 w-full rounded-lg border border-[#E4E8EF] bg-white px-3 py-2 text-sm text-[#1E293B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
-                >
-                  <option value="stock">Saham (Stocks)</option>
-                  <option value="mutual_fund">Reksa Dana (Mutual Fund)</option>
-                  <option value="gold">Emas Batangan / Fisik (Gold)</option>
-                  <option value="bond">Obligasi / Surat Berharga Negara</option>
-                  <option value="deposit">Deposito Berjangka</option>
-                </select>
+                <Select value={assetType} onValueChange={handleAssetTypeChange}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Pilih kelas aset" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="stock">Saham (Stocks)</SelectItem>
+                    <SelectItem value="mutual_fund">Reksa Dana (Mutual Fund)</SelectItem>
+                    <SelectItem value="gold">Emas Batangan / Fisik (Gold)</SelectItem>
+                    <SelectItem value="bond">Obligasi / SBN</SelectItem>
+                    <SelectItem value="deposit">Deposito Berjangka</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -146,38 +172,32 @@ export function InstrumentDialog({ onInstrumentCreated }: { onInstrumentCreated?
                   <label className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
                     Satuan Unit
                   </label>
-                  <select
-                    name="unit"
-                    defaultValue={
-                      assetType === "stock"
-                        ? "share"
-                        : assetType === "gold"
-                        ? "gram"
-                        : assetType === "mutual_fund"
-                        ? "unit"
-                        : "nominal"
-                    }
-                    className="flex h-10 w-full rounded-lg border border-[#E4E8EF] bg-white px-3 py-2 text-sm text-[#1E293B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
-                  >
-                    <option value="share">Lembar Saham (Shares)</option>
-                    <option value="unit">Unit Penyertaan</option>
-                    <option value="gram">Gram (Emas)</option>
-                    <option value="nominal">Nominal Rupiah</option>
-                  </select>
+                  <Select value={unit} onValueChange={setUnit}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Pilih satuan" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="share">Lembar Saham (Shares)</SelectItem>
+                      <SelectItem value="unit">Unit Penyertaan</SelectItem>
+                      <SelectItem value="gram">Gram (Emas)</SelectItem>
+                      <SelectItem value="nominal">Nominal Rupiah</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
                     Mata Uang
                   </label>
-                  <select
-                    name="currency"
-                    defaultValue="IDR"
-                    className="flex h-10 w-full rounded-lg border border-[#E4E8EF] bg-white px-3 py-2 text-sm text-[#1E293B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
-                  >
-                    <option value="IDR">IDR (Rupiah)</option>
-                    <option value="USD">USD (US Dollar)</option>
-                  </select>
+                  <Select value={currency} onValueChange={setCurrency}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Pilih mata uang" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="IDR">IDR (Rupiah)</SelectItem>
+                      <SelectItem value="USD">USD (US Dollar)</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 

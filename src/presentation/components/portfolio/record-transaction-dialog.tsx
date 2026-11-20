@@ -4,6 +4,14 @@ import { useState, useEffect, useTransition } from "react";
 import { Plus, ArrowDownRight, ArrowUpRight, AlertCircle, Loader2, X, Calculator, Info } from "lucide-react";
 import { Button } from "@/presentation/components/ui/button";
 import { Input } from "@/presentation/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/presentation/components/ui/select";
+import { useToast } from "@/presentation/components/ui/toast";
 import { recordTransactionAction, previewTransactionAction } from "@/app/actions/portfolio-actions";
 import { formatCurrency, formatNumber } from "@/lib/decimal";
 
@@ -43,6 +51,7 @@ export function RecordTransactionDialog({
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   // Form states
   const [selectedAccount, setSelectedAccount] = useState(defaultAccountId || accounts[0]?.id || "");
@@ -132,6 +141,7 @@ export function RecordTransactionDialog({
     const result = await recordTransactionAction(formData);
 
     if (result.success) {
+      toast.success("Transaksi investasi berhasil dicatat ke portfolio!");
       setIsSubmitting(false);
       setIsOpen(false);
       setQuantity("");
@@ -141,7 +151,9 @@ export function RecordTransactionDialog({
       setNewName("");
       if (onSuccess) onSuccess();
     } else {
-      setError(result.error || "Gagal mencatat transaksi");
+      const errMsg = result.error || "Gagal mencatat transaksi";
+      setError(errMsg);
+      toast.error(errMsg);
       setIsSubmitting(false);
     }
   }
@@ -247,18 +259,18 @@ export function RecordTransactionDialog({
                   <label className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
                     Pilih Akun / Sekuritas
                   </label>
-                  <select
-                    value={selectedAccount}
-                    onChange={(e) => setSelectedAccount(e.target.value)}
-                    required
-                    className="flex h-10 w-full rounded-lg border border-[#E4E8EF] bg-white px-3 py-2 text-sm text-[#1E293B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
-                  >
-                    {accounts.map((acc) => (
-                      <option key={acc.id} value={acc.id}>
-                        {acc.name} ({acc.institution})
-                      </option>
-                    ))}
-                  </select>
+                  <Select value={selectedAccount} onValueChange={setSelectedAccount}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Pilih akun sekuritas / bank" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {accounts.map((acc) => (
+                        <SelectItem key={acc.id} value={acc.id}>
+                          {acc.name} ({acc.institution})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 {/* Instrument Section: Select from list or Quick Type */}
@@ -277,26 +289,29 @@ export function RecordTransactionDialog({
                   </div>
 
                   {!isNewInstrument && instruments.length > 0 ? (
-                    <select
+                    <Select
                       value={selectedInstrument}
-                      onChange={(e) => {
-                        if (e.target.value === "NEW") {
+                      onValueChange={(val) => {
+                        if (val === "NEW") {
                           setIsNewInstrument(true);
                         } else {
-                          setSelectedInstrument(e.target.value);
+                          setSelectedInstrument(val);
                         }
                       }}
-                      required
-                      className="flex h-10 w-full rounded-lg border border-[#E4E8EF] bg-white px-3 py-2 text-sm text-[#1E293B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 font-mono"
                     >
-                      {instruments.map((inst) => (
-                        <option key={inst.id} value={inst.id}>
-                          {inst.symbol ? `${inst.symbol} - ` : ""}
-                          {inst.name}
-                        </option>
-                      ))}
-                      <option value="NEW">+ Tambah Saham/Aset Lain...</option>
-                    </select>
+                      <SelectTrigger className="w-full font-mono">
+                        <SelectValue placeholder="Pilih instrumen" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {instruments.map((inst) => (
+                          <SelectItem key={inst.id} value={inst.id}>
+                            {inst.symbol ? `${inst.symbol} - ` : ""}
+                            {inst.name}
+                          </SelectItem>
+                        ))}
+                        <SelectItem value="NEW">+ Tambah Saham/Aset Lain...</SelectItem>
+                      </SelectContent>
+                    </Select>
                   ) : (
                     <div className="space-y-2">
                       <div className="grid grid-cols-2 gap-2">
@@ -312,16 +327,17 @@ export function RecordTransactionDialog({
                         </div>
                         <div>
                           <span className="text-[11px] text-[#64748B] block mb-1">Kelas Aset</span>
-                          <select
-                            value={newAssetType}
-                            onChange={(e) => setNewAssetType(e.target.value)}
-                            className="flex h-9 w-full rounded-lg border border-[#E4E8EF] bg-white px-2 py-1 text-xs text-[#1E293B]"
-                          >
-                            <option value="stock">Saham (Stocks)</option>
-                            <option value="mutual_fund">Reksa Dana</option>
-                            <option value="gold">Emas Batangan</option>
-                            <option value="bond">Obligasi</option>
-                          </select>
+                          <Select value={newAssetType} onValueChange={setNewAssetType}>
+                            <SelectTrigger className="h-9 text-xs bg-white">
+                              <SelectValue placeholder="Pilih aset" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="stock">Saham (Stocks)</SelectItem>
+                              <SelectItem value="mutual_fund">Reksa Dana</SelectItem>
+                              <SelectItem value="gold">Emas Batangan</SelectItem>
+                              <SelectItem value="bond">Obligasi</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </div>
                       </div>
                       <div>

@@ -4,12 +4,25 @@ import { useState } from "react";
 import { Plus, Building2, AlertCircle, Loader2, X } from "lucide-react";
 import { Button } from "@/presentation/components/ui/button";
 import { Input } from "@/presentation/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/presentation/components/ui/select";
 import { createAccountAction } from "@/app/actions/portfolio-actions";
+import { useToast } from "@/presentation/components/ui/toast";
 
 export function AccountDialog({ onAccountCreated }: { onAccountCreated?: () => void }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const [accountType, setAccountType] = useState("broker");
+  const [currency, setCurrency] = useState("IDR");
+
+  const toast = useToast();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -17,14 +30,20 @@ export function AccountDialog({ onAccountCreated }: { onAccountCreated?: () => v
     setError(null);
 
     const formData = new FormData(e.currentTarget);
+    formData.set("accountType", accountType);
+    formData.set("currency", currency);
+
     const result = await createAccountAction(formData);
 
     if (result.success) {
       setIsLoading(false);
       setIsOpen(false);
+      const name = formData.get("name") as string;
+      toast.success("Akun finansial berhasil ditambahkan!", `${name} telah tersimpan dan siap digunakan.`);
       if (onAccountCreated) onAccountCreated();
     } else {
       setError(result.error || "Gagal membuat akun");
+      toast.error("Gagal menambahkan akun", result.error);
       setIsLoading(false);
     }
   }
@@ -47,9 +66,7 @@ export function AccountDialog({ onAccountCreated }: { onAccountCreated?: () => v
             {/* Header */}
             <div className="flex items-center justify-between pb-4 border-b border-[#E4E8EF]">
               <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
-                  <Building2 className="h-5 w-5" />
-                </div>
+                <Building2 className="h-5 w-5 text-blue-600" />
                 <div>
                   <h3 className="text-base font-bold text-[#1E293B]">Tambah Akun Finansial</h3>
                   <p className="text-xs text-[#64748B]">Sekuritas, platform reksa dana, bank, atau emas</p>
@@ -101,32 +118,34 @@ export function AccountDialog({ onAccountCreated }: { onAccountCreated?: () => v
                   <label className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
                     Tipe Platform
                   </label>
-                  <select
-                    name="accountType"
-                    className="flex h-10 w-full rounded-lg border border-[#E4E8EF] bg-white px-3 py-2 text-sm text-[#1E293B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
-                    defaultValue="broker"
-                  >
-                    <option value="broker">Sekuritas Saham</option>
-                    <option value="mutual_fund_platform">Platform Reksa Dana</option>
-                    <option value="gold_platform">Platform Emas</option>
-                    <option value="bank">Rekening Bank</option>
-                    <option value="e_wallet">Dompet Digital</option>
-                    <option value="manual">Penyimpanan Fisik / Manual</option>
-                  </select>
+                  <Select value={accountType} onValueChange={setAccountType}>
+                    <SelectTrigger className="h-10">
+                      <SelectValue placeholder="Pilih tipe" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="broker">Sekuritas Saham</SelectItem>
+                      <SelectItem value="mutual_fund_platform">Platform Reksa Dana</SelectItem>
+                      <SelectItem value="gold_platform">Platform Emas</SelectItem>
+                      <SelectItem value="bank">Rekening Bank</SelectItem>
+                      <SelectItem value="e_wallet">Dompet Digital</SelectItem>
+                      <SelectItem value="manual">Penyimpanan Fisik / Manual</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
                     Mata Uang
                   </label>
-                  <select
-                    name="currency"
-                    className="flex h-10 w-full rounded-lg border border-[#E4E8EF] bg-white px-3 py-2 text-sm text-[#1E293B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
-                    defaultValue="IDR"
-                  >
-                    <option value="IDR">IDR (Rupiah)</option>
-                    <option value="USD">USD (US Dollar)</option>
-                  </select>
+                  <Select value={currency} onValueChange={setCurrency}>
+                    <SelectTrigger className="h-10">
+                      <SelectValue placeholder="Pilih mata uang" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="IDR">IDR (Rupiah)</SelectItem>
+                      <SelectItem value="USD">USD (US Dollar)</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
