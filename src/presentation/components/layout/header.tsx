@@ -1,6 +1,7 @@
 "use client";
 
-import { LogOut, Plus, RefreshCw } from "lucide-react";
+import Link from "next/link";
+import { LogOut, User } from "lucide-react";
 import { Button } from "@/presentation/components/ui/button";
 import { logoutAction } from "@/app/actions/auth-actions";
 
@@ -23,27 +24,32 @@ export function Header({ title = "Ringkasan Portofolio", currency = "IDR" }: Hea
 
       {/* Right Controls */}
       <div className="flex items-center gap-3">
-        {/* Market Data Mode Indicator */}
-        <div className="hidden sm:flex items-center gap-1.5 text-xs text-[#64748B] font-medium">
-          <RefreshCw className="h-3 w-3 text-[#94A3B8]" />
-          <span>Manual Quotes</span>
-        </div>
-
         {/* Currency context indicator */}
         <div className="flex items-center gap-1 text-xs text-[#64748B]">
           <span>Mata Uang:</span>
           <span className="font-semibold font-mono text-[#1E293B]">{currency}</span>
         </div>
 
-        {/* Global Quick Add Action */}
-        <Button size="sm" className="gap-1.5 h-8 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-sm">
-          <Plus className="h-3.5 w-3.5" />
-          <span className="hidden sm:inline">Catat Transaksi</span>
-        </Button>
+        {/* User Profile */}
+        <Link
+          href="/settings"
+          className="flex items-center gap-2 h-8 px-2.5 rounded-lg border border-[#E4E8EF] bg-[#F8FAFC] hover:bg-slate-100 text-[#1E293B] transition-colors"
+          title="Pengaturan Profil Akun"
+        >
+          <div className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-white">
+            <User className="h-3 w-3" />
+          </div>
+          <span className="text-xs font-semibold hidden sm:inline">Profil</span>
+        </Link>
 
         {/* Logout Action */}
         <form action={logoutAction}>
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-[#64748B] hover:text-[#1E293B] hover:bg-[#F8FAFC]" title="Keluar">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-[#64748B] hover:text-[#1E293B] hover:bg-[#F8FAFC]"
+            title="Keluar"
+          >
             <LogOut className="h-4 w-4" />
           </Button>
         </form>
