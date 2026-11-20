@@ -15,8 +15,8 @@ async function main() {
     process.exit(1);
   }
 
-  const email = (process.argv[2] || "owner@wealthos.local").toLowerCase().trim();
-  const password = process.argv[3] || "WealthOS2026!";
+  const email = (process.argv[2] || "anam@gmail.com").toLowerCase().trim();
+  const password = process.argv[3] || "Anam@1405";
   const currency = process.argv[4] || "IDR";
 
   console.log(`Seeding user account in Neon PostgreSQL...`);

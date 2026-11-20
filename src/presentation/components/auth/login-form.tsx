@@ -46,8 +46,7 @@ export function LoginForm() {
             id="email"
             name="email"
             type="email"
-            placeholder="owner@wealthos.local"
-            defaultValue="owner@wealthos.local"
+            placeholder="anam@gmail.com"
             required
             disabled={isLoading}
             className="pl-10 h-11 rounded-lg border-[#E4E8EF] bg-white text-sm focus-visible:ring-blue-600 focus-visible:border-blue-600"
