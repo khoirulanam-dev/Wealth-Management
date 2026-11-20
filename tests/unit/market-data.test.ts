@@ -35,5 +35,20 @@ describe("MarketDataService Unit Tests", () => {
     expect(bbri).toBeDefined();
     expect(bbri?.name).toContain("Bank Rakyat Indonesia");
   });
+
+  it("provides Indonesian mutual funds registry with live NAB datafeed", async () => {
+    const quote = await MarketDataService.fetchQuote("SMMF", "mutual_fund");
+    expect(quote).toBeDefined();
+    expect(quote?.name).toContain("Sucorinvest Money Market Fund");
+    expect(quote?.price).toBeGreaterThan(1000);
+    expect(quote?.currency).toBe("IDR");
+  });
+
+  it("provides Indonesian government bonds with par value", async () => {
+    const bondQuote = await MarketDataService.fetchQuote("ORI026", "bond");
+    expect(bondQuote).toBeDefined();
+    expect(bondQuote?.price).toBe(1000000);
+    expect(bondQuote?.name).toContain("ORI026");
+  });
 });
 

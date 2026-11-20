@@ -134,7 +134,11 @@ export function TransactionsTable({ transactions }: TransactionsTableProps) {
 
                   {/* Quantity */}
                   <td className="py-3.5 px-4 text-right font-mono font-medium">
-                    {formatNumber(parseFloat(tx.quantity))} {tx.unit}
+                    {tx.assetType === "mutual_fund"
+                      ? `${formatNumber(parseFloat(tx.quantity), 4)} UP`
+                      : tx.assetType === "gold"
+                      ? `${formatNumber(parseFloat(tx.quantity), 2)} gr`
+                      : `${formatNumber(parseFloat(tx.quantity))} ${tx.unit}`}
                   </td>
 
                   {/* Unit Price */}

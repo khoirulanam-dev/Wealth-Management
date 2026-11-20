@@ -1,7 +1,16 @@
 "use client";
 
 import { useState, useEffect, useTransition } from "react";
-import { Plus, ArrowDownRight, ArrowUpRight, AlertCircle, Loader2, X, Calculator, Info } from "lucide-react";
+import {
+  Plus,
+  ArrowDownRight,
+  ArrowUpRight,
+  AlertCircle,
+  Loader2,
+  X,
+  Calculator,
+  Info,
+} from "lucide-react";
 import { Button } from "@/presentation/components/ui/button";
 import { Input } from "@/presentation/components/ui/input";
 import {
@@ -70,6 +79,10 @@ export function RecordTransactionDialog({
   const [isLotMode, setIsLotMode] = useState(true); // For stocks: 1 lot = 100 shares
   const [note, setNote] = useState("");
 
+  // Mutual Fund specific helper: input by total Rupiah vs Unit Penyertaan
+  const [mfInputMode, setMfInputMode] = useState<"unit" | "nominal">("unit");
+  const [mfNominal, setMfNominal] = useState("");
+
   // Preview state
   const [, startTransition] = useTransition();
   const [preview, setPreview] = useState<{
@@ -85,12 +98,80 @@ export function RecordTransactionDialog({
   } | null>(null);
 
   const activeInstrument = instruments.find((i) => i.id === selectedInstrument);
-  const isStock = isNewInstrument ? newAssetType === "stock" : activeInstrument?.assetType === "stock";
+  const currentAssetType = isNewInstrument ? newAssetType : (activeInstrument?.assetType || "stock");
+  const isStock = currentAssetType === "stock";
+  const isMutualFund = currentAssetType === "mutual_fund";
+  const isGold = currentAssetType === "gold";
+  const isBond = currentAssetType === "bond";
 
   // Effective share quantity for calculations
   const effectiveQuantity = isStock && isLotMode && quantity
     ? (parseFloat(quantity) * 100).toString()
     : quantity;
+
+  // Handle Mutual Fund nominal calculation: Unit = Nominal / NAB
+  const handleMfNominalChange = (nomStr: string) => {
+    setMfNominal(nomStr);
+    const nom = parseFloat(nomStr);
+    const nab = parseFloat(unitPrice);
+    if (!isNaN(nom) && !isNaN(nab) && nab > 0) {
+      setQuantity((nom / nab).toFixed(4));
+    } else if (!nomStr) {
+      setQuantity("");
+    }
+  };
+
+  const handleUnitPriceChange = (priceStr: string) => {
+    setUnitPrice(priceStr);
+    if (isMutualFund && mfInputMode === "nominal" && mfNominal) {
+      const nom = parseFloat(mfNominal);
+      const nab = parseFloat(priceStr);
+      if (!isNaN(nom) && !isNaN(nab) && nab > 0) {
+        setQuantity((nom / nab).toFixed(4));
+      }
+    }
+  };
+
+  // Quick Chips categorized by asset type
+  const quickChipsByAsset: Record<string, { sym: string; name: string; price?: number }[]> = {
+    stock: [
+      { sym: "BBCA", name: "Bank Central Asia Tbk" },
+      { sym: "BBRI", name: "Bank Rakyat Indonesia (Persero) Tbk" },
+      { sym: "BMRI", name: "Bank Mandiri (Persero) Tbk" },
+      { sym: "TLKM", name: "Telkom Indonesia (Persero) Tbk" },
+      { sym: "ASII", name: "Astra International Tbk" },
+      { sym: "GOTO", name: "GoTo Gojek Tokopedia Tbk" },
+      { sym: "ICBP", name: "Indofood CBP Sukses Makmur Tbk" },
+    ],
+    mutual_fund: [
+      { sym: "SMMF", name: "Sucorinvest Money Market Fund", price: 2154.68 },
+      { sym: "BDKM", name: "Batavia Dana Kas Maxima", price: 1724.32 },
+      { sym: "MIPU", name: "Mandiri Investa Pasar Uang", price: 1682.45 },
+      { sym: "SDPP", name: "Schroder Dana Prestasi Plus", price: 3548.20 },
+      { sym: "BNI30", name: "BNI-AM Indeks IDX30", price: 1124.50 },
+      { sym: "SSF", name: "Sucorinvest Stable Fund", price: 1324.75 },
+      { sym: "MOU", name: "Manulife Obligasi Unggulan Kelas A", price: 2894.10 },
+    ],
+    gold: [
+      { sym: "ANTAM", name: "Emas Batangan Antam Logam Mulia", price: 1450000 },
+      { sym: "UBS", name: "Emas Batangan UBS Gold", price: 1435000 },
+      { sym: "PEGADAIAN", name: "Tabungan Emas Pegadaian", price: 1440000 },
+      { sym: "GALERI24", name: "Emas Batangan Galeri 24", price: 1445000 },
+    ],
+    bond: [
+      { sym: "ORI026", name: "Obligasi Negara Ritel Seri ORI026", price: 1000000 },
+      { sym: "SR021", name: "Sukuk Ritel Seri SR021", price: 1000000 },
+      { sym: "SBR013", name: "Savings Bond Ritel Seri SBR013", price: 1000000 },
+      { sym: "FR0091", name: "Surat Utang Negara Seri FR0091", price: 1000000 },
+      { sym: "PBS032", name: "Project Based Sukuk Seri PBS032", price: 1000000 },
+    ],
+    crypto: [
+      { sym: "BTC", name: "Bitcoin" },
+      { sym: "ETH", name: "Ethereum" },
+      { sym: "SOL", name: "Solana" },
+      { sym: "USDT", name: "Tether USD" },
+    ],
+  };
 
   // Real-time preview effect
   useEffect(() => {
@@ -134,6 +215,13 @@ export function RecordTransactionDialog({
       formData.append("newSymbol", newSymbol);
       formData.append("newName", newName || newSymbol);
       formData.append("newAssetType", newAssetType);
+      // Pass proper default unit
+      let unit = "share";
+      if (newAssetType === "mutual_fund") unit = "unit";
+      else if (newAssetType === "gold") unit = "gram";
+      else if (newAssetType === "bond") unit = "nominal";
+      else if (newAssetType === "crypto") unit = "coin";
+      formData.append("unit", unit);
     } else {
       formData.append("instrumentId", selectedInstrument);
     }
@@ -149,6 +237,7 @@ export function RecordTransactionDialog({
       setNote("");
       setNewSymbol("");
       setNewName("");
+      setMfNominal("");
       if (onSuccess) onSuccess();
     } else {
       const errMsg = result.error || "Gagal mencatat transaksi";
@@ -284,7 +373,7 @@ export function RecordTransactionDialog({
                       onClick={() => setIsNewInstrument(!isNewInstrument)}
                       className="text-[11px] font-semibold text-blue-600 hover:underline"
                     >
-                      {isNewInstrument ? "← Pilih dari Daftar" : "+ Ketik Saham/Aset Baru"}
+                      {isNewInstrument ? "← Pilih dari Daftar" : "+ Tambah Instrumen Baru"}
                     </button>
                   </div>
 
@@ -306,81 +395,143 @@ export function RecordTransactionDialog({
                         {instruments.map((inst) => (
                           <SelectItem key={inst.id} value={inst.id}>
                             {inst.symbol ? `${inst.symbol} - ` : ""}
-                            {inst.name}
+                            {inst.name} ({inst.assetType === "mutual_fund" ? "Reksa Dana" : inst.assetType === "gold" ? "Emas" : inst.assetType === "bond" ? "Obligasi" : "Saham"})
                           </SelectItem>
                         ))}
-                        <SelectItem value="NEW">+ Tambah Saham/Aset Lain...</SelectItem>
+                        <SelectItem value="NEW">+ Tambah Saham/Reksa Dana/Aset Lain...</SelectItem>
                       </SelectContent>
                     </Select>
                   ) : (
-                    <div className="space-y-2">
-                      {/* Quick Chips */}
-                      <div className="flex flex-wrap items-center gap-1.5 pb-1">
-                        <span className="text-[10px] text-[#94A3B8] mr-1">Pilihan Cepat:</span>
-                        {[
-                          { sym: "BBCA", name: "Bank Central Asia Tbk" },
-                          { sym: "BBRI", name: "Bank Rakyat Indonesia (Persero) Tbk" },
-                          { sym: "BMRI", name: "Bank Mandiri (Persero) Tbk" },
-                          { sym: "TLKM", name: "Telkom Indonesia (Persero) Tbk" },
-                          { sym: "ASII", name: "Astra International Tbk" },
-                          { sym: "GOTO", name: "GoTo Gojek Tokopedia Tbk" },
-                          { sym: "ANTAM", name: "Aneka Tambang Tbk" },
-                        ].map((c) => (
-                          <button
-                            key={c.sym}
-                            type="button"
-                            onClick={() => {
-                              setNewSymbol(c.sym);
-                              setNewName(c.name);
-                              setNewAssetType("stock");
-                            }}
-                            className="rounded border border-[#CBD5E1] bg-white px-2 py-0.5 text-[10px] font-mono font-medium text-[#475569] hover:border-blue-500 hover:text-blue-600 transition-colors"
-                          >
-                            +{c.sym}
-                          </button>
-                        ))}
-                      </div>
-
+                    <div className="space-y-2.5">
+                      {/* Asset Class Selector First */}
                       <div className="grid grid-cols-2 gap-2">
                         <div>
-                          <span className="text-[11px] text-[#64748B] block mb-1">Ticker / Kode</span>
+                          <span className="text-[11px] font-semibold text-[#64748B] block mb-1">Kelas Aset</span>
+                          <Select
+                            value={newAssetType}
+                            onValueChange={(val) => {
+                              setNewAssetType(val);
+                              // Reset quick chips and price if changing class
+                              setNewSymbol("");
+                              setNewName("");
+                              setQuantity("");
+                              setUnitPrice("");
+                              setMfNominal("");
+                            }}
+                          >
+                            <SelectTrigger className="h-9 text-xs bg-white font-medium">
+                              <SelectValue placeholder="Pilih aset" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="stock">Saham (Stocks)</SelectItem>
+                              <SelectItem value="mutual_fund">Reksa Dana (Mutual Fund)</SelectItem>
+                              <SelectItem value="gold">Emas Fisik / Logam Mulia</SelectItem>
+                              <SelectItem value="bond">Obligasi / SBN (Bonds)</SelectItem>
+                              <SelectItem value="crypto">Aset Kripto (Crypto)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div>
+                          <span className="text-[11px] font-semibold text-[#64748B] block mb-1">
+                            {isStock
+                              ? "Ticker Saham"
+                              : isMutualFund
+                              ? "Kode / Singkatan"
+                              : isGold
+                              ? "Brand / Produsen"
+                              : isBond
+                              ? "Seri Obligasi / SBN"
+                              : "Simbol Koin"}
+                          </span>
                           <Input
-                            placeholder="Contoh: BBCA, BBRI, ANTAM"
+                            placeholder={
+                              isStock
+                                ? "Contoh: BBCA, BBRI"
+                                : isMutualFund
+                                ? "Contoh: SMMF, BDKM"
+                                : isGold
+                                ? "Contoh: ANTAM, UBS"
+                                : isBond
+                                ? "Contoh: ORI026, SR021"
+                                : "Contoh: BTC, ETH"
+                            }
                             value={newSymbol}
                             onChange={(e) => setNewSymbol(e.target.value.toUpperCase())}
                             required={isNewInstrument}
                             className="h-9 text-xs font-mono uppercase bg-white"
                           />
                         </div>
-                        <div>
-                          <span className="text-[11px] text-[#64748B] block mb-1">Kelas Aset</span>
-                          <Select value={newAssetType} onValueChange={setNewAssetType}>
-                            <SelectTrigger className="h-9 text-xs bg-white">
-                              <SelectValue placeholder="Pilih aset" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="stock">Saham (Stocks)</SelectItem>
-                              <SelectItem value="mutual_fund">Reksa Dana</SelectItem>
-                              <SelectItem value="gold">Emas Batangan</SelectItem>
-                              <SelectItem value="bond">Obligasi</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
                       </div>
+
+                      {/* Name of Asset */}
                       <div>
-                        <span className="text-[11px] text-[#64748B] block mb-1">Nama Perusahaan / Aset</span>
+                        <span className="text-[11px] font-semibold text-[#64748B] block mb-1">
+                          {isStock
+                            ? "Nama Perusahaan"
+                            : isMutualFund
+                            ? "Nama Produk Reksa Dana (Lengkap)"
+                            : isGold
+                            ? "Nama Aset Emas"
+                            : isBond
+                            ? "Nama Surat Utang / Seri SBN"
+                            : "Nama Aset Kripto"}
+                        </span>
                         <Input
-                          placeholder="Contoh: Bank Central Asia Tbk"
+                          placeholder={
+                            isStock
+                              ? "Contoh: Bank Central Asia Tbk"
+                              : isMutualFund
+                              ? "Contoh: Sucorinvest Money Market Fund"
+                              : isGold
+                              ? "Contoh: Emas Batangan Antam Logam Mulia"
+                              : isBond
+                              ? "Contoh: Obligasi Negara Ritel Seri ORI026"
+                              : "Contoh: Bitcoin"
+                          }
                           value={newName}
                           onChange={(e) => setNewName(e.target.value)}
                           className="h-9 text-xs bg-white"
                         />
                       </div>
+
+                      {/* Dynamic Quick Chips according to selected asset class */}
+                      {quickChipsByAsset[newAssetType] && (
+                        <div className="space-y-1 pt-1">
+                          <span className="text-[10px] text-[#94A3B8] block">
+                            Pilihan Cepat {isMutualFund ? "Reksa Dana Populer" : isGold ? "Emas" : isBond ? "SBN" : isStock ? "Saham LQ45" : "Kripto"}:
+                          </span>
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            {quickChipsByAsset[newAssetType].map((c) => (
+                              <button
+                                key={c.sym}
+                                type="button"
+                                onClick={() => {
+                                  setNewSymbol(c.sym);
+                                  setNewName(c.name);
+                                  if (c.price) {
+                                    setUnitPrice(c.price.toString());
+                                    if (isMutualFund && mfInputMode === "nominal" && mfNominal) {
+                                      const nom = parseFloat(mfNominal);
+                                      if (!isNaN(nom) && c.price > 0) {
+                                        setQuantity((nom / c.price).toFixed(4));
+                                      }
+                                    }
+                                  }
+                                }}
+                                className="rounded border border-[#CBD5E1] bg-white px-2 py-0.5 text-[10px] font-medium text-[#475569] hover:border-blue-500 hover:text-blue-600 transition-colors"
+                              >
+                                +{c.sym}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
 
-                {/* Trade Date & Lot Toggle */}
+                {/* Trade Date & Quantity Section */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1.5">
                     <label className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
@@ -398,7 +549,15 @@ export function RecordTransactionDialog({
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
                       <label className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
-                        Kuantitas {isStock ? (isLotMode ? "(Lot)" : "(Lembar)") : `(${activeInstrument?.unit || "Unit"})`}
+                        {isStock
+                          ? `Kuantitas ${isLotMode ? "(Lot)" : "(Lembar)"}`
+                          : isMutualFund
+                          ? "Unit Penyertaan (UP)"
+                          : isGold
+                          ? "Berat (Gram)"
+                          : isBond
+                          ? "Kuantitas (Unit @ 1 Juta)"
+                          : "Kuantitas (Koin)"}
                       </label>
                       {isStock && (
                         <button
@@ -409,17 +568,62 @@ export function RecordTransactionDialog({
                           Ubah ke {isLotMode ? "Lembar Saham" : "Lot (100 lbr)"}
                         </button>
                       )}
+                      {isMutualFund && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newMode = mfInputMode === "unit" ? "nominal" : "unit";
+                            setMfInputMode(newMode);
+                          }}
+                          className="text-[11px] font-semibold text-blue-600 hover:underline select-none"
+                        >
+                          {mfInputMode === "unit" ? "Beli via Nominal (Rp)" : "Input Unit Langsung"}
+                        </button>
+                      )}
                     </div>
-                    <Input
-                      type="number"
-                      step="any"
-                      min="0.000001"
-                      placeholder={isStock ? (isLotMode ? "10 (lot)" : "1000 (lembar)") : "10"}
-                      value={quantity}
-                      onChange={(e) => setQuantity(e.target.value)}
-                      required
-                      className="h-10 text-sm font-mono"
-                    />
+
+                    {isMutualFund && mfInputMode === "nominal" ? (
+                      <div className="space-y-1">
+                        <Input
+                          type="number"
+                          step="any"
+                          min="1000"
+                          placeholder="Ketik Nominal Pembelian (misal: 1000000)"
+                          value={mfNominal}
+                          onChange={(e) => handleMfNominalChange(e.target.value)}
+                          className="h-10 text-sm font-mono"
+                        />
+                        {quantity && (
+                          <p className="text-[11px] text-emerald-600 font-mono">
+                            Setara dengan: <strong>{quantity}</strong> Unit Penyertaan (UP)
+                          </p>
+                        )}
+                      </div>
+                    ) : (
+                      <Input
+                        type="number"
+                        step="any"
+                        min="0.000001"
+                        placeholder={
+                          isStock
+                            ? isLotMode
+                              ? "Contoh: 10 (lot)"
+                              : "Contoh: 1000 (lembar)"
+                            : isMutualFund
+                            ? "Contoh: 1250.4567 UP"
+                            : isGold
+                            ? "Contoh: 10 (gram) atau 0.5"
+                            : isBond
+                            ? "Contoh: 5 unit (= Rp 5.000.000)"
+                            : "Contoh: 0.05"
+                        }
+                        value={quantity}
+                        onChange={(e) => setQuantity(e.target.value)}
+                        required
+                        className="h-10 text-sm font-mono"
+                      />
+                    )}
+
                     {isStock && isLotMode && quantity && (
                       <p className="text-[11px] text-[#64748B]">
                         Setara dengan: <strong>{formatNumber(parseFloat(quantity) * 100)}</strong> lembar saham
@@ -428,21 +632,56 @@ export function RecordTransactionDialog({
                   </div>
                 </div>
 
-                {/* Unit Price */}
+                {/* Unit Price (Price / NAB / Gold Price / Par) */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
-                    Harga Satuan (Rp)
-                  </label>
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
+                      {isStock
+                        ? "Harga per Lembar (Rp)"
+                        : isMutualFund
+                        ? "NAB per Unit - Nilai Aktiva Bersih (Rp)"
+                        : isGold
+                        ? "Harga Emas per Gram (Rp/gr)"
+                        : isBond
+                        ? "Harga Satuan per Unit (Rp)"
+                        : "Harga per Koin (Rp)"}
+                    </label>
+                  </div>
                   <Input
                     type="number"
                     step="any"
                     min="0.01"
-                    placeholder="Contoh: 9500"
+                    placeholder={
+                      isStock
+                        ? "Contoh: 9500"
+                        : isMutualFund
+                        ? "Contoh: 2154.68"
+                        : isGold
+                        ? "Contoh: 1450000"
+                        : isBond
+                        ? "Contoh: 1000000"
+                        : "Contoh: 1450000000"
+                    }
                     value={unitPrice}
-                    onChange={(e) => setUnitPrice(e.target.value)}
+                    onChange={(e) => handleUnitPriceChange(e.target.value)}
                     required
                     className="h-10 text-sm font-mono"
                   />
+                  {isMutualFund && (
+                    <p className="text-[11px] text-[#94A3B8]">
+                      NAB (Nilai Aktiva Bersih) adalah harga per unit penyertaan reksa dana saat transaksi.
+                    </p>
+                  )}
+                  {isGold && (
+                    <p className="text-[11px] text-[#94A3B8]">
+                      Harga jual/beli fisik per gram saat tanggal transaksi.
+                    </p>
+                  )}
+                  {isBond && (
+                    <p className="text-[11px] text-[#94A3B8]">
+                      Standar nominal 1 unit SBN pemerintah adalah Rp 1.000.000 (100% Par).
+                    </p>
+                  )}
                 </div>
 
                 {/* Real-time Calculation Preview Card */}
@@ -459,88 +698,95 @@ export function RecordTransactionDialog({
                       <span>Preview Kalkulasi Transaksi</span>
                     </div>
 
-                    {!preview.isValid ? (
-                      <p className="text-red-600 font-medium">{preview.error}</p>
-                    ) : (
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-1">
-                        <div>
-                          <span className="text-[#64748B] block text-[11px]">Nilai Transaksi</span>
-                          <span className="font-bold font-mono text-sm text-[#1E293B]">
+                    {preview.isValid ? (
+                      <div className="space-y-1.5 font-mono">
+                        <div className="flex justify-between">
+                          <span className="text-[#64748B]">Total Nilai Transaksi:</span>
+                          <span className="font-bold text-sm text-[#1E293B]">
                             {formatCurrency(preview.grossAmount || "0")}
                           </span>
                         </div>
-                        <div>
-                          <span className="text-[#64748B] block text-[11px]">Kuantitas Akhir</span>
-                          <span className="font-bold font-mono text-sm text-[#1E293B]">
-                            {formatNumber(preview.projectedQuantity || "0")}{" "}
-                            {isStock ? "lembar" : activeInstrument?.unit || "unit"}
+                        <div className="flex justify-between">
+                          <span className="text-[#64748B]">Saldo Unit Saat Ini:</span>
+                          <span>
+                            {preview.currentQuantity}{" "}
+                            {isStock ? "lbr" : isMutualFund ? "UP" : isGold ? "gr" : "unit"}
                           </span>
                         </div>
-                        <div>
-                          <span className="text-[#64748B] block text-[11px]">Rata-rata Biaya Baru</span>
-                          <span className="font-bold font-mono text-sm text-blue-600">
-                            {formatCurrency(preview.projectedAverageCost || "0")}
+                        <div className="flex justify-between">
+                          <span className="text-[#64748B]">Proyeksi Saldo Setelah Transaksi:</span>
+                          <span className="font-semibold text-blue-600">
+                            {preview.projectedQuantity}{" "}
+                            {isStock ? "lbr" : isMutualFund ? "UP" : isGold ? "gr" : "unit"}
                           </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-[#64748B]">Biaya Rata-Rata Baru (Avg Cost):</span>
+                          <span>{formatCurrency(preview.projectedAverageCost || "0")}</span>
                         </div>
                         {type === "sell" && (
-                          <div className="col-span-2 sm:col-span-3 border-t border-blue-200/60 pt-2 flex items-center justify-between">
-                            <span className="text-[#64748B]">Proyeksi Realized P/L:</span>
+                          <div className="flex justify-between pt-1 border-t border-dashed border-blue-200 font-bold">
+                            <span>Estimasi Realized P/L:</span>
                             <span
-                              className={`font-bold font-mono text-sm ${
+                              className={
                                 parseFloat(preview.projectedRealizedPL || "0") >= 0
                                   ? "text-emerald-600"
                                   : "text-red-600"
-                              }`}
+                              }
                             >
-                              {parseFloat(preview.projectedRealizedPL || "0") >= 0 ? "+" : ""}
                               {formatCurrency(preview.projectedRealizedPL || "0")}
                             </span>
                           </div>
                         )}
                       </div>
+                    ) : (
+                      <p className="text-red-600">{preview.error}</p>
                     )}
                   </div>
                 )}
 
-                {/* Notes */}
+                {/* Notes (Optional) */}
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
                     Catatan (Opsional)
                   </label>
                   <Input
+                    placeholder="Contoh: Alokasi gaji bulanan, DCA rutin, rebalancing"
                     value={note}
                     onChange={(e) => setNote(e.target.value)}
-                    placeholder="Contoh: Alokasi dividen kuartal 1, DCA bulanan"
-                    className="h-10 text-sm"
+                    className="h-9 text-xs"
                   />
                 </div>
 
-                {/* Buttons */}
-                <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#E4E8EF]">
+                {/* Form Buttons */}
+                <div className="flex justify-end gap-2 pt-3 border-t border-[#EEF1F5]">
                   <Button
                     type="button"
                     variant="outline"
                     onClick={() => setIsOpen(false)}
                     disabled={isSubmitting}
+                    className="h-9 text-xs"
                   >
                     Batal
                   </Button>
                   <Button
                     type="submit"
                     disabled={isSubmitting || (preview !== null && !preview.isValid)}
-                    className={`font-semibold text-white ${
-                      type === "buy" ? "bg-emerald-600 hover:bg-emerald-700" : "bg-red-600 hover:bg-red-700"
+                    className={`h-9 text-xs gap-1.5 font-semibold text-white ${
+                      type === "buy"
+                        ? "bg-emerald-600 hover:bg-emerald-700"
+                        : "bg-red-600 hover:bg-red-700"
                     }`}
                   >
                     {isSubmitting ? (
                       <>
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
                         Menyimpan...
                       </>
+                    ) : type === "buy" ? (
+                      "Posting Pembelian"
                     ) : (
-                      <>
-                        {type === "buy" ? "Posting Pembelian" : "Posting Penjualan"}
-                      </>
+                      "Posting Penjualan"
                     )}
                   </Button>
                 </div>

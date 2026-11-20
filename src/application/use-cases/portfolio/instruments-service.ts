@@ -42,6 +42,7 @@ export class InstrumentsService {
     if (dto.assetType === "gold") defaultUnit = "gram";
     else if (dto.assetType === "mutual_fund") defaultUnit = "unit";
     else if (dto.assetType === "deposit" || dto.assetType === "bond") defaultUnit = "nominal";
+    else if (dto.assetType === "crypto") defaultUnit = "coin";
 
     const newInstrument: NewInstrument = {
       id,

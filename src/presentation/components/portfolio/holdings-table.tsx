@@ -121,9 +121,23 @@ export function HoldingsTable({ holdings, accounts, instruments }: HoldingsTable
 
                   {/* Quantity */}
                   <td className="py-3.5 px-4 text-right font-mono">
-                    <span className="font-bold text-sm block">{formatNumber(qtyNum)}</span>
+                    <span className="font-bold text-sm block">
+                      {item.assetType === "mutual_fund"
+                        ? formatNumber(qtyNum, 4)
+                        : item.assetType === "gold"
+                        ? formatNumber(qtyNum, 2)
+                        : formatNumber(qtyNum)}
+                    </span>
                     <span className="text-[11px] text-[#64748B]">
-                      {isStock ? `${formatNumber(lots)} lot` : item.unit}
+                      {isStock
+                        ? `${formatNumber(lots)} lot (${formatNumber(qtyNum)} lbr)`
+                        : item.assetType === "mutual_fund"
+                        ? "Unit (UP)"
+                        : item.assetType === "gold"
+                        ? "gram"
+                        : item.assetType === "bond"
+                        ? "unit"
+                        : item.unit}
                     </span>
                   </td>
 
