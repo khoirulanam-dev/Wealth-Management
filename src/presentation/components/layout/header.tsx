@@ -1,8 +1,7 @@
 "use client";
 
-import { LogOut, Plus } from "lucide-react";
+import { LogOut, Plus, RefreshCw } from "lucide-react";
 import { Button } from "@/presentation/components/ui/button";
-import { Badge } from "@/presentation/components/ui/badge";
 import { logoutAction } from "@/app/actions/auth-actions";
 
 interface HeaderProps {
@@ -10,28 +9,41 @@ interface HeaderProps {
   currency?: string;
 }
 
-export function Header({ title = "Overview", currency = "IDR" }: HeaderProps) {
+export function Header({ title = "Ringkasan Portofolio", currency = "IDR" }: HeaderProps) {
   return (
-    <header className="flex h-16 items-center justify-between border-b border-border bg-card/60 px-6 backdrop-blur-md">
-      <div className="flex items-center gap-4">
-        <h1 className="text-lg font-semibold tracking-tight text-foreground">{title}</h1>
+    <header className="h-[60px] flex items-center justify-between border-b border-[#E4E8EF] bg-white/95 px-6 backdrop-blur-md sticky top-0 z-30">
+      {/* Left: Breadcrumbs / Title */}
+      <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 text-xs text-[#94A3B8]">
+          <span>WEALTH OS</span>
+          <span>/</span>
+        </div>
+        <h1 className="text-sm font-bold text-[#1E293B]">{title}</h1>
       </div>
 
+      {/* Right Controls */}
       <div className="flex items-center gap-3">
+        {/* Market Data Mode Indicator */}
+        <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-50 border border-amber-200 text-amber-700 text-xs font-medium">
+          <RefreshCw className="h-3 w-3 animate-none" />
+          <span>Manual Quotes</span>
+        </div>
+
         {/* Currency context indicator */}
-        <Badge variant="outline" className="h-7 px-2.5 font-mono text-xs">
-          Currency: <span className="ml-1 font-bold text-foreground">{currency}</span>
-        </Badge>
+        <div className="flex items-center gap-1 px-2.5 py-1 rounded-md border border-[#E4E8EF] bg-[#F8FAFC] text-xs font-mono font-medium text-[#1E293B]">
+          <span>Mata Uang:</span>
+          <span className="font-bold text-blue-600">{currency}</span>
+        </div>
 
         {/* Global Quick Add Action */}
-        <Button size="sm" className="gap-1.5 h-8">
+        <Button size="sm" className="gap-1.5 h-8 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-sm">
           <Plus className="h-3.5 w-3.5" />
-          <span className="hidden sm:inline">Add Record</span>
+          <span className="hidden sm:inline">Catat Transaksi</span>
         </Button>
 
         {/* Logout Action */}
         <form action={logoutAction}>
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" title="Sign out">
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-[#64748B] hover:text-[#1E293B] hover:bg-[#F8FAFC]" title="Keluar">
             <LogOut className="h-4 w-4" />
           </Button>
         </form>

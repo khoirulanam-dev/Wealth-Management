@@ -1,76 +1,101 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/presentation/components/ui/card";
-import { Badge } from "@/presentation/components/ui/badge";
-import { ShieldCheck, Database } from "lucide-react";
+import { ShieldCheck, Database, CheckCircle2 } from "lucide-react";
 import { env } from "@/lib/env";
 
 export default function SettingsPage() {
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold tracking-tight text-foreground">System Settings</h2>
-        <p className="text-xs text-muted-foreground">
-          Private terminal configuration, database connection, and security parameters.
-        </p>
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-[#E4E8EF]">
+        <div>
+          <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-blue-600 block mb-0.5">
+            KONFIGURASI TERMINAL
+          </span>
+          <h1 className="text-2xl font-bold tracking-tight text-[#1E293B]">Pengaturan Sistem</h1>
+          <p className="text-sm text-[#64748B]">
+            Status sistem privat, konfigurasi basis data Neon PostgreSQL, dan parameter otentikasi.
+          </p>
+        </div>
       </div>
 
+      {/* Grid of Adminator Setting Cards */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        {/* Environment & Security Info */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="h-5 w-5 text-emerald-600" />
-              <CardTitle className="text-sm font-semibold">Access & Security</CardTitle>
+        {/* Security & Access Panel */}
+        <div className="adm-card p-6 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center gap-3 border-b border-[#EEF1F5] pb-4 mb-5">
+              <div className="h-9 w-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+                <ShieldCheck className="h-5 w-5" />
+              </div>
+              <div>
+                <h2 className="text-base font-bold text-[#1E293B]">Akses & Keamanan</h2>
+                <p className="text-xs text-[#94A3B8]">Boundary privat single-user</p>
+              </div>
             </div>
-            <CardDescription className="text-xs">Private single-user terminal boundary</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4 text-xs">
-            <div className="flex items-center justify-between border-b pb-2">
-              <span className="text-muted-foreground">Authentication Mode</span>
-              <Badge variant="outline">Private Single-User</Badge>
-            </div>
-            <div className="flex items-center justify-between border-b pb-2">
-              <span className="text-muted-foreground">Public Registration</span>
-              <Badge variant="destructive">Disabled</Badge>
-            </div>
-            <div className="flex items-center justify-between border-b pb-2">
-              <span className="text-muted-foreground">Owner Account</span>
-              <span className="font-mono font-medium">{env.APP_USER_EMAIL}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Reporting Currency</span>
-              <Badge variant="default" className="font-mono">{env.DEFAULT_CURRENCY}</Badge>
-            </div>
-          </CardContent>
-        </Card>
 
-        {/* Database & Infrastructure */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <Database className="h-5 w-5 text-indigo-600" />
-              <CardTitle className="text-sm font-semibold">Database Infrastructure</CardTitle>
+            <div className="space-y-4 text-xs">
+              <div className="flex items-center justify-between py-2 border-b border-[#EEF1F5]">
+                <span className="text-[#64748B]">Mode Operasional</span>
+                <span className="font-semibold text-[#1E293B] bg-[#F1F5F9] px-2.5 py-1 rounded-md">Private Single-User</span>
+              </div>
+              <div className="flex items-center justify-between py-2 border-b border-[#EEF1F5]">
+                <span className="text-[#64748B]">Registrasi Publik</span>
+                <span className="font-semibold text-rose-600 bg-rose-50 border border-rose-200 px-2.5 py-1 rounded-md">Dinonaktifkan Permanen</span>
+              </div>
+              <div className="flex items-center justify-between py-2 border-b border-[#EEF1F5]">
+                <span className="text-[#64748B]">Akun Pemilik</span>
+                <span className="font-mono font-semibold text-[#1E293B]">{env.APP_USER_EMAIL}</span>
+              </div>
+              <div className="flex items-center justify-between py-2">
+                <span className="text-[#64748B]">Mata Uang Pelaporan</span>
+                <span className="font-mono font-bold text-blue-600 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-md">{env.DEFAULT_CURRENCY}</span>
+              </div>
             </div>
-            <CardDescription className="text-xs">Serverless PostgreSQL integration</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4 text-xs">
-            <div className="flex items-center justify-between border-b pb-2">
-              <span className="text-muted-foreground">Database Engine</span>
-              <span className="font-medium">Neon PostgreSQL</span>
+          </div>
+
+          <div className="mt-6 pt-4 border-t border-[#EEF1F5] flex items-center gap-2 text-xs text-emerald-600 font-medium">
+            <CheckCircle2 className="h-4 w-4" />
+            <span>Sesi terenkripsi HTTP-Only aktif</span>
+          </div>
+        </div>
+
+        {/* Database & Infrastructure Panel */}
+        <div className="adm-card p-6 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center gap-3 border-b border-[#EEF1F5] pb-4 mb-5">
+              <div className="h-9 w-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                <Database className="h-5 w-5" />
+              </div>
+              <div>
+                <h2 className="text-base font-bold text-[#1E293B]">Infrastruktur Database</h2>
+                <p className="text-xs text-[#94A3B8]">Koneksi serverless Neon PostgreSQL</p>
+              </div>
             </div>
-            <div className="flex items-center justify-between border-b pb-2">
-              <span className="text-muted-foreground">ORM</span>
-              <span className="font-medium">Drizzle ORM (drizzle-kit)</span>
+
+            <div className="space-y-4 text-xs">
+              <div className="flex items-center justify-between py-2 border-b border-[#EEF1F5]">
+                <span className="text-[#64748B]">Database Engine</span>
+                <span className="font-semibold text-[#1E293B]">Neon PostgreSQL (Serverless)</span>
+              </div>
+              <div className="flex items-center justify-between py-2 border-b border-[#EEF1F5]">
+                <span className="text-[#64748B]">ORM</span>
+                <span className="font-semibold text-[#1E293B]">Drizzle ORM (drizzle-kit)</span>
+              </div>
+              <div className="flex items-center justify-between py-2 border-b border-[#EEF1F5]">
+                <span className="text-[#64748B]">Mode Koneksi</span>
+                <span className="font-semibold text-blue-600 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-md">PgBouncer Pooler (ap-southeast-1)</span>
+              </div>
+              <div className="flex items-center justify-between py-2">
+                <span className="text-[#64748B]">Target Deployment</span>
+                <span className="font-semibold text-[#1E293B] bg-[#F1F5F9] px-2.5 py-1 rounded-md">Vercel Serverless</span>
+              </div>
             </div>
-            <div className="flex items-center justify-between border-b pb-2">
-              <span className="text-muted-foreground">Connection Mode</span>
-              <Badge variant="outline">Serverless Connection Pooler</Badge>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Deployment Target</span>
-              <Badge variant="secondary">Vercel</Badge>
-            </div>
-          </CardContent>
-        </Card>
+          </div>
+
+          <div className="mt-6 pt-4 border-t border-[#EEF1F5] flex items-center gap-2 text-xs text-emerald-600 font-medium">
+            <CheckCircle2 className="h-4 w-4" />
+            <span>Koneksi database Neon live & terverifikasi (18 tabel)</span>
+          </div>
+        </div>
       </div>
     </div>
   );

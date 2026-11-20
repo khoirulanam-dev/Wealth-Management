@@ -1,7 +1,6 @@
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { ShieldCheck } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/presentation/components/ui/card";
+import { ShieldCheck, Sparkles, CheckCircle2 } from "lucide-react";
 import { LoginForm } from "@/presentation/components/auth/login-form";
 
 export default async function LoginPage() {
@@ -11,26 +10,83 @@ export default async function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-8">
-      <Card className="w-full max-w-md border-border shadow-md">
-        <CardHeader className="space-y-2 text-center pb-6 pt-8">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
-            <ShieldCheck className="h-6 w-6" />
+    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-[#F0F4F8]">
+      {/* Left Aside (Adminator Signature Gradient Panel) */}
+      <aside className="relative hidden lg:flex flex-col justify-between overflow-hidden bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 p-12 text-white">
+        {/* Glow ambient background circles */}
+        <div className="absolute -top-24 -right-24 h-96 w-96 rounded-full bg-white/10 blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 h-96 w-96 rounded-full bg-purple-500/20 blur-3xl pointer-events-none" />
+
+        {/* Brand Header */}
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15 border border-white/25 backdrop-blur-md shadow-sm">
+            <ShieldCheck className="h-6 w-6 text-white" />
           </div>
-          <CardTitle className="text-2xl font-bold tracking-tight text-foreground">WEALTH OS</CardTitle>
-          <CardDescription className="text-sm text-muted-foreground">
-            Personal Investment & Wealth Management
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="px-6 pb-8 sm:px-8">
-          <LoginForm />
-          <div className="mt-6 border-t border-border pt-4 text-center">
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Sistem privat terproteksi. Akses dibatasi khusus pemilik akun.
+          <div>
+            <span className="text-lg font-bold tracking-tight">WEALTH OS</span>
+            <span className="block text-[11px] uppercase tracking-wider text-blue-200 font-mono">Private Edition</span>
+          </div>
+        </div>
+
+        {/* Body Hero Copy */}
+        <div className="relative z-10 max-w-lg space-y-6">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-mono font-medium tracking-wide text-blue-100 backdrop-blur-sm border border-white/15">
+            <Sparkles className="h-3.5 w-3.5 text-blue-300" />
+            2026 · PRIVATE WEALTH COCKPIT
+          </span>
+          <h1 className="text-3xl xl:text-4xl font-bold tracking-tight leading-tight">
+            The wealth tracker built for absolute financial precision.
+          </h1>
+          <p className="text-base text-blue-100/90 leading-relaxed">
+            Konsolidasi portofolio investasi, perhitungan weighted-average cost, saldo kas likuid, dan jadwal kewajiban dalam satu sistem privat terproteksi.
+          </p>
+
+          {/* Testimonial / Architecture Highlight Box */}
+          <div className="rounded-xl border border-white/20 bg-white/10 p-5 backdrop-blur-md text-sm text-blue-50 leading-relaxed shadow-sm">
+            <p className="italic">
+              &ldquo;Menggabungkan seluruh akun sekuritas, rekening bank, dan liabilitas ke dalam satu kokpit bersih tanpa kompromi pada privasi data.&rdquo;
             </p>
+            <div className="mt-4 flex items-center gap-2.5 text-xs text-blue-200">
+              <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+              <span>Single-User Private Architecture · IDR Native · Zero Marketing</span>
+            </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+
+        {/* Aside Footer */}
+        <div className="relative z-10 flex items-center justify-between text-xs text-blue-200/80 font-mono">
+          <span>© 2026 WEALTH OS</span>
+          <span>ENTERPRISE GRADE · SELF HOSTED</span>
+        </div>
+      </aside>
+
+      {/* Right Main (Adminator Modern Sign In Form) */}
+      <main className="flex flex-col justify-between p-6 sm:p-12 lg:p-16">
+        <div className="flex items-center justify-between text-xs text-[#64748B]">
+          <span className="font-mono">STATUS: ONLINE</span>
+          <span className="inline-flex items-center gap-1.5 font-medium text-emerald-600">
+            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+            Terminal Siap
+          </span>
+        </div>
+
+        <div className="mx-auto w-full max-w-md my-auto">
+          <div className="rounded-2xl border border-[#E4E8EF] bg-white p-8 sm:p-10 shadow-card">
+            <div className="space-y-2 mb-6">
+              <h2 className="text-2xl font-bold tracking-tight text-[#1E293B]">Selamat Datang</h2>
+              <p className="text-sm text-[#64748B]">
+                Masuk ke kokpit WEALTH OS untuk mengelola catatan kekayaan bersih Anda.
+              </p>
+            </div>
+
+            <LoginForm />
+          </div>
+
+          <p className="mt-6 text-center text-xs text-[#64748B] leading-relaxed">
+            Sistem privat terenkripsi. Hak akses dibatasi khusus untuk pemilik akun terdaftar.
+          </p>
+        </div>
+      </main>
     </div>
   );
 }

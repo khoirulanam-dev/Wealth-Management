@@ -1,31 +1,52 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/presentation/components/ui/card";
-import { EmptyState } from "@/presentation/components/ui/empty-state";
-import { Eye } from "lucide-react";
+import { Eye, Plus } from "lucide-react";
+import { Button } from "@/presentation/components/ui/button";
 
 export default function WatchlistPage() {
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold tracking-tight text-foreground">Watchlist</h2>
-        <p className="text-xs text-muted-foreground">
-          Monitor interesting stocks and funds. Watchlist items are strictly excluded from net worth.
-        </p>
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-[#E4E8EF]">
+        <div>
+          <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-indigo-600 block mb-0.5">
+            PANTAUAN HARGA PASAR
+          </span>
+          <h1 className="text-2xl font-bold tracking-tight text-[#1E293B]">Daftar Pantauan (Watchlist)</h1>
+          <p className="text-sm text-[#64748B]">
+            Instrumen pasar yang dipantau. Nilai watchlist terisolasi dan tidak mempengaruhi Net Worth.
+          </p>
+        </div>
+        <div className="flex items-center gap-2.5">
+          <Button size="sm" className="gap-2 h-9 bg-blue-600 hover:bg-blue-700 text-white shadow-sm">
+            <Plus className="h-4 w-4" />
+            Tambah Pantauan
+          </Button>
+        </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm font-semibold">Monitored Assets</CardTitle>
-          <CardDescription className="text-xs">Price quotes without affecting owned portfolio balance</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <EmptyState
-            icon={Eye}
-            title="Watchlist is Empty"
-            description="Add instruments you wish to monitor in Milestone 5 without impacting your actual holdings."
-          />
-        </CardContent>
-      </Card>
+      {/* Main Adminator Card */}
+      <div className="adm-card p-6">
+        <div className="flex items-center justify-between border-b border-[#EEF1F5] pb-4 mb-6">
+          <div className="flex items-center gap-3">
+            <div className="h-9 w-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
+              <Eye className="h-5 w-5" />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-[#1E293B]">Instrumen dalam Pantauan</h2>
+              <p className="text-xs text-[#94A3B8]">Harga kuotasi diperbarui secara manual sesuai kebutuhan pengguna</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="min-h-[300px] flex flex-col items-center justify-center text-center p-8 bg-[#F8FAFC] rounded-xl border border-dashed border-[#E4E8EF]">
+          <div className="h-12 w-12 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center mb-3">
+            <Eye className="h-6 w-6" />
+          </div>
+          <h3 className="text-sm font-bold text-[#1E293B]">Watchlist Masih Kosong</h3>
+          <p className="text-xs text-[#64748B] max-w-sm mt-1 leading-relaxed">
+            Tambahkan saham atau reksa dana yang ingin dipantau pada Milestone 5 tanpa mempengaruhi saldo kepemilikan Anda.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
-

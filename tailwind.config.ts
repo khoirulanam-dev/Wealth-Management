@@ -18,61 +18,78 @@ const config: Config = {
     },
     extend: {
       colors: {
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
+        // Adminator 2026 Palette
+        body: "#F0F4F8",
+        card: {
+          DEFAULT: "#FFFFFF",
+          foreground: "#1E293B",
+        },
+        sidebar: {
+          DEFAULT: "#FFFFFF",
+          foreground: "#1E293B",
+        },
+        border: {
+          DEFAULT: "#E4E8EF",
+          soft: "#EEF1F5",
+        },
+        input: "#E4E8EF",
+        ring: "#2563EB",
+        background: "#F0F4F8",
+        foreground: "#1E293B",
         primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
+          DEFAULT: "#2563EB",
+          light: "#3B82F6",
+          dark: "#1D4ED8",
+          soft: "#EFF6FF",
+          foreground: "#FFFFFF",
         },
         secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
-        },
-        destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
+          DEFAULT: "#F1F5F9",
+          foreground: "#1E293B",
         },
         muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
+          DEFAULT: "#F1F5F9",
+          foreground: "#64748B",
+          light: "#94A3B8",
         },
         accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
+          DEFAULT: "#EFF6FF",
+          foreground: "#2563EB",
         },
-        popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))",
+        destructive: {
+          DEFAULT: "#EF4444",
+          soft: "#FEF2F2",
+          foreground: "#FFFFFF",
         },
-        card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
-        },
-        // Financial semantic colors
-        profit: {
-          DEFAULT: "#15803d",
-          muted: "#f0fdf4",
-        },
-        loss: {
-          DEFAULT: "#b91c1c",
-          muted: "#fef2f2",
+        success: {
+          DEFAULT: "#10B981",
+          soft: "#ECFDF5",
         },
         warning: {
-          DEFAULT: "#b45309",
-          muted: "#fffbeb",
+          DEFAULT: "#F59E0B",
+          soft: "#FFFBEB",
+        },
+        purple: {
+          DEFAULT: "#8B5CF6",
+          soft: "#F5F3FF",
+        },
+        info: {
+          DEFAULT: "#0EA5E9",
+          soft: "#F0F9FF",
         },
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        lg: "14px",
+        md: "10px",
+        sm: "8px",
+      },
+      boxShadow: {
+        card: "0 1px 3px 0 rgb(15 23 42 / 0.06), 0 1px 2px -1px rgb(15 23 42 / 0.04)",
+        lg: "0 10px 15px -3px rgb(15 23 42 / 0.08), 0 4px 6px -4px rgb(15 23 42 / 0.05)",
       },
       fontFamily: {
-        sans: ["var(--font-geist-sans)", "var(--font-sans)", "Inter", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"],
-        mono: ["var(--font-geist-mono)", "var(--font-mono)", "ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "monospace"],
+        sans: ["var(--font-geist-sans)", "Inter", "system-ui", "-apple-system", "sans-serif"],
+        mono: ["var(--font-geist-mono)", "JetBrains Mono", "monospace"],
       },
     },
   },
@@ -80,4 +97,3 @@ const config: Config = {
 };
 
 export default config;
-
