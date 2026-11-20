@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Plus, LineChart, AlertCircle, Loader2, X } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Plus, LineChart, AlertCircle, Loader2, X, Search, Sparkles } from "lucide-react";
 import { Button } from "@/presentation/components/ui/button";
 import { Input } from "@/presentation/components/ui/input";
 import {
@@ -12,23 +12,95 @@ import {
   SelectValue,
 } from "@/presentation/components/ui/select";
 import { useToast } from "@/presentation/components/ui/toast";
-import { createInstrumentAction } from "@/app/actions/portfolio-actions";
+import {
+  createInstrumentAction,
+  searchMarketStocksAction,
+  getCuratedStocksAction,
+} from "@/app/actions/portfolio-actions";
+
+interface StockSuggestion {
+  symbol: string;
+  cleanSymbol: string;
+  name: string;
+  exchange: string;
+  assetType: string;
+  currency: string;
+}
 
 export function InstrumentDialog({ onInstrumentCreated }: { onInstrumentCreated?: () => void }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Form states
   const [assetType, setAssetType] = useState("stock");
+  const [symbol, setSymbol] = useState("");
+  const [name, setName] = useState("");
+  const [market, setMarket] = useState("IDX");
   const [unit, setUnit] = useState("share");
   const [currency, setCurrency] = useState("IDR");
+
+  // Stock picker states
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+  const [suggestions, setSuggestions] = useState<StockSuggestion[]>([]);
+  const [curatedList, setCuratedList] = useState<StockSuggestion[]>([]);
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (isOpen && curatedList.length === 0) {
+      getCuratedStocksAction().then((res) => {
+        if (res.success && res.data) {
+          setCuratedList(res.data);
+        }
+      });
+    }
+  }, [isOpen, curatedList.length]);
+
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setSuggestions([]);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setIsSearching(true);
+      const res = await searchMarketStocksAction(searchQuery);
+      if (res.success && res.data) {
+        setSuggestions(res.data);
+      }
+      setIsSearching(false);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const selectStockItem = (item: StockSuggestion) => {
+    setSymbol(item.cleanSymbol);
+    setName(item.name);
+    setMarket(item.exchange);
+    setAssetType(item.assetType);
+    setCurrency(item.currency);
+    setUnit(item.assetType === "stock" ? "share" : "unit");
+    setSearchQuery("");
+    setSuggestions([]);
+  };
 
   const handleAssetTypeChange = (val: string) => {
     setAssetType(val);
-    if (val === "stock") setUnit("share");
-    else if (val === "gold") setUnit("gram");
-    else if (val === "mutual_fund") setUnit("unit");
-    else setUnit("nominal");
+    if (val === "stock") {
+      setUnit("share");
+      setMarket("IDX");
+    } else if (val === "gold") {
+      setUnit("gram");
+      setMarket("LOKAL");
+    } else if (val === "mutual_fund") {
+      setUnit("unit");
+      setMarket("LOKAL");
+    } else {
+      setUnit("nominal");
+      setMarket("LOKAL");
+    }
   };
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -37,6 +109,9 @@ export function InstrumentDialog({ onInstrumentCreated }: { onInstrumentCreated?
     setError(null);
 
     const formData = new FormData(e.currentTarget);
+    formData.set("symbol", symbol);
+    formData.set("name", name);
+    formData.set("market", market);
     formData.set("assetType", assetType);
     formData.set("unit", unit);
     formData.set("currency", currency);
@@ -47,6 +122,8 @@ export function InstrumentDialog({ onInstrumentCreated }: { onInstrumentCreated?
       toast.success("Instrumen investasi berhasil ditambahkan!");
       setIsLoading(false);
       setIsOpen(false);
+      setSymbol("");
+      setName("");
       if (onInstrumentCreated) onInstrumentCreated();
     } else {
       const errMsg = result.error || "Gagal membuat instrumen";
@@ -69,8 +146,8 @@ export function InstrumentDialog({ onInstrumentCreated }: { onInstrumentCreated?
       </Button>
 
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-          <div className="relative w-full max-w-md rounded-2xl border border-[#E4E8EF] bg-white p-6 shadow-xl animate-in fade-in zoom-in-95 duration-150">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 overflow-y-auto">
+          <div className="relative w-full max-w-lg rounded-2xl border border-[#E4E8EF] bg-white p-6 shadow-xl animate-in fade-in zoom-in-95 duration-150 my-6">
             {/* Header */}
             <div className="flex items-center justify-between pb-4 border-b border-[#E4E8EF]">
               <div className="flex items-center gap-2.5">
@@ -96,6 +173,68 @@ export function InstrumentDialog({ onInstrumentCreated }: { onInstrumentCreated?
                 <span>{error}</span>
               </div>
             )}
+
+            {/* Quick Picker / Online API Search */}
+            <div className="mt-4 p-3 bg-[#F8FAFC] border border-[#E4E8EF] rounded-xl space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-semibold text-[#1E293B] flex items-center gap-1.5">
+                  <Sparkles className="h-3.5 w-3.5 text-amber-500" />
+                  Pilih Cepat Saham IDX (API Terintegrasi)
+                </span>
+                <span className="text-[10px] text-[#94A3B8]">Auto-fill info pasar</span>
+              </div>
+
+              {/* Search box for live API */}
+              <div className="relative">
+                <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-[#94A3B8]" />
+                <input
+                  type="text"
+                  placeholder="Ketik nama atau kode saham (misal: BCA, BRI, Telkom, Apple)..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full rounded-lg border border-[#E4E8EF] bg-white pl-8 pr-8 py-1.5 text-xs text-[#1E293B] placeholder-[#94A3B8] focus:outline-none focus:ring-1 focus:ring-blue-600"
+                />
+                {isSearching && (
+                  <Loader2 className="absolute right-2.5 top-2.5 h-3.5 w-3.5 animate-spin text-blue-600" />
+                )}
+              </div>
+
+              {/* Suggestions Dropdown */}
+              {suggestions.length > 0 && (
+                <div className="max-h-36 overflow-y-auto divide-y divide-[#E4E8EF] rounded-lg border border-[#CBD5E1] bg-white shadow-md">
+                  {suggestions.map((item) => (
+                    <button
+                      key={item.symbol}
+                      type="button"
+                      onClick={() => selectStockItem(item)}
+                      className="w-full text-left px-3 py-2 hover:bg-blue-50 flex items-center justify-between transition-colors"
+                    >
+                      <div>
+                        <span className="font-mono font-bold text-xs text-blue-600 mr-2">
+                          {item.cleanSymbol}
+                        </span>
+                        <span className="text-xs text-[#1E293B]">{item.name}</span>
+                      </div>
+                      <span className="text-[10px] font-mono text-[#64748B]">{item.exchange}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Popular Curated Chips */}
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {curatedList.slice(0, 8).map((stock) => (
+                  <button
+                    key={stock.cleanSymbol}
+                    type="button"
+                    onClick={() => selectStockItem(stock)}
+                    className="rounded-md border border-[#E2E8F0] bg-white px-2 py-0.5 text-[11px] font-mono font-medium text-[#475569] hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50/50 transition-colors"
+                  >
+                    +{stock.cleanSymbol}
+                  </button>
+                ))}
+              </div>
+            </div>
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="mt-4 space-y-4">
@@ -124,6 +263,8 @@ export function InstrumentDialog({ onInstrumentCreated }: { onInstrumentCreated?
                   </label>
                   <Input
                     name="symbol"
+                    value={symbol}
+                    onChange={(e) => setSymbol(e.target.value.toUpperCase())}
                     placeholder={
                       assetType === "stock"
                         ? "BBCA, BBRI, TLKM"
@@ -141,7 +282,8 @@ export function InstrumentDialog({ onInstrumentCreated }: { onInstrumentCreated?
                   </label>
                   <Input
                     name="market"
-                    defaultValue={assetType === "stock" ? "IDX" : "LOKAL"}
+                    value={market}
+                    onChange={(e) => setMarket(e.target.value.toUpperCase())}
                     className="h-10 text-sm uppercase"
                   />
                 </div>
@@ -153,6 +295,8 @@ export function InstrumentDialog({ onInstrumentCreated }: { onInstrumentCreated?
                 </label>
                 <Input
                   name="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                   required
                   placeholder={
                     assetType === "stock"

@@ -2,6 +2,7 @@ import { requireAuth } from "@/lib/auth";
 import { HoldingsService } from "@/application/use-cases/portfolio/holdings-service";
 import { AccountsService } from "@/application/use-cases/portfolio/accounts-service";
 import { InstrumentsService } from "@/application/use-cases/portfolio/instruments-service";
+import { MarketDataSyncService } from "@/application/use-cases/portfolio/market-data-sync-service";
 import { formatCurrency } from "@/lib/decimal";
 import { HoldingItem } from "@/presentation/components/portfolio/holdings-table";
 import { AccountItem } from "@/presentation/components/portfolio/accounts-table";
@@ -10,10 +11,14 @@ import { InvestmentsTabsView } from "@/presentation/components/portfolio/investm
 import { AccountDialog } from "@/presentation/components/portfolio/account-dialog";
 import { InstrumentDialog } from "@/presentation/components/portfolio/instrument-dialog";
 import { RecordTransactionDialog } from "@/presentation/components/portfolio/record-transaction-dialog";
+import { RefreshQuotesButton } from "@/presentation/components/portfolio/refresh-quotes-button";
 import { TrendingUp, TrendingDown, Layers, PieChart } from "lucide-react";
 
 export default async function InvestmentsPage() {
   const session = await requireAuth();
+
+  // Automatic daily price sync check (triggers if quotes are > 24 hours old)
+  await MarketDataSyncService.autoSyncIfStale(session.userId);
 
   const [{ holdings, summary }, accounts, instruments] = await Promise.all([
     HoldingsService.listActiveHoldings(session.userId),
@@ -37,6 +42,7 @@ export default async function InvestmentsPage() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <RefreshQuotesButton />
           <AccountDialog />
           <InstrumentDialog />
           <RecordTransactionDialog

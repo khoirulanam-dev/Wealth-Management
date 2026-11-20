@@ -4,6 +4,8 @@ import { requireAuth } from "@/lib/auth";
 import { AccountsService } from "@/application/use-cases/portfolio/accounts-service";
 import { InstrumentsService } from "@/application/use-cases/portfolio/instruments-service";
 import { TransactionsService } from "@/application/use-cases/portfolio/transactions-service";
+import { MarketDataSyncService } from "@/application/use-cases/portfolio/market-data-sync-service";
+import { MarketDataService } from "@/infrastructure/services/market-data-service";
 import { revalidatePath } from "next/cache";
 
 export async function createAccountAction(formData: FormData) {
@@ -240,5 +242,46 @@ export async function deleteInstrumentAction(instrumentId: string) {
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Gagal menghapus instrumen";
     return { success: false, error: message };
+  }
+}
+
+export async function refreshMarketQuotesAction() {
+  const session = await requireAuth();
+  try {
+    const result = await MarketDataSyncService.syncPortfolioQuotes(session.userId);
+    revalidatePath("/investments");
+    revalidatePath("/transactions");
+    revalidatePath("/overview");
+    revalidatePath("/market-data");
+    return {
+      success: true,
+      updatedCount: result.updatedCount,
+      items: result.syncedItems,
+    };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Gagal memperbarui kuotasi pasar";
+    return { success: false, error: message };
+  }
+}
+
+export async function searchMarketStocksAction(query: string) {
+  await requireAuth();
+  try {
+    const results = await MarketDataService.searchSymbols(query);
+    return { success: true, data: results };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Gagal mencari simbol saham";
+    return { success: false, error: message, data: [] };
+  }
+}
+
+export async function getCuratedStocksAction() {
+  await requireAuth();
+  try {
+    const list = MarketDataService.getCuratedIndonesianStocks();
+    return { success: true, data: list };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Gagal memuat daftar saham pilihan";
+    return { success: false, error: message, data: [] };
   }
 }

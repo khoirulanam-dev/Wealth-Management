@@ -17,10 +17,14 @@ import { requireAuth } from "@/lib/auth";
 import { HoldingsService } from "@/application/use-cases/portfolio/holdings-service";
 import { AccountsService } from "@/application/use-cases/portfolio/accounts-service";
 import { InstrumentsService } from "@/application/use-cases/portfolio/instruments-service";
+import { MarketDataSyncService } from "@/application/use-cases/portfolio/market-data-sync-service";
 import { RecordTransactionDialog } from "@/presentation/components/portfolio/record-transaction-dialog";
 
 export default async function OverviewPage() {
   const session = await requireAuth();
+
+  // Automatic daily price sync check (triggers if quotes are > 24 hours old)
+  await MarketDataSyncService.autoSyncIfStale(session.userId);
 
   const [{ summary, assetBreakdown }, accounts, instruments] = await Promise.all([
     HoldingsService.listActiveHoldings(session.userId),
@@ -205,7 +209,7 @@ export default async function OverviewPage() {
                   <div className="flex items-center justify-between text-xs">
                     <span className="font-semibold text-[#1E293B] uppercase">
                       {item.assetType === "stock"
-                        ? "Saham (Equity)"
+                        ? "Saham"
                         : item.assetType === "mutual_fund"
                         ? "Reksa Dana"
                         : item.assetType === "gold"

@@ -1,0 +1,35 @@
+import { describe, it, expect } from "vitest";
+import { MarketDataService } from "@/infrastructure/services/market-data-service";
+
+describe("MarketDataService Unit Tests", () => {
+  it("resolves ticker symbols appropriately for IDX and global markets", () => {
+    // IDX stocks should append .JK if not present
+    expect(MarketDataService.resolveQuerySymbol("BBCA", "stock")).toBe("BBCA.JK");
+    expect(MarketDataService.resolveQuerySymbol("BBRI", "stock")).toBe("BBRI.JK");
+    expect(MarketDataService.resolveQuerySymbol("TLKM.JK", "stock")).toBe("TLKM.JK");
+
+    // US stocks should remain as-is
+    expect(MarketDataService.resolveQuerySymbol("AAPL", "stock")).toBe("AAPL");
+    expect(MarketDataService.resolveQuerySymbol("TSLA", "stock")).toBe("TSLA");
+
+    // Gold commodities
+    expect(MarketDataService.resolveQuerySymbol("ANTAM", "gold")).toBe("GC=F");
+    expect(MarketDataService.resolveQuerySymbol("GOLD", "gold")).toBe("GC=F");
+  });
+
+  it("provides curated Indonesian stocks with valid structure", () => {
+    const list = MarketDataService.getCuratedIndonesianStocks();
+    expect(list.length).toBeGreaterThanOrEqual(10);
+
+    const bbca = list.find((s) => s.cleanSymbol === "BBCA");
+    expect(bbca).toBeDefined();
+    expect(bbca?.exchange).toBe("IDX");
+    expect(bbca?.currency).toBe("IDR");
+    expect(bbca?.symbol).toBe("BBCA.JK");
+
+    const bbri = list.find((s) => s.cleanSymbol === "BBRI");
+    expect(bbri).toBeDefined();
+    expect(bbri?.name).toContain("Bank Rakyat Indonesia");
+  });
+});
+

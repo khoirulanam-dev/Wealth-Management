@@ -314,6 +314,33 @@ export function RecordTransactionDialog({
                     </Select>
                   ) : (
                     <div className="space-y-2">
+                      {/* Quick Chips */}
+                      <div className="flex flex-wrap items-center gap-1.5 pb-1">
+                        <span className="text-[10px] text-[#94A3B8] mr-1">Pilihan Cepat:</span>
+                        {[
+                          { sym: "BBCA", name: "Bank Central Asia Tbk" },
+                          { sym: "BBRI", name: "Bank Rakyat Indonesia (Persero) Tbk" },
+                          { sym: "BMRI", name: "Bank Mandiri (Persero) Tbk" },
+                          { sym: "TLKM", name: "Telkom Indonesia (Persero) Tbk" },
+                          { sym: "ASII", name: "Astra International Tbk" },
+                          { sym: "GOTO", name: "GoTo Gojek Tokopedia Tbk" },
+                          { sym: "ANTAM", name: "Aneka Tambang Tbk" },
+                        ].map((c) => (
+                          <button
+                            key={c.sym}
+                            type="button"
+                            onClick={() => {
+                              setNewSymbol(c.sym);
+                              setNewName(c.name);
+                              setNewAssetType("stock");
+                            }}
+                            className="rounded border border-[#CBD5E1] bg-white px-2 py-0.5 text-[10px] font-mono font-medium text-[#475569] hover:border-blue-500 hover:text-blue-600 transition-colors"
+                          >
+                            +{c.sym}
+                          </button>
+                        ))}
+                      </div>
+
                       <div className="grid grid-cols-2 gap-2">
                         <div>
                           <span className="text-[11px] text-[#64748B] block mb-1">Ticker / Kode</span>
