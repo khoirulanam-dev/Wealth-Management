@@ -12,7 +12,8 @@ import { AccountDialog } from "@/presentation/components/portfolio/account-dialo
 import { InstrumentDialog } from "@/presentation/components/portfolio/instrument-dialog";
 import { RecordTransactionDialog } from "@/presentation/components/portfolio/record-transaction-dialog";
 import { RefreshQuotesButton } from "@/presentation/components/portfolio/refresh-quotes-button";
-import { TrendingUp, TrendingDown, Layers, PieChart } from "lucide-react";
+import { Button } from "@/presentation/components/ui/button";
+import { TrendingUp, TrendingDown, Layers, PieChart, Building2, LineChart } from "lucide-react";
 
 export default async function InvestmentsPage() {
   const session = await requireAuth();
@@ -31,7 +32,7 @@ export default async function InvestmentsPage() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-[#E4E8EF]">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-2 border-b border-[#E4E8EF]">
         <div>
           <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-blue-600 block mb-0.5">
             PORTOFOLIO INSTRUMEN
@@ -41,10 +42,33 @@ export default async function InvestmentsPage() {
             Pencatatan kepemilikan saham, reksa dana, emas, dan obligasi dengan weighted-average cost.
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap shrink-0">
           <RefreshQuotesButton />
-          <AccountDialog />
-          <InstrumentDialog />
+          <div className="h-6 w-px bg-[#E4E8EF] hidden sm:block mx-1" />
+          <AccountDialog
+            triggerButton={
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5 h-9 border-[#E4E8EF] bg-white text-xs font-semibold text-[#1E293B] hover:bg-[#F8FAFC] shadow-sm"
+              >
+                <Building2 className="h-3.5 w-3.5 text-blue-600" />
+                <span className="hidden xl:inline">Tambah</span> Akun
+              </Button>
+            }
+          />
+          <InstrumentDialog
+            triggerButton={
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5 h-9 border-[#E4E8EF] bg-white text-xs font-semibold text-[#1E293B] hover:bg-[#F8FAFC] shadow-sm"
+              >
+                <LineChart className="h-3.5 w-3.5 text-indigo-600" />
+                <span className="hidden xl:inline">Tambah</span> Instrumen
+              </Button>
+            }
+          />
           <RecordTransactionDialog
             accounts={accounts}
             instruments={instruments}

@@ -14,7 +14,12 @@ import {
 import { createAccountAction } from "@/app/actions/portfolio-actions";
 import { useToast } from "@/presentation/components/ui/toast";
 
-export function AccountDialog({ onAccountCreated }: { onAccountCreated?: () => void }) {
+interface AccountDialogProps {
+  onAccountCreated?: () => void;
+  triggerButton?: React.ReactNode;
+}
+
+export function AccountDialog({ onAccountCreated, triggerButton }: AccountDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -50,15 +55,21 @@ export function AccountDialog({ onAccountCreated }: { onAccountCreated?: () => v
 
   return (
     <>
-      <Button
-        onClick={() => setIsOpen(true)}
-        variant="outline"
-        size="sm"
-        className="gap-2 border-[#E4E8EF] text-[#1E293B] hover:bg-slate-50 font-medium"
-      >
-        <Building2 className="h-4 w-4 text-blue-600" />
-        Tambah Akun Sekuritas/Bank
-      </Button>
+      {triggerButton ? (
+        <div onClick={() => setIsOpen(true)} className="inline-block cursor-pointer">
+          {triggerButton}
+        </div>
+      ) : (
+        <Button
+          onClick={() => setIsOpen(true)}
+          variant="outline"
+          size="sm"
+          className="gap-1.5 border-[#E4E8EF] text-[#1E293B] hover:bg-slate-50 font-medium text-xs h-9"
+        >
+          <Building2 className="h-3.5 w-3.5 text-blue-600" />
+          Tambah Akun
+        </Button>
+      )}
 
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">

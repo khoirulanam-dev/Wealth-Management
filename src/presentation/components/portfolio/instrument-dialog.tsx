@@ -27,7 +27,12 @@ interface StockSuggestion {
   currency: string;
 }
 
-export function InstrumentDialog({ onInstrumentCreated }: { onInstrumentCreated?: () => void }) {
+interface InstrumentDialogProps {
+  onInstrumentCreated?: () => void;
+  triggerButton?: React.ReactNode;
+}
+
+export function InstrumentDialog({ onInstrumentCreated, triggerButton }: InstrumentDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -135,15 +140,21 @@ export function InstrumentDialog({ onInstrumentCreated }: { onInstrumentCreated?
 
   return (
     <>
-      <Button
-        onClick={() => setIsOpen(true)}
-        variant="outline"
-        size="sm"
-        className="gap-2 border-[#E4E8EF] text-[#1E293B] hover:bg-slate-50 font-medium"
-      >
-        <LineChart className="h-4 w-4 text-indigo-600" />
-        Tambah Instrumen / Saham
-      </Button>
+      {triggerButton ? (
+        <div onClick={() => setIsOpen(true)} className="inline-block cursor-pointer">
+          {triggerButton}
+        </div>
+      ) : (
+        <Button
+          onClick={() => setIsOpen(true)}
+          variant="outline"
+          size="sm"
+          className="gap-1.5 border-[#E4E8EF] text-[#1E293B] hover:bg-slate-50 font-medium text-xs h-9"
+        >
+          <LineChart className="h-3.5 w-3.5 text-indigo-600" />
+          Tambah Instrumen
+        </Button>
+      )}
 
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 overflow-y-auto">
