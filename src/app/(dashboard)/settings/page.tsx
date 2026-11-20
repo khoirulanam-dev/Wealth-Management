@@ -1,7 +1,10 @@
 import { ShieldCheck, Database, CheckCircle2 } from "lucide-react";
 import { env } from "@/lib/env";
+import { getSession } from "@/lib/auth";
 
-export default function SettingsPage() {
+export default async function SettingsPage() {
+  const session = await getSession();
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -28,33 +31,35 @@ export default function SettingsPage() {
               </div>
               <div>
                 <h2 className="text-base font-bold text-[#1E293B]">Akses & Keamanan</h2>
-                <p className="text-xs text-[#94A3B8]">Boundary privat single-user</p>
+                <p className="text-xs text-[#94A3B8]">Boundary privat single-user dinamis</p>
               </div>
             </div>
 
             <div className="space-y-4 text-xs">
               <div className="flex items-center justify-between py-2 border-b border-[#EEF1F5]">
                 <span className="text-[#64748B]">Mode Operasional</span>
-                <span className="font-semibold text-[#1E293B] bg-[#F1F5F9] px-2.5 py-1 rounded-md">Private Single-User</span>
+                <span className="font-semibold text-[#1E293B] bg-[#F1F5F9] px-2.5 py-1 rounded-md">Private Database Auth</span>
               </div>
               <div className="flex items-center justify-between py-2 border-b border-[#EEF1F5]">
-                <span className="text-[#64748B]">Registrasi Publik</span>
-                <span className="font-semibold text-rose-600 bg-rose-50 border border-rose-200 px-2.5 py-1 rounded-md">Dinonaktifkan Permanen</span>
+                <span className="text-[#64748B]">Penyimpanan Kredensial</span>
+                <span className="font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-md">Neon PostgreSQL Table &apos;users&apos;</span>
               </div>
               <div className="flex items-center justify-between py-2 border-b border-[#EEF1F5]">
-                <span className="text-[#64748B]">Akun Pemilik</span>
-                <span className="font-mono font-semibold text-[#1E293B]">{env.APP_USER_EMAIL}</span>
+                <span className="text-[#64748B]">Akun Terotentikasi</span>
+                <span className="font-mono font-semibold text-blue-600 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-md">
+                  {session?.email || "Tidak ada sesi aktif"}
+                </span>
               </div>
               <div className="flex items-center justify-between py-2">
                 <span className="text-[#64748B]">Mata Uang Pelaporan</span>
-                <span className="font-mono font-bold text-blue-600 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-md">{env.DEFAULT_CURRENCY}</span>
+                <span className="font-mono font-bold text-blue-600 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-md">{session?.reportingCurrency || env.DEFAULT_CURRENCY}</span>
               </div>
             </div>
           </div>
 
           <div className="mt-6 pt-4 border-t border-[#EEF1F5] flex items-center gap-2 text-xs text-emerald-600 font-medium">
             <CheckCircle2 className="h-4 w-4" />
-            <span>Sesi terenkripsi HTTP-Only aktif</span>
+            <span>Otentikasi dinamis dari database terhubung</span>
           </div>
         </div>
 

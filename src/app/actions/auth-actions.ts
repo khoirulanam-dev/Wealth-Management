@@ -1,28 +1,47 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { createSession, destroySession, getSession } from "@/lib/auth";
-import { env } from "@/lib/env";
+import { eq } from "drizzle-orm";
+import { db } from "@/infrastructure/db/client";
+import { users } from "@/infrastructure/db/schema/users";
+import { createSession, destroySession, getSession, verifyPassword } from "@/lib/auth";
 
 export async function loginAction(formData: FormData) {
-  const email = formData.get("email") as string;
+  const email = (formData.get("email") as string)?.toLowerCase().trim();
   const password = formData.get("password") as string;
 
   if (!email || !password) {
-    return { error: "Email and password are required." };
+    return { error: "Email dan password wajib diisi." };
   }
 
-  // Check against configured private owner credentials
-  if (email === env.APP_USER_EMAIL && password === env.APP_USER_PASSWORD) {
+  try {
+    // Dynamic database authentication query via Neon PostgreSQL + Drizzle ORM
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, email))
+      .limit(1);
+
+    if (!user) {
+      return { error: "Akun tidak ditemukan. Pastikan email terdaftar di database." };
+    }
+
+    const isPasswordValid = await verifyPassword(password, user.passwordHash);
+    if (!isPasswordValid) {
+      return { error: "Password yang Anda masukkan tidak valid." };
+    }
+
     await createSession({
-      id: "owner-singleton-user",
-      email: env.APP_USER_EMAIL,
-      reportingCurrency: env.DEFAULT_CURRENCY,
+      id: user.id,
+      email: user.email,
+      reportingCurrency: user.reportingCurrency || "IDR",
     });
-    redirect("/overview");
+  } catch (err) {
+    console.error("Database authentication error:", err);
+    return { error: "Gagal menghubungkan ke database otentikasi. Silakan periksa koneksi Neon." };
   }
 
-  return { error: "Invalid credentials. Private access only." };
+  redirect("/overview");
 }
 
 export async function logoutAction() {
@@ -33,4 +52,3 @@ export async function logoutAction() {
 export async function checkSessionAction() {
   return await getSession();
 }
-

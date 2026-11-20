@@ -56,18 +56,12 @@ export default async function LoginPage() {
         {/* Aside Footer */}
         <div className="relative z-10 flex items-center justify-between text-xs text-blue-200/80 font-mono">
           <span>© 2026 WEALTH OS</span>
-          <span>ENTERPRISE GRADE · SELF HOSTED</span>
         </div>
       </aside>
 
       {/* Right Main (Adminator Modern Sign In Form) */}
       <main className="flex flex-col justify-between p-6 sm:p-12 lg:p-16">
         <div className="flex items-center justify-between text-xs text-[#64748B]">
-          <span className="font-mono">STATUS: ONLINE</span>
-          <span className="inline-flex items-center gap-1.5 font-medium text-emerald-600">
-            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-            Terminal Siap
-          </span>
         </div>
 
         <div className="mx-auto w-full max-w-md my-auto">
@@ -81,10 +75,6 @@ export default async function LoginPage() {
 
             <LoginForm />
           </div>
-
-          <p className="mt-6 text-center text-xs text-[#64748B] leading-relaxed">
-            Sistem privat terenkripsi. Hak akses dibatasi khusus untuk pemilik akun terdaftar.
-          </p>
         </div>
       </main>
     </div>
