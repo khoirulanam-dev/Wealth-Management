@@ -32,6 +32,8 @@ export interface StockSearchItem {
   exchange: string;
   assetType: string;
   currency: string;
+  price?: number;
+  changePercent?: number;
 }
 
 export class MarketDataService {
@@ -248,10 +250,11 @@ export class MarketDataService {
         const data = await res.json();
         const quotes = data?.quotes || [];
 
-        return quotes
+        const rawList = quotes
           .filter((item: { quoteType?: string; symbol?: string }) =>
             item.quoteType === "EQUITY" || item.quoteType === "ETF" || item.quoteType === "MUTUALFUND"
           )
+          .slice(0, 8)
           .map((item: {
             symbol: string;
             shortname?: string;
@@ -270,6 +273,24 @@ export class MarketDataService {
               currency: isIdx ? "IDR" : "USD",
             };
           });
+
+        // Enrich with real live quote in parallel
+        const enriched = await Promise.all(
+          rawList.map(async (it: StockSearchItem) => {
+            try {
+              const q = await this.fetchQuote(it.cleanSymbol, it.assetType);
+              return {
+                ...it,
+                price: q?.price,
+                changePercent: q?.changePercent,
+              };
+            } catch {
+              return it;
+            }
+          })
+        );
+
+        return enriched;
       } catch (err) {
         console.warn(`[MarketDataService] Search mirror ${mirror} failed:`, err);
       }

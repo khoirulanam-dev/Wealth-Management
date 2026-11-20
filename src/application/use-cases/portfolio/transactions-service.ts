@@ -4,6 +4,7 @@ import {
   positions,
   instruments,
   financialAccounts,
+  valuations,
   NewInvestmentTransaction,
 } from "@/infrastructure/db/schema";
 import { eq, and, desc } from "drizzle-orm";
@@ -211,12 +212,21 @@ export class TransactionsService {
       )
       .limit(1);
 
-    // Current price is latest unitPrice or existing currentPrice
+    // Check if there is a real market valuation for this instrument in valuations table
+    const [latestValuation] = await db
+      .select()
+      .from(valuations)
+      .where(and(eq(valuations.userId, userId), eq(valuations.instrumentId, instrumentId)))
+      .orderBy(desc(valuations.effectiveAt))
+      .limit(1);
+
     const latestTx = txs
       .filter((t) => t.status === "posted")
       .sort((a, b) => new Date(b.tradeDate).getTime() - new Date(a.tradeDate).getTime())[0];
 
-    const currentPrice = existingPos?.currentPrice && new Decimal(existingPos.currentPrice).gt(0)
+    const currentPrice = latestValuation?.price && new Decimal(latestValuation.price).gt(0)
+      ? latestValuation.price
+      : existingPos?.currentPrice && new Decimal(existingPos.currentPrice).gt(0)
       ? existingPos.currentPrice
       : latestTx?.unitPrice || "0";
 

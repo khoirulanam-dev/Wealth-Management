@@ -52,8 +52,16 @@ export async function createInstrumentAction(formData: FormData) {
       currency,
       unit,
     });
+
+    try {
+      await MarketDataSyncService.syncPortfolioQuotes(session.userId);
+    } catch {
+      // non-blocking market sync
+    }
+
     revalidatePath("/investments");
     revalidatePath("/transactions");
+    revalidatePath("/market-data");
     return { success: true, instrument };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Gagal menambahkan instrumen";
@@ -143,9 +151,16 @@ export async function recordTransactionAction(formData: FormData) {
       status: "posted",
     });
 
+    try {
+      await MarketDataSyncService.syncPortfolioQuotes(session.userId);
+    } catch {
+      // non-blocking market sync
+    }
+
     revalidatePath("/investments");
     revalidatePath("/transactions");
     revalidatePath("/overview");
+    revalidatePath("/market-data");
     return { success: true, transaction: tx };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Gagal mencatat transaksi";

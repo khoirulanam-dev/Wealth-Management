@@ -5,8 +5,9 @@ import { eq, desc } from "drizzle-orm";
 import { RefreshQuotesButton } from "@/presentation/components/portfolio/refresh-quotes-button";
 import { MarketQuoteLookup } from "@/presentation/components/portfolio/market-quote-lookup";
 import { MarketDataService } from "@/infrastructure/services/market-data-service";
+import { MarketDataSyncService } from "@/application/use-cases/portfolio/market-data-sync-service";
 import { formatCurrency } from "@/lib/decimal";
-import { LineChart, Clock, ShieldCheck, Database, Search, Globe2, Radio } from "lucide-react";
+import { LineChart, Clock, ShieldCheck, Search, Globe2, Radio } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +15,10 @@ export default async function MarketDataPage() {
   const session = await requireAuth();
   const providerInfo = MarketDataService.getActiveProviderInfo();
 
-  const [rawInstruments, recentValuations] = await Promise.all([
+  // Always sync latest market quotes on page load
+  await MarketDataSyncService.syncPortfolioQuotes(session.userId);
+
+  const [rawInstruments, allValuations] = await Promise.all([
     db
       .select({
         id: instruments.id,
@@ -47,9 +51,18 @@ export default async function MarketDataPage() {
       })
       .from(valuations)
       .where(eq(valuations.userId, session.userId))
-      .orderBy(desc(valuations.fetchedAt))
-      .limit(10),
+      .orderBy(desc(valuations.effectiveAt)),
   ]);
+
+  // Build a lookup map of latest valuation per instrument
+  const valMap = new Map<string, typeof allValuations[0]>();
+  for (const v of allValuations) {
+    if (!valMap.has(v.instrumentId)) {
+      valMap.set(v.instrumentId, v);
+    }
+  }
+
+  const recentValuations = allValuations.slice(0, 10);
 
   return (
     <div className="space-y-6">
@@ -167,8 +180,11 @@ export default async function MarketDataPage() {
               </thead>
               <tbody className="divide-y divide-[#E4E8EF] text-[#1E293B]">
                 {rawInstruments.map((item) => {
-                  const formattedDate = item.updatedAt
-                    ? new Date(item.updatedAt).toLocaleDateString("id-ID", {
+                  const latestVal = valMap.get(item.id);
+                  const displayPrice = latestVal?.price || item.currentPrice;
+                  const dateToFormat = latestVal?.fetchedAt || item.updatedAt;
+                  const formattedDate = dateToFormat
+                    ? new Date(dateToFormat).toLocaleDateString("id-ID", {
                         day: "numeric",
                         month: "short",
                         year: "numeric",
@@ -185,12 +201,14 @@ export default async function MarketDataPage() {
                       <td className="py-3 px-4 font-medium">{item.name}</td>
                       <td className="py-3 px-4 font-mono text-[#64748B]">{item.market || "IDX"}</td>
                       <td className="py-3 px-4 text-right font-mono font-bold text-[#1E293B]">
-                        {item.currentPrice && parseFloat(item.currentPrice) > 0
-                          ? formatCurrency(item.currentPrice)
+                        {displayPrice && parseFloat(displayPrice) > 0
+                          ? formatCurrency(displayPrice)
                           : "Belum Ada Quote"}
                       </td>
                       <td className="py-3 px-4 text-right font-mono text-[#475569]">
-                        {item.marketValue ? formatCurrency(item.marketValue) : "Rp 0"}
+                        {item.marketValue && parseFloat(item.marketValue) > 0
+                          ? formatCurrency(item.marketValue)
+                          : "-"}
                       </td>
                       <td className="py-3 px-4 text-center font-mono text-[11px] text-[#64748B]">
                         {formattedDate}

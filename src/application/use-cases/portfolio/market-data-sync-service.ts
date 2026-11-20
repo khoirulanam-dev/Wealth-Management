@@ -69,29 +69,41 @@ export class MarketDataSyncService {
         .from(positions)
         .where(and(eq(positions.userId, userId), eq(positions.instrumentId, inst.id)));
 
-      for (const pos of userPositions) {
-        const qty = new Decimal(pos.quantity || "0");
-        const newPrice = new Decimal(quote.price);
-        const marketValue = qty.times(newPrice).toFixed(2);
-        const totalCostBasis = new Decimal(pos.totalCostBasis || "0");
-        const unrealizedPL = new Decimal(marketValue).minus(totalCostBasis).toFixed(2);
+      if (userPositions.length > 0) {
+        for (const pos of userPositions) {
+          const qty = new Decimal(pos.quantity || "0");
+          const newPrice = new Decimal(quote.price);
+          const marketValue = qty.times(newPrice).toFixed(2);
+          const totalCostBasis = new Decimal(pos.totalCostBasis || "0");
+          const unrealizedPL = new Decimal(marketValue).minus(totalCostBasis).toFixed(2);
 
-        await db
-          .update(positions)
-          .set({
-            currentPrice: priceStr,
-            marketValue,
-            unrealizedPL,
-            lastValuationId: valId,
-            updatedAt: new Date(),
-          })
-          .where(eq(positions.id, pos.id));
+          await db
+            .update(positions)
+            .set({
+              currentPrice: priceStr,
+              marketValue,
+              unrealizedPL,
+              lastValuationId: valId,
+              updatedAt: new Date(),
+            })
+            .where(eq(positions.id, pos.id));
 
+          syncedItems.push({
+            instrumentId: inst.id,
+            symbol: inst.symbol || inst.name,
+            name: inst.name,
+            previousPrice: pos.currentPrice,
+            newPrice: quote.price,
+            changePercent: quote.changePercent,
+            currency: quote.currency,
+          });
+        }
+      } else {
         syncedItems.push({
           instrumentId: inst.id,
           symbol: inst.symbol || inst.name,
           name: inst.name,
-          previousPrice: pos.currentPrice,
+          previousPrice: "0",
           newPrice: quote.price,
           changePercent: quote.changePercent,
           currency: quote.currency,
