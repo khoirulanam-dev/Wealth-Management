@@ -4,13 +4,15 @@ import { instruments, positions, valuations } from "@/infrastructure/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { RefreshQuotesButton } from "@/presentation/components/portfolio/refresh-quotes-button";
 import { MarketQuoteLookup } from "@/presentation/components/portfolio/market-quote-lookup";
+import { MarketDataService } from "@/infrastructure/services/market-data-service";
 import { formatCurrency } from "@/lib/decimal";
-import { LineChart, Clock, ShieldCheck, Database, Search } from "lucide-react";
+import { LineChart, Clock, ShieldCheck, Database, Search, Globe2, Radio } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
 export default async function MarketDataPage() {
   const session = await requireAuth();
+  const providerInfo = MarketDataService.getActiveProviderInfo();
 
   const [rawInstruments, recentValuations] = await Promise.all([
     db
@@ -68,7 +70,23 @@ export default async function MarketDataPage() {
       </div>
 
       {/* Info Banner */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="adm-card p-4 flex items-start gap-3">
+          <div className="p-2 rounded-lg bg-indigo-50 text-indigo-600">
+            <Radio className="h-5 w-5 animate-pulse" />
+          </div>
+          <div>
+            <div className="flex items-center gap-1.5">
+              <span className="h-2 w-2 rounded-full bg-emerald-500"></span>
+              <h4 className="text-xs font-bold text-[#1E293B]">Live Provider</h4>
+            </div>
+            <p className="text-[11px] font-medium text-[#1E293B] mt-1 line-clamp-1" title={providerInfo.primaryProvider}>
+              {providerInfo.primaryProvider}
+            </p>
+            <span className="text-[10px] text-[#94A3B8] block mt-0.5">Feed resmi Bursa Jakarta (JKT)</span>
+          </div>
+        </div>
+
         <div className="adm-card p-4 flex items-start gap-3">
           <div className="p-2 rounded-lg bg-blue-50 text-blue-600">
             <Clock className="h-5 w-5" />
@@ -83,12 +101,12 @@ export default async function MarketDataPage() {
 
         <div className="adm-card p-4 flex items-start gap-3">
           <div className="p-2 rounded-lg bg-emerald-50 text-emerald-600">
-            <Database className="h-5 w-5" />
+            <Globe2 className="h-5 w-5" />
           </div>
           <div>
-            <h4 className="text-xs font-bold text-[#1E293B]">API Pasar Gratis (Zero Key)</h4>
+            <h4 className="text-xs font-bold text-[#1E293B]">Pihak Ke-3 Riil (Zero Mock)</h4>
             <p className="text-[11px] text-[#64748B] mt-0.5">
-              Mendukung Saham IDX (BBCA, BBRI, dll), US Stocks (AAPL, TSLA), dan Emas Fisik (Gold/Antam).
+              Data harga bursa riil saham IDX, saham global US, dan emas fisik dunia.
             </p>
           </div>
         </div>
@@ -100,7 +118,7 @@ export default async function MarketDataPage() {
           <div>
             <h4 className="text-xs font-bold text-[#1E293B]">Kalkulasi PnL Riil</h4>
             <p className="text-[11px] text-[#64748B] mt-0.5">
-              Setiap kali harga pasar disinkronkan, Nilai Pasar &amp; Unrealized PnL di portofolio langsung diperbarui.
+              Nilai Pasar &amp; Unrealized PnL di portofolio selalu mengikuti harga penutupan / pasar terakhir.
             </p>
           </div>
         </div>

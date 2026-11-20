@@ -36,6 +36,65 @@ export class MarketDataService {
   private static CACHE_TTL_MS = 60 * 1000; // 1 minute in-memory cache
 
   /**
+   * Information about active market data providers.
+   */
+  public static getActiveProviderInfo() {
+    const hasGoApiKey = !!process.env.GOAPI_API_KEY;
+    return {
+      primaryProvider: hasGoApiKey
+        ? "GoAPI.io (Indonesia Local Market API)"
+        : "Yahoo Finance (Bursa Efek Indonesia / IDX Feed)",
+      isGoApiConfigured: hasGoApiKey,
+      isRealData: true,
+      coverage: "Saham IDX (Indonesia), Saham Global (US), dan Emas Fisik",
+    };
+  }
+
+  /**
+   * Fetch from GoAPI (Indonesian Local Provider) if user configured GOAPI_API_KEY.
+   */
+  private static async fetchFromGoApi(cleanSymbol: string): Promise<MarketQuote | null> {
+    const apiKey = process.env.GOAPI_API_KEY;
+    if (!apiKey) return null;
+
+    try {
+      const url = `https://api.goapi.io/stock/idx/prices?symbols=${encodeURIComponent(cleanSymbol)}`;
+      const res = await fetch(url, {
+        headers: {
+          "X-API-KEY": apiKey,
+          "Authorization": `Bearer ${apiKey}`,
+          Accept: "application/json",
+        },
+        next: { revalidate: 60 },
+      });
+
+      if (!res.ok) return null;
+      const json = await res.json();
+      const item = json?.data?.results?.[0] || json?.data?.[0];
+      if (!item || typeof item.close !== "number") return null;
+
+      const price = item.close;
+      const change = item.change || 0;
+      const changePercent = item.percent || 0;
+
+      return {
+        symbol: `${cleanSymbol}.JK`,
+        cleanSymbol,
+        name: item.name || cleanSymbol,
+        price,
+        currency: "IDR",
+        change,
+        changePercent,
+        timestamp: new Date(),
+        source: "GoAPI.io (IDX Local Provider)",
+      };
+    } catch (err) {
+      console.warn("[MarketDataService] GoAPI fetch failed, falling back to Yahoo Finance IDX feed:", err);
+      return null;
+    }
+  }
+
+  /**
    * Resolve appropriate ticker symbol for public query.
    * e.g. "BBCA" -> "BBCA.JK", "BBRI" -> "BBRI.JK", "GOLD"/"EMAS" -> "GC=F", "AAPL" -> "AAPL"
    */
@@ -75,6 +134,15 @@ export class MarketDataService {
     const cached = this.quoteCache.get(querySymbol);
     if (cached && Date.now() - cached.cachedAt < this.CACHE_TTL_MS) {
       return cached.quote;
+    }
+
+    // If GOAPI_API_KEY is configured, try GoAPI first for Indonesian stocks
+    if (process.env.GOAPI_API_KEY && (assetType === "stock" || !assetType)) {
+      const goQuote = await this.fetchFromGoApi(cleanSymbol);
+      if (goQuote) {
+        this.quoteCache.set(querySymbol, { quote: goQuote, cachedAt: Date.now() });
+        return goQuote;
+      }
     }
 
     try {
