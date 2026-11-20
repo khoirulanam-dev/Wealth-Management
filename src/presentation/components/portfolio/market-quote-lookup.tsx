@@ -38,7 +38,7 @@ export function MarketQuoteLookup() {
           <Search className="absolute left-3 top-3 h-4 w-4 text-[#94A3B8]" />
           <input
             type="text"
-            placeholder="Cari simbol atau emiten saham (contoh: BBCA, ASII, BMRI, BREN, Apple, Tesla)..."
+            placeholder="Cari instrumen (contoh: BBCA, Sucorinvest, Antam, ORI026, BTC, Apple)..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="w-full rounded-xl border border-[#E4E8EF] bg-white pl-9 pr-4 py-2 text-xs text-[#1E293B] placeholder-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-blue-600"
@@ -50,7 +50,7 @@ export function MarketQuoteLookup() {
           size="sm"
           className="bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs px-4"
         >
-          {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Cari Saham"}
+          {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Cari Instrumen"}
         </Button>
       </form>
 

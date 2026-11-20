@@ -407,7 +407,29 @@ export class MarketDataService {
       });
     }
 
-    const localMatches = [...matchedFunds, ...matchedBonds, ...matchedGold];
+    // 4. Check Crypto keywords
+    const cryptoCurated = [
+      { sym: "BTC", name: "Bitcoin (BTC)" },
+      { sym: "ETH", name: "Ethereum (ETH)" },
+      { sym: "SOL", name: "Solana (SOL)" },
+      { sym: "USDT", name: "Tether USD (USDT)" },
+      { sym: "BNB", name: "Binance Coin (BNB)" },
+      { sym: "XRP", name: "Ripple XRP (XRP)" },
+      { sym: "DOGE", name: "Dogecoin (DOGE)" },
+      { sym: "ADA", name: "Cardano (ADA)" },
+    ];
+    const matchedCrypto: StockSearchItem[] = cryptoCurated
+      .filter((c) => c.sym.toLowerCase() === lowerQ || c.name.toLowerCase().includes(lowerQ) || lowerQ.includes(c.sym.toLowerCase()))
+      .map((c) => ({
+        symbol: `${c.sym}-USD`,
+        cleanSymbol: c.sym,
+        name: c.name,
+        exchange: "KRIPTO",
+        assetType: "crypto",
+        currency: "IDR",
+      }));
+
+    const localMatches = [...matchedCrypto, ...matchedFunds, ...matchedBonds, ...matchedGold];
 
     for (const mirror of this.MIRRORS) {
       try {

@@ -285,7 +285,7 @@ export async function searchMarketStocksAction(query: string) {
     const results = await MarketDataService.searchSymbols(query);
     return { success: true, data: results };
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Gagal mencari simbol saham";
+    const message = err instanceof Error ? err.message : "Gagal mencari instrumen pasar";
     return { success: false, error: message, data: [] };
   }
 }

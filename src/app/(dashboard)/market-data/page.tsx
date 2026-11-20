@@ -4,16 +4,14 @@ import { instruments, positions, valuations } from "@/infrastructure/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { RefreshQuotesButton } from "@/presentation/components/portfolio/refresh-quotes-button";
 import { MarketQuoteLookup } from "@/presentation/components/portfolio/market-quote-lookup";
-import { MarketDataService } from "@/infrastructure/services/market-data-service";
 import { MarketDataSyncService } from "@/application/use-cases/portfolio/market-data-sync-service";
 import { formatCurrency } from "@/lib/decimal";
-import { LineChart, Clock, ShieldCheck, Search, Globe2, Radio } from "lucide-react";
+import { LineChart, Search } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
 export default async function MarketDataPage() {
   const session = await requireAuth();
-  const providerInfo = MarketDataService.getActiveProviderInfo();
 
   // Always sync latest market quotes on page load
   await MarketDataSyncService.syncPortfolioQuotes(session.userId);
@@ -82,68 +80,13 @@ export default async function MarketDataPage() {
         </div>
       </div>
 
-      {/* Info Banner */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="adm-card p-4 flex items-start gap-3">
-          <div className="p-2 rounded-lg bg-indigo-50 text-indigo-600">
-            <Radio className="h-5 w-5 animate-pulse" />
-          </div>
-          <div>
-            <div className="flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-emerald-500"></span>
-              <h4 className="text-xs font-bold text-[#1E293B]">Live Provider</h4>
-            </div>
-            <p className="text-[11px] font-medium text-[#1E293B] mt-1 line-clamp-1" title={providerInfo.primaryProvider}>
-              {providerInfo.primaryProvider}
-            </p>
-            <span className="text-[10px] text-[#94A3B8] block mt-0.5">Feed resmi Bursa Jakarta (JKT)</span>
-          </div>
-        </div>
-
-        <div className="adm-card p-4 flex items-start gap-3">
-          <div className="p-2 rounded-lg bg-blue-50 text-blue-600">
-            <Clock className="h-5 w-5" />
-          </div>
-          <div>
-            <h4 className="text-xs font-bold text-[#1E293B]">Auto-Update Harian</h4>
-            <p className="text-[11px] text-[#64748B] mt-0.5">
-              Harga pasar diperiksa &amp; diperbarui otomatis minimal 1x sehari setiap kali Anda membuka aplikasi.
-            </p>
-          </div>
-        </div>
-
-        <div className="adm-card p-4 flex items-start gap-3">
-          <div className="p-2 rounded-lg bg-emerald-50 text-emerald-600">
-            <Globe2 className="h-5 w-5" />
-          </div>
-          <div>
-            <h4 className="text-xs font-bold text-[#1E293B]">Pihak Ke-3 Riil (Zero Mock)</h4>
-            <p className="text-[11px] text-[#64748B] mt-0.5">
-              Data harga bursa riil saham IDX, saham global US, dan emas fisik dunia.
-            </p>
-          </div>
-        </div>
-
-        <div className="adm-card p-4 flex items-start gap-3">
-          <div className="p-2 rounded-lg bg-amber-50 text-amber-600">
-            <ShieldCheck className="h-5 w-5" />
-          </div>
-          <div>
-            <h4 className="text-xs font-bold text-[#1E293B]">Kalkulasi PnL Riil</h4>
-            <p className="text-[11px] text-[#64748B] mt-0.5">
-              Nilai Pasar &amp; Unrealized PnL di portofolio selalu mengikuti harga penutupan / pasar terakhir.
-            </p>
-          </div>
-        </div>
-      </div>
-
       {/* Live Search Section */}
       <div className="adm-card p-6">
         <div className="flex items-center gap-2.5 pb-4 mb-4 border-b border-[#EEF1F5]">
           <Search className="h-5 w-5 text-blue-600" />
           <div>
-            <h2 className="text-base font-bold text-[#1E293B]">Cari &amp; Jelajahi Saham Online</h2>
-            <p className="text-xs text-[#94A3B8]">Cari kode emiten, perusahaan IDX, atau ETF secara langsung</p>
+            <h2 className="text-base font-bold text-[#1E293B]">Cari &amp; Jelajahi Instrumen Pasar</h2>
+            <p className="text-xs text-[#94A3B8]">Cari saham bursa, reksa dana, emas batangan, obligasi/SBN, atau aset kripto secara langsung</p>
           </div>
         </div>
         <MarketQuoteLookup />
