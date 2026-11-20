@@ -112,17 +112,16 @@ export function Sidebar() {
         ))}
       </div>
 
-      {/* Adminator Workspace Footer Profile */}
+      {/* Workspace Footer Profile */}
       <div className="p-3 border-t border-[#EEF1F5] m-2">
-        <div className="flex items-center gap-3 p-2 rounded-lg bg-[#F8FAFC] border border-[#EEF1F5]">
-          <div className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center font-bold text-xs shadow-sm">
+        <div className="flex items-center gap-2.5 p-2 rounded-lg bg-[#F8FAFC]">
+          <div className="h-7 w-7 rounded-md bg-blue-600 text-white flex items-center justify-center font-semibold text-xs">
             W
           </div>
           <div className="flex flex-col min-w-0 flex-1">
-            <span className="text-xs font-semibold text-[#1E293B] truncate">Private Owner</span>
-            <span className="text-[10px] text-[#94A3B8] font-mono">Single-User</span>
+            <span className="text-xs font-semibold text-[#1E293B] truncate">Akun Terautentikasi</span>
+            <span className="text-[10px] text-[#94A3B8]">Private Session</span>
           </div>
-          <span className="h-2 w-2 rounded-full bg-emerald-500 shrink-0" title="System Online" />
         </div>
       </div>
     </aside>

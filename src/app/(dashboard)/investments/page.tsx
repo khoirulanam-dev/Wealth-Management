@@ -49,9 +49,7 @@ export default async function InvestmentsPage() {
         <div className="adm-card p-5">
           <div className="flex items-center justify-between text-xs text-[#64748B] mb-2">
             <span className="font-semibold uppercase tracking-wider">Nilai Pasar Portofolio</span>
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
-              <PieChart className="h-4 w-4" />
-            </div>
+            <PieChart className="h-4 w-4 text-blue-600" />
           </div>
           <div className="text-2xl font-bold text-[#1E293B] font-mono">
             {formatCurrency(summary.totalMarketValue)}
@@ -65,9 +63,7 @@ export default async function InvestmentsPage() {
         <div className="adm-card p-5">
           <div className="flex items-center justify-between text-xs text-[#64748B] mb-2">
             <span className="font-semibold uppercase tracking-wider">Total Modal Terinvestasi</span>
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-[#475569]">
-              <Layers className="h-4 w-4" />
-            </div>
+            <Layers className="h-4 w-4 text-[#475569]" />
           </div>
           <div className="text-2xl font-bold text-[#1E293B] font-mono">
             {formatCurrency(summary.totalCostBasis)}
@@ -81,13 +77,11 @@ export default async function InvestmentsPage() {
         <div className="adm-card p-5">
           <div className="flex items-center justify-between text-xs text-[#64748B] mb-2">
             <span className="font-semibold uppercase tracking-wider">Unrealized P/L</span>
-            <div
-              className={`flex h-7 w-7 items-center justify-center rounded-lg ${
-                isProfit ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-600"
-              }`}
-            >
-              {isProfit ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
-            </div>
+            {isProfit ? (
+              <TrendingUp className="h-4 w-4 text-emerald-600" />
+            ) : (
+              <TrendingDown className="h-4 w-4 text-red-600" />
+            )}
           </div>
           <div
             className={`text-2xl font-bold font-mono ${
@@ -111,9 +105,7 @@ export default async function InvestmentsPage() {
         <div className="adm-card p-5">
           <div className="flex items-center justify-between text-xs text-[#64748B] mb-2">
             <span className="font-semibold uppercase tracking-wider">Posisi Aktif</span>
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
-              <Layers className="h-4 w-4" />
-            </div>
+            <Layers className="h-4 w-4 text-indigo-600" />
           </div>
           <div className="text-2xl font-bold text-[#1E293B] font-mono">
             {summary.positionCount}

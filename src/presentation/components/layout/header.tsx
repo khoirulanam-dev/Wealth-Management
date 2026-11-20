@@ -24,15 +24,15 @@ export function Header({ title = "Ringkasan Portofolio", currency = "IDR" }: Hea
       {/* Right Controls */}
       <div className="flex items-center gap-3">
         {/* Market Data Mode Indicator */}
-        <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-50 border border-amber-200 text-amber-700 text-xs font-medium">
-          <RefreshCw className="h-3 w-3 animate-none" />
+        <div className="hidden sm:flex items-center gap-1.5 text-xs text-[#64748B] font-medium">
+          <RefreshCw className="h-3 w-3 text-[#94A3B8]" />
           <span>Manual Quotes</span>
         </div>
 
         {/* Currency context indicator */}
-        <div className="flex items-center gap-1 px-2.5 py-1 rounded-md border border-[#E4E8EF] bg-[#F8FAFC] text-xs font-mono font-medium text-[#1E293B]">
+        <div className="flex items-center gap-1 text-xs text-[#64748B]">
           <span>Mata Uang:</span>
-          <span className="font-bold text-blue-600">{currency}</span>
+          <span className="font-semibold font-mono text-[#1E293B]">{currency}</span>
         </div>
 
         {/* Global Quick Add Action */}

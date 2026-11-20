@@ -26,10 +26,8 @@ export default function WatchlistPage() {
       {/* Main Adminator Card */}
       <div className="adm-card p-6">
         <div className="flex items-center justify-between border-b border-[#EEF1F5] pb-4 mb-6">
-          <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
-              <Eye className="h-5 w-5" />
-            </div>
+          <div className="flex items-center gap-2.5">
+            <Eye className="h-5 w-5 text-indigo-600" />
             <div>
               <h2 className="text-base font-bold text-[#1E293B]">Instrumen dalam Pantauan</h2>
               <p className="text-xs text-[#94A3B8]">Harga kuotasi diperbarui secara manual sesuai kebutuhan pengguna</p>
@@ -38,9 +36,7 @@ export default function WatchlistPage() {
         </div>
 
         <div className="min-h-[300px] flex flex-col items-center justify-center text-center p-8 bg-[#F8FAFC] rounded-xl border border-dashed border-[#E4E8EF]">
-          <div className="h-12 w-12 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center mb-3">
-            <Eye className="h-6 w-6" />
-          </div>
+          <Eye className="h-8 w-8 text-[#94A3B8] mb-3" strokeWidth={1.5} />
           <h3 className="text-sm font-bold text-[#1E293B]">Watchlist Masih Kosong</h3>
           <p className="text-xs text-[#64748B] max-w-sm mt-1 leading-relaxed">
             Pantau saham atau reksa dana pilihan tanpa mempengaruhi saldo kepemilikan Anda.

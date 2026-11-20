@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowDownRight, ArrowUpRight, Ban, CheckCircle2, Loader2 } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, Ban, Loader2 } from "lucide-react";
 import { formatCurrency, formatNumber } from "@/lib/decimal";
 import { voidTransactionAction } from "@/app/actions/portfolio-actions";
 
@@ -94,16 +94,14 @@ export function TransactionsTable({ transactions }: TransactionsTableProps) {
                   {/* Type */}
                   <td className="py-3.5 px-4">
                     <span
-                      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
-                        isBuy
-                          ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                          : "bg-red-50 text-red-700 border border-red-200"
+                      className={`inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wider ${
+                        isBuy ? "text-emerald-600" : "text-red-600"
                       }`}
                     >
                       {isBuy ? (
-                        <ArrowDownRight className="h-3 w-3" />
+                        <ArrowDownRight className="h-3.5 w-3.5" />
                       ) : (
-                        <ArrowUpRight className="h-3 w-3" />
+                        <ArrowUpRight className="h-3.5 w-3.5" />
                       )}
                       {tx.type}
                     </span>
@@ -145,15 +143,9 @@ export function TransactionsTable({ transactions }: TransactionsTableProps) {
                   {/* Status */}
                   <td className="py-3.5 px-4 text-center">
                     {isVoided ? (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-[10px] font-semibold text-slate-600">
-                        <Ban className="h-3 w-3" />
-                        Dibatalkan (Void)
-                      </span>
+                      <span className="text-xs text-[#94A3B8]">Dibatalkan</span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10px] font-semibold text-emerald-600">
-                        <CheckCircle2 className="h-3 w-3" />
-                        Posted
-                      </span>
+                      <span className="text-xs text-emerald-600 font-medium">Posted</span>
                     )}
                   </td>
 

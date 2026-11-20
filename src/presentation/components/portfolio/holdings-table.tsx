@@ -35,9 +35,7 @@ export function HoldingsTable({ holdings, accounts, instruments }: HoldingsTable
   if (holdings.length === 0) {
     return (
       <div className="rounded-2xl border border-[#E4E8EF] bg-white p-12 text-center shadow-card">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 mx-auto mb-4">
-          <Wallet className="h-6 w-6" />
-        </div>
+        <Wallet className="h-8 w-8 text-[#94A3B8] mx-auto mb-3" strokeWidth={1.5} />
         <h3 className="text-base font-bold text-[#1E293B]">Portofolio Investasi Masih Kosong</h3>
         <p className="text-xs text-[#64748B] max-w-md mx-auto mt-1 mb-6 leading-relaxed">
           Mulai catat transaksi pembelian saham, unit reksa dana, atau emas fisik Anda untuk menghitung biaya rata-rata (weighted-average cost) dan nilai pasar portofolio secara otomatis.
@@ -88,7 +86,7 @@ export function HoldingsTable({ holdings, accounts, instruments }: HoldingsTable
                   {/* Instrument & Symbol */}
                   <td className="py-3.5 px-4">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 font-bold text-xs border border-blue-100 font-mono">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-[#F1F5F9] text-[#1E293B] font-semibold text-xs font-mono">
                         {item.instrumentSymbol?.substring(0, 4) || item.instrumentName.substring(0, 3).toUpperCase()}
                       </div>
                       <div>
@@ -96,7 +94,7 @@ export function HoldingsTable({ holdings, accounts, instruments }: HoldingsTable
                           <span className="font-bold text-[#1E293B] font-mono text-sm">
                             {item.instrumentSymbol || item.instrumentName}
                           </span>
-                          <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-[#64748B]">
+                          <span className="text-[11px] text-[#94A3B8]">
                             {item.assetType === "stock"
                               ? "Saham"
                               : item.assetType === "mutual_fund"

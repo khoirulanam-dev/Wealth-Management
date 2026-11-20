@@ -30,7 +30,7 @@ export default async function LoginPage() {
 
         {/* Body Hero Copy */}
         <div className="relative z-10 max-w-lg space-y-6">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-mono font-medium tracking-wide text-blue-100 backdrop-blur-sm border border-white/15">
+          <span className="inline-flex items-center gap-1.5 text-xs font-mono font-semibold tracking-wider text-blue-200 uppercase">
             <Sparkles className="h-3.5 w-3.5 text-blue-300" />
             2026 · PRIVATE WEALTH COCKPIT
           </span>

@@ -30,10 +30,8 @@ export default function IncomePage() {
       {/* Main Adminator Card */}
       <div className="adm-card p-6">
         <div className="flex items-center justify-between border-b border-[#EEF1F5] pb-4 mb-6">
-          <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
-              <PiggyBank className="h-5 w-5" />
-            </div>
+          <div className="flex items-center gap-2.5">
+            <PiggyBank className="h-5 w-5 text-emerald-600" />
             <div>
               <h2 className="text-base font-bold text-[#1E293B]">Riwayat Dividen & Kupon</h2>
               <p className="text-xs text-[#94A3B8]">Pemisahan tegas: pendapatan riil diterima tidak bercampur dengan proyeksi forecast</p>
@@ -42,9 +40,7 @@ export default function IncomePage() {
         </div>
 
         <div className="min-h-[300px] flex flex-col items-center justify-center text-center p-8 bg-[#F8FAFC] rounded-xl border border-dashed border-[#E4E8EF]">
-          <div className="h-12 w-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3">
-            <PiggyBank className="h-6 w-6" />
-          </div>
+          <PiggyBank className="h-8 w-8 text-[#94A3B8] mb-3" strokeWidth={1.5} />
           <h3 className="text-sm font-bold text-[#1E293B]">Belum Ada Pendapatan Dicatat</h3>
           <p className="text-xs text-[#64748B] max-w-sm mt-1 leading-relaxed">
             Pencatatan riil dividen diterima, kalender hasil investasi, dan yield on cost siap digunakan.

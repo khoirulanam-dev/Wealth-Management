@@ -62,19 +62,17 @@ export default async function OverviewPage() {
         </div>
       </section>
 
-      {/* Adminator 4-Card KPI Grid */}
+      {/* 4-Card KPI Grid */}
       <section className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {/* KPI 1: Net Worth (Emerald Theme) */}
-        <article className="adm-card p-5 flex flex-col justify-between gap-4 relative overflow-hidden group">
+        {/* KPI 1: Net Worth */}
+        <article className="adm-card p-5 flex flex-col justify-between gap-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="h-9 w-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
-                <ShieldCheck className="h-5 w-5" />
-              </div>
-              <span className="text-xs font-semibold text-[#64748B]">Kekayaan Bersih</span>
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4 text-emerald-600" />
+              <span className="text-xs font-medium text-[#64748B]">Kekayaan Bersih</span>
             </div>
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-600 border border-emerald-200">
-              <ArrowUpRight className="h-3 w-3" />
+            <span className="text-xs font-medium text-emerald-600 flex items-center gap-0.5">
+              <ArrowUpRight className="h-3.5 w-3.5" />
               Net Worth
             </span>
           </div>
@@ -85,20 +83,18 @@ export default async function OverviewPage() {
           </div>
           <div className="pt-3 border-t border-dashed border-[#EEF1F5] text-xs text-[#94A3B8] flex items-center justify-between">
             <span>Aset - Liabilitas</span>
-            <span className="font-mono text-[#1E293B] font-semibold">Terkonsolidasi</span>
+            <span className="font-mono text-[#475569]">Terkonsolidasi</span>
           </div>
         </article>
 
-        {/* KPI 2: Investments (Blue Theme) */}
-        <article className="adm-card p-5 flex flex-col justify-between gap-4 relative overflow-hidden group">
+        {/* KPI 2: Investments */}
+        <article className="adm-card p-5 flex flex-col justify-between gap-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="h-9 w-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
-                <TrendingUp className="h-5 w-5" />
-              </div>
-              <span className="text-xs font-semibold text-[#64748B]">Nilai Investasi</span>
+            <div className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-blue-600" />
+              <span className="text-xs font-medium text-[#64748B]">Nilai Investasi</span>
             </div>
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-blue-50 text-blue-600 border border-blue-200">
+            <span className="text-xs font-medium text-blue-600">
               Portofolio
             </span>
           </div>
@@ -109,22 +105,20 @@ export default async function OverviewPage() {
           </div>
           <div className="pt-3 border-t border-dashed border-[#EEF1F5] text-xs text-[#94A3B8] flex items-center justify-between">
             <span>Saham, RDPU, Emas</span>
-            <span className="font-mono text-[#1E293B] font-semibold">
+            <span className="font-mono text-[#475569]">
               {summary.positionCount} Aset Aktif
             </span>
           </div>
         </article>
 
-        {/* KPI 3: Cash & Savings (Purple Theme) */}
-        <article className="adm-card p-5 flex flex-col justify-between gap-4 relative overflow-hidden group">
+        {/* KPI 3: Cash & Savings */}
+        <article className="adm-card p-5 flex flex-col justify-between gap-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="h-9 w-9 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center font-bold">
-                <Wallet className="h-5 w-5" />
-              </div>
-              <span className="text-xs font-semibold text-[#64748B]">Kas & Simpanan</span>
+            <div className="flex items-center gap-2">
+              <Wallet className="h-4 w-4 text-[#64748B]" />
+              <span className="text-xs font-medium text-[#64748B]">Kas & Simpanan</span>
             </div>
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-purple-50 text-purple-600 border border-purple-200">
+            <span className="text-xs font-medium text-[#64748B]">
               Likuid
             </span>
           </div>
@@ -135,20 +129,18 @@ export default async function OverviewPage() {
           </div>
           <div className="pt-3 border-t border-dashed border-[#EEF1F5] text-xs text-[#94A3B8] flex items-center justify-between">
             <span>Bank & Dana Darurat</span>
-            <span className="font-mono text-[#1E293B] font-semibold">Siap dihubungkan</span>
+            <span className="font-mono text-[#475569]">Siap dihubungkan</span>
           </div>
         </article>
 
-        {/* KPI 4: Liabilities (Danger Red Theme) */}
-        <article className="adm-card p-5 flex flex-col justify-between gap-4 relative overflow-hidden group">
+        {/* KPI 4: Liabilities */}
+        <article className="adm-card p-5 flex flex-col justify-between gap-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="h-9 w-9 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center font-bold">
-                <CreditCard className="h-5 w-5" />
-              </div>
-              <span className="text-xs font-semibold text-[#64748B]">Total Liabilitas</span>
+            <div className="flex items-center gap-2">
+              <CreditCard className="h-4 w-4 text-[#64748B]" />
+              <span className="text-xs font-medium text-[#64748B]">Total Liabilitas</span>
             </div>
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-rose-50 text-rose-600 border border-rose-200">
+            <span className="text-xs font-medium text-[#64748B]">
               Kewajiban
             </span>
           </div>
@@ -159,7 +151,7 @@ export default async function OverviewPage() {
           </div>
           <div className="pt-3 border-t border-dashed border-[#EEF1F5] text-xs text-[#94A3B8] flex items-center justify-between">
             <span>PayLater & Pinjaman</span>
-            <span className="font-mono text-[#1E293B] font-semibold">Bebas Utang</span>
+            <span className="font-mono text-[#475569]">Bebas Utang</span>
           </div>
         </article>
       </section>
@@ -185,9 +177,7 @@ export default async function OverviewPage() {
           </div>
 
           <div className="min-h-[260px] flex flex-col items-center justify-center text-center p-6 bg-[#F8FAFC] rounded-xl border border-dashed border-[#E4E8EF]">
-            <div className="h-12 w-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mb-3">
-              <TrendingUp className="h-6 w-6" />
-            </div>
+            <TrendingUp className="h-7 w-7 text-[#94A3B8] mb-2.5" strokeWidth={1.5} />
             <h3 className="text-sm font-bold text-[#1E293B]">Kurva Net Worth Aktif</h3>
             <p className="text-xs text-[#64748B] max-w-sm mt-1 leading-relaxed">
               {summary.positionCount > 0
@@ -226,9 +216,9 @@ export default async function OverviewPage() {
                       {item.percentage}% ({formatCurrency(item.value)})
                     </span>
                   </div>
-                  <div className="h-2 w-full rounded-full bg-slate-100 overflow-hidden">
+                  <div className="h-1.5 w-full rounded bg-slate-100 overflow-hidden">
                     <div
-                      className="h-full bg-blue-600 rounded-full"
+                      className="h-full bg-blue-600 rounded"
                       style={{ width: `${item.percentage}%` }}
                     />
                   </div>
@@ -237,9 +227,7 @@ export default async function OverviewPage() {
             </div>
           ) : (
             <div className="min-h-[260px] flex flex-col items-center justify-center text-center p-6 bg-[#F8FAFC] rounded-xl border border-dashed border-[#E4E8EF]">
-              <div className="h-12 w-12 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center mb-3">
-                <Layers className="h-6 w-6" />
-              </div>
+              <Layers className="h-7 w-7 text-[#94A3B8] mb-2.5" strokeWidth={1.5} />
               <h3 className="text-sm font-bold text-[#1E293B]">Belum Ada Aset Terdaftar</h3>
               <p className="text-xs text-[#64748B] max-w-xs mt-1 leading-relaxed">
                 Diagram proporsi kelas aset (saham, reksa dana, kas, emas) akan muncul secara otomatis setelah Anda mencatat transaksi pertama.
@@ -257,9 +245,7 @@ export default async function OverviewPage() {
             <div className="text-2xl font-bold tabular-nums text-[#1E293B]">{formatCurrency(0, "IDR")}</div>
             <p className="text-xs text-[#94A3B8]">Total pendapatan riil tahun berjalan</p>
           </div>
-          <div className="h-11 w-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-            <PiggyBank className="h-6 w-6" />
-          </div>
+          <PiggyBank className="h-6 w-6 text-emerald-600" strokeWidth={1.5} />
         </div>
 
         <div className="adm-card p-6 flex items-center justify-between">
@@ -268,9 +254,7 @@ export default async function OverviewPage() {
             <div className="text-2xl font-bold tabular-nums text-[#1E293B]">{formatCurrency(0, "IDR")}</div>
             <p className="text-xs text-[#94A3B8]">Alokasi likuid cadangan darurat</p>
           </div>
-          <div className="h-11 w-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-            <ShieldCheck className="h-6 w-6" />
-          </div>
+          <ShieldCheck className="h-6 w-6 text-blue-600" strokeWidth={1.5} />
         </div>
 
         <div className="adm-card p-6 flex items-center justify-between">
@@ -279,9 +263,7 @@ export default async function OverviewPage() {
             <div className="text-2xl font-bold tabular-nums text-[#1E293B]">0 Ticker</div>
             <p className="text-xs text-[#94A3B8]">Watchlist terisolasi dari Net Worth</p>
           </div>
-          <div className="h-11 w-11 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
-            <Layers className="h-6 w-6" />
-          </div>
+          <Layers className="h-6 w-6 text-indigo-600" strokeWidth={1.5} />
         </div>
       </section>
     </div>

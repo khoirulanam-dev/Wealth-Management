@@ -26,10 +26,8 @@ export default function LiabilitiesPage() {
       {/* Main Adminator Card */}
       <div className="adm-card p-6">
         <div className="flex items-center justify-between border-b border-[#EEF1F5] pb-4 mb-6">
-          <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center font-bold">
-              <CreditCard className="h-5 w-5" />
-            </div>
+          <div className="flex items-center gap-2.5">
+            <CreditCard className="h-5 w-5 text-rose-600" />
             <div>
               <h2 className="text-base font-bold text-[#1E293B]">Daftar Kewajiban & Tagihan</h2>
               <p className="text-xs text-[#94A3B8]">Saldo sisa berkurang berdasarkan pembayaran riil yang tercatat</p>
@@ -38,9 +36,7 @@ export default function LiabilitiesPage() {
         </div>
 
         <div className="min-h-[300px] flex flex-col items-center justify-center text-center p-8 bg-[#F8FAFC] rounded-xl border border-dashed border-[#E4E8EF]">
-          <div className="h-12 w-12 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mb-3">
-            <CreditCard className="h-6 w-6" />
-          </div>
+          <CreditCard className="h-8 w-8 text-[#94A3B8] mb-3" strokeWidth={1.5} />
           <h3 className="text-sm font-bold text-[#1E293B]">Bebas dari Liabilitas</h3>
           <p className="text-xs text-[#64748B] max-w-sm mt-1 leading-relaxed">
             Pencatatan kewajiban, jadwal pembayaran cicilan, dan kalkulasi jatuh tempo utang siap dikonfigurasi.
