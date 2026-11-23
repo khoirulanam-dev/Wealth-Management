@@ -9,7 +9,7 @@ import {
   Wallet,
   CreditCard,
   PiggyBank,
-  MoreHorizontal,
+  Grid,
   History,
   Eye,
   RefreshCw,
@@ -77,23 +77,26 @@ export function MobileNav() {
       {/* Slide-Up Menu Drawer & Backdrop */}
       {isMenuOpen && (
         <>
-          {/* Backdrop */}
+          {/* Frosted Backdrop */}
           <div
             onClick={() => setIsMenuOpen(false)}
-            className="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-xs transition-opacity lg:hidden"
+            className="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-xs transition-opacity lg:hidden animate-in fade-in duration-200"
           />
 
-          {/* Slide-Up Card Drawer */}
-          <div className="fixed bottom-20 inset-x-3 max-w-md mx-auto z-50 rounded-2xl bg-white border border-[#E4E8EF] shadow-2xl p-4 lg:hidden animate-in slide-in-from-bottom-3 duration-200">
+          {/* Slide-Up Card Drawer with Curved Border */}
+          <div className="fixed bottom-24 inset-x-3 max-w-md mx-auto z-50 rounded-3xl bg-white/98 backdrop-blur-2xl border border-slate-200/90 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.25)] p-5 lg:hidden animate-in slide-in-from-bottom-4 duration-200">
+            {/* Top Sheet Handle */}
+            <div className="w-10 h-1 rounded-full bg-slate-300 mx-auto mb-3" />
+
             <div className="flex items-center justify-between pb-3 border-b border-[#EEF1F5]">
               <div>
-                <h3 className="text-sm font-bold text-[#1E293B]">Menu &amp; Fitur Lainnya</h3>
+                <h3 className="text-sm font-bold text-[#1E293B]">Menu &amp; Fitur Lengkap</h3>
                 <p className="text-[11px] text-[#64748B]">Akses cepat instrumen pasar dan sistem</p>
               </div>
               <button
                 type="button"
                 onClick={() => setIsMenuOpen(false)}
-                className="h-8 w-8 rounded-lg flex items-center justify-center text-[#94A3B8] hover:text-[#1E293B] hover:bg-slate-100 transition-colors"
+                className="h-8 w-8 rounded-full flex items-center justify-center text-[#94A3B8] hover:text-[#1E293B] hover:bg-slate-100 transition-colors"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -109,7 +112,7 @@ export function MobileNav() {
                     href={item.href}
                     onClick={() => setIsMenuOpen(false)}
                     className={cn(
-                      "flex items-center justify-between p-2.5 rounded-xl transition-colors",
+                      "flex items-center justify-between p-2.5 rounded-2xl transition-colors",
                       isActive
                         ? "bg-blue-50 text-blue-600 font-semibold"
                         : "text-[#1E293B] hover:bg-slate-50"
@@ -118,11 +121,13 @@ export function MobileNav() {
                     <div className="flex items-center gap-3">
                       <div
                         className={cn(
-                          "flex h-8 w-8 items-center justify-center rounded-lg shrink-0",
-                          isActive ? "bg-blue-600 text-white" : "bg-slate-100 text-[#64748B]"
+                          "flex h-9 w-9 items-center justify-center rounded-xl shrink-0 shadow-xs",
+                          isActive
+                            ? "bg-blue-600 text-white shadow-blue-600/30"
+                            : "bg-slate-100 text-[#64748B]"
                         )}
                       >
-                        <Icon className="h-4 w-4" />
+                        <Icon className="h-4.5 w-4.5" />
                       </div>
                       <div>
                         <span className="text-xs font-semibold block">{item.name}</span>
@@ -140,7 +145,7 @@ export function MobileNav() {
               <form action={logoutAction}>
                 <button
                   type="submit"
-                  className="w-full flex items-center justify-center gap-2 py-2 text-xs font-medium text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
+                  className="w-full flex items-center justify-center gap-2 py-2.5 text-xs font-medium text-rose-600 hover:bg-rose-50 rounded-2xl transition-colors"
                 >
                   <LogOut className="h-3.5 w-3.5" />
                   <span>Keluar dari Akun (Logout)</span>
@@ -151,9 +156,12 @@ export function MobileNav() {
         </>
       )}
 
-      {/* Modern Floating Dock Bottom Nav */}
+      {/* Modern Curved Floating Capsule Dock */}
       <div className="fixed bottom-3 inset-x-3 max-w-md mx-auto z-40 lg:hidden pointer-events-none">
-        <nav className="pointer-events-auto bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-2xl p-1.5 flex items-center justify-around">
+        <nav className="pointer-events-auto relative overflow-hidden bg-white/92 backdrop-blur-2xl border border-slate-200/90 shadow-[0_16px_36px_-6px_rgba(15,23,42,0.18),0_4px_16px_rgba(0,0,0,0.06)] rounded-[26px] p-1.5 flex items-center justify-between ring-1 ring-black/[0.04]">
+          {/* Subtle top reflection accent glow */}
+          <div className="absolute inset-x-8 top-0 h-[1px] bg-gradient-to-r from-transparent via-blue-500/40 to-transparent pointer-events-none" />
+
           {primaryNavItems.map((item) => {
             const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
             const Icon = item.icon;
@@ -163,20 +171,31 @@ export function MobileNav() {
                 key={item.name}
                 href={item.href}
                 onClick={() => setIsMenuOpen(false)}
-                className={cn(
-                  "flex flex-col items-center justify-center py-1.5 px-2 rounded-xl transition-all relative flex-1 text-center select-none",
-                  isActive
-                    ? "text-blue-600 bg-blue-50/90 font-bold shadow-2xs"
-                    : "text-[#64748B] hover:text-[#1E293B] hover:bg-slate-50 font-medium"
-                )}
+                className="group flex flex-col items-center justify-center py-1 px-1 rounded-2xl transition-all duration-200 flex-1 text-center select-none"
               >
-                <Icon className={cn("h-4.5 w-4.5", isActive ? "stroke-[2.25]" : "stroke-[1.75]")} />
-                <span className="text-[10px] tracking-tight leading-none mt-1">
+                {/* Modern Icon Container */}
+                <div
+                  className={cn(
+                    "flex h-7 w-7 items-center justify-center rounded-xl transition-all duration-200",
+                    isActive
+                      ? "bg-blue-600 text-white shadow-md shadow-blue-600/35 scale-105"
+                      : "text-[#64748B] group-hover:text-[#1E293B] group-hover:bg-slate-100/70"
+                  )}
+                >
+                  <Icon className={cn("h-4 w-4", isActive ? "stroke-[2.25]" : "stroke-[1.75]")} />
+                </div>
+
+                {/* Text Label */}
+                <span
+                  className={cn(
+                    "text-[10px] tracking-tight leading-none mt-1 transition-colors",
+                    isActive
+                      ? "font-bold text-blue-600"
+                      : "font-medium text-[#64748B] group-hover:text-[#1E293B]"
+                  )}
+                >
                   {item.name}
                 </span>
-                {isActive && (
-                  <span className="absolute -bottom-0.5 h-1 w-1 rounded-full bg-blue-600" />
-                )}
               </Link>
             );
           })}
@@ -185,25 +204,33 @@ export function MobileNav() {
           <button
             type="button"
             onClick={() => setIsMenuOpen((prev) => !prev)}
-            className={cn(
-              "flex flex-col items-center justify-center py-1.5 px-2 rounded-xl transition-all relative flex-1 text-center select-none",
-              isMenuOpen || isMenuSectionActive
-                ? "text-blue-600 bg-blue-50/90 font-bold shadow-2xs"
-                : "text-[#64748B] hover:text-[#1E293B] hover:bg-slate-50 font-medium"
-            )}
+            className="group flex flex-col items-center justify-center py-1 px-1 rounded-2xl transition-all duration-200 flex-1 text-center select-none"
           >
-            <MoreHorizontal
+            <div
               className={cn(
-                "h-4.5 w-4.5",
-                isMenuOpen || isMenuSectionActive ? "stroke-[2.25]" : "stroke-[1.75]"
+                "flex h-7 w-7 items-center justify-center rounded-xl transition-all duration-200",
+                isMenuOpen || isMenuSectionActive
+                  ? "bg-blue-600 text-white shadow-md shadow-blue-600/35 scale-105"
+                  : "text-[#64748B] group-hover:text-[#1E293B] group-hover:bg-slate-100/70"
               )}
-            />
-            <span className="text-[10px] tracking-tight leading-none mt-1">
+            >
+              <Grid
+                className={cn(
+                  "h-4 w-4",
+                  isMenuOpen || isMenuSectionActive ? "stroke-[2.25]" : "stroke-[1.75]"
+                )}
+              />
+            </div>
+            <span
+              className={cn(
+                "text-[10px] tracking-tight leading-none mt-1 transition-colors",
+                isMenuOpen || isMenuSectionActive
+                  ? "font-bold text-blue-600"
+                  : "font-medium text-[#64748B] group-hover:text-[#1E293B]"
+              )}
+            >
               Menu
             </span>
-            {(isMenuOpen || isMenuSectionActive) && (
-              <span className="absolute -bottom-0.5 h-1 w-1 rounded-full bg-blue-600" />
-            )}
           </button>
         </nav>
       </div>
