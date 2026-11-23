@@ -11,6 +11,6 @@ export default async function DashboardLayout({ children }: { children: ReactNod
     redirect("/login");
   }
 
-  return <AppShell currency={session.reportingCurrency}>{children}</AppShell>;
+  return <AppShell currency={session.reportingCurrency} user={session}>{children}</AppShell>;
 }
 

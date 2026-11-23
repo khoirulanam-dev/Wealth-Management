@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
@@ -14,8 +15,11 @@ import {
   RefreshCw,
   Settings,
   ShieldCheck,
+  LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SessionUser } from "@/lib/auth";
+import { logoutAction } from "@/app/actions/auth-actions";
 
 interface NavItem {
   name: string;
@@ -63,8 +67,15 @@ const navSections: NavSection[] = [
   },
 ];
 
-export function Sidebar() {
+interface SidebarProps {
+  user?: SessionUser | null;
+}
+
+export function Sidebar({ user }: SidebarProps) {
   const pathname = usePathname();
+
+  const displayName = user?.name || (user?.email ? user.email.split("@")[0] : "Investor");
+  const userInitial = displayName.charAt(0).toUpperCase();
 
   return (
     <aside className="hidden lg:flex w-[248px] flex-col border-r border-[#E4E8EF] bg-white sticky top-0 h-screen overflow-y-auto">
@@ -113,15 +124,45 @@ export function Sidebar() {
       </div>
 
       {/* Workspace Footer Profile */}
-      <div className="p-3 border-t border-[#EEF1F5] m-2">
-        <div className="flex items-center gap-2.5 p-2 rounded-lg bg-[#F8FAFC]">
-          <div className="h-7 w-7 rounded-md bg-blue-600 text-white flex items-center justify-center font-semibold text-xs">
-            W
-          </div>
-          <div className="flex flex-col min-w-0 flex-1">
-            <span className="text-xs font-semibold text-[#1E293B] truncate">Akun Terautentikasi</span>
-            <span className="text-xs text-[#94A3B8]">Private Session</span>
-          </div>
+      <div className="p-3 border-t border-[#EEF1F5] mt-auto pb-6">
+        <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#F8FAFC] border border-[#E4E8EF] hover:border-slate-300 hover:bg-slate-50 transition-all group shadow-2xs">
+          <Link href="/settings" className="flex items-center gap-2.5 min-w-0 flex-1" title="Buka Pengaturan Profil">
+            <div className="relative shrink-0">
+              {user?.avatarUrl ? (
+                <Image
+                  src={user.avatarUrl}
+                  alt={displayName}
+                  width={32}
+                  height={32}
+                  unoptimized
+                  className="h-8 w-8 rounded-full object-cover ring-1 ring-slate-200"
+                />
+              ) : (
+                <div className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-600 to-indigo-700 text-white flex items-center justify-center font-bold text-xs shadow-xs">
+                  {userInitial}
+                </div>
+              )}
+              {/* Online indicator */}
+              <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-white" />
+            </div>
+            <div className="flex flex-col min-w-0 flex-1">
+              <span className="text-xs font-bold text-[#1E293B] truncate group-hover:text-blue-600 transition-colors">
+                {displayName}
+              </span>
+              <span className="text-[11px] text-[#64748B] truncate">
+                {user?.email || "Private Vault"}
+              </span>
+            </div>
+          </Link>
+          <form action={logoutAction} className="shrink-0 pl-1">
+            <button
+              type="submit"
+              title="Keluar dari akun (Logout)"
+              className="h-7 w-7 rounded-lg flex items-center justify-center text-[#94A3B8] hover:text-rose-600 hover:bg-rose-50 transition-colors"
+            >
+              <LogOut className="h-3.5 w-3.5" />
+            </button>
+          </form>
         </div>
       </div>
     </aside>

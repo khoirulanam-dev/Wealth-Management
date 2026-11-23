@@ -10,6 +10,8 @@ export interface SessionUser {
   id: string;
   userId: string;
   email: string;
+  name?: string | null;
+  avatarUrl?: string | null;
   reportingCurrency: string;
 }
 
@@ -51,6 +53,8 @@ export async function getSession(): Promise<SessionUser | null> {
       id: payload.id as string,
       userId: payload.id as string,
       email: payload.email as string,
+      name: (payload.name as string) || null,
+      avatarUrl: (payload.avatarUrl as string) || null,
       reportingCurrency: (payload.reportingCurrency as string) || "IDR",
     };
   } catch {

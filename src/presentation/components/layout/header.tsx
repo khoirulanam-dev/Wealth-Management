@@ -1,16 +1,21 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { LogOut, User, ShieldCheck } from "lucide-react";
 import { Button } from "@/presentation/components/ui/button";
 import { logoutAction } from "@/app/actions/auth-actions";
+import { SessionUser } from "@/lib/auth";
 
 interface HeaderProps {
   title?: string;
   currency?: string;
+  user?: SessionUser | null;
 }
 
-export function Header({ title = "Ringkasan Portofolio", currency = "IDR" }: HeaderProps) {
+export function Header({ title = "Ringkasan Portofolio", currency = "IDR", user }: HeaderProps) {
+  const displayName = user?.name || (user?.email ? user.email.split("@")[0] : "Profil");
+  const userInitial = displayName.charAt(0).toUpperCase();
   return (
     <header className="h-14 sm:h-[60px] flex items-center justify-between border-b border-[#E4E8EF] bg-white/95 px-4 sm:px-6 backdrop-blur-md sticky top-0 z-30">
       {/* Left: Brand Badge on Mobile + Breadcrumb / Title */}
@@ -42,13 +47,26 @@ export function Header({ title = "Ringkasan Portofolio", currency = "IDR" }: Hea
         {/* User Profile */}
         <Link
           href="/settings"
-          className="flex items-center gap-1.5 h-8 px-2 sm:px-2.5 rounded-lg border border-[#E4E8EF] bg-[#F8FAFC] hover:bg-slate-100 text-[#1E293B] transition-colors"
+          className="flex items-center gap-2 h-8 px-2 sm:px-2.5 rounded-lg border border-[#E4E8EF] bg-[#F8FAFC] hover:bg-slate-100 text-[#1E293B] transition-colors"
           title="Pengaturan Profil Akun"
         >
-          <div className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-white">
-            <User className="h-3 w-3" />
-          </div>
-          <span className="text-xs font-semibold hidden sm:inline">Profil</span>
+          {user?.avatarUrl ? (
+            <Image
+              src={user.avatarUrl}
+              alt={displayName}
+              width={20}
+              height={20}
+              unoptimized
+              className="h-5 w-5 rounded-full object-cover"
+            />
+          ) : (
+            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-white text-[10px] font-bold">
+              {user ? userInitial : <User className="h-3 w-3" />}
+            </div>
+          )}
+          <span className="text-xs font-semibold hidden sm:inline truncate max-w-[120px]">
+            {displayName}
+          </span>
         </Link>
 
         {/* Logout Action */}
