@@ -7,6 +7,7 @@ import { CaptureSnapshotButton } from "@/presentation/components/analytics/captu
 import { AssetLogo } from "@/presentation/components/ui/asset-logo";
 import { ExportDialog } from "@/presentation/components/import-export/export-dialog";
 import { SharePortfolioDialog } from "@/presentation/components/import-export/share-portfolio-dialog";
+import { ShareAllocationDialog } from "@/presentation/components/analytics/share-allocation-dialog";
 import { formatCurrency } from "@/lib/decimal";
 import {
   BarChart3,
@@ -173,6 +174,11 @@ export default async function AnalyticsPage() {
                 </p>
               </div>
             </div>
+            <ShareAllocationDialog
+              data={analytics.assetAllocation}
+              userName={session.name || (session.email ? session.email.split("@")[0] : "Investor")}
+              currency={currency}
+            />
           </div>
           <AssetAllocationDonut data={analytics.assetAllocation} currency={currency} />
         </div>

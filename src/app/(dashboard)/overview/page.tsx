@@ -29,6 +29,7 @@ import { CaptureSnapshotButton } from "@/presentation/components/analytics/captu
 import { ExportDialog } from "@/presentation/components/import-export/export-dialog";
 import { ImportDialog } from "@/presentation/components/import-export/import-dialog";
 import { SharePortfolioDialog } from "@/presentation/components/import-export/share-portfolio-dialog";
+import { ShareAllocationDialog } from "@/presentation/components/analytics/share-allocation-dialog";
 
 export default async function OverviewPage() {
   const session = await requireAuth();
@@ -48,8 +49,8 @@ export default async function OverviewPage() {
     SnapshotService.getAnalytics(session.userId),
   ]);
 
-  const userName = session.email ? session.email.split("@")[0] : "Investor";
-  const capitalUserName = userName.charAt(0).toUpperCase() + userName.slice(1);
+  const rawUserName = session.email ? session.email.split("@")[0] : "Investor";
+  const capitalUserName = session.name || (rawUserName.charAt(0).toUpperCase() + rawUserName.slice(1));
 
   // Total net worth = (investments + cash & liquid savings) - liabilities
   const netWorth = new Decimal(summary.totalMarketValue)
@@ -232,6 +233,11 @@ export default async function OverviewPage() {
               </span>
               <h2 className="text-base font-bold text-[#1E293B]">Alokasi Portofolio</h2>
             </div>
+            <ShareAllocationDialog
+              data={analytics.assetAllocation}
+              userName={capitalUserName}
+              currency="IDR"
+            />
           </div>
 
           <AssetAllocationDonut data={analytics.assetAllocation} currency="IDR" />
