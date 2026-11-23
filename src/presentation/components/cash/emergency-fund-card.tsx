@@ -71,7 +71,7 @@ export function EmergencyFundCard({
           <div className="text-2xl font-bold tracking-tight text-emerald-600 font-mono">
             {formatCurrency(currentNum, "IDR")}
           </div>
-          <span className="text-[11px] text-[#94A3B8] mt-1 block">
+          <span className="text-xs text-[#94A3B8] mt-1 block">
             Tersimpan di {accountCount} rekening berlabel dana darurat
           </span>
         </div>
@@ -83,7 +83,7 @@ export function EmergencyFundCard({
           <div className="text-2xl font-bold tracking-tight text-[#1E293B] font-mono">
             {isTargetSet ? formatCurrency(targetNum, "IDR") : "Rp 0"}
           </div>
-          <span className="text-[11px] text-[#94A3B8] mt-1 block">
+          <span className="text-xs text-[#94A3B8] mt-1 block">
             {isTargetSet
               ? `Kekurangan: ${formatCurrency(Math.max(0, targetNum - currentNum), "IDR")}`
               : "Dapat ditentukan saat menambah atau mengedit rekening"}

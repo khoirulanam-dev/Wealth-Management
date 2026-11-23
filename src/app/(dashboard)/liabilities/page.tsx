@@ -1,47 +1,163 @@
-import { CreditCard, Plus } from "lucide-react";
-import { Button } from "@/presentation/components/ui/button";
+import { requireAuth } from "@/lib/auth";
+import { LiabilityService } from "@/application/use-cases/liabilities/liability-service";
+import { CashService } from "@/application/use-cases/cash/cash-service";
+import { formatCurrency, formatDate } from "@/lib/decimal";
+import { CreditCard, CalendarClock, ShieldCheck, AlertCircle } from "lucide-react";
+import { LiabilityDialog } from "@/presentation/components/liabilities/liability-dialog";
+import { LiabilitiesTable } from "@/presentation/components/liabilities/liabilities-table";
 
-export default function LiabilitiesPage() {
+export default async function LiabilitiesPage() {
+  const session = await requireAuth();
+
+  const [liabilitiesList, summary, cashAccounts] = await Promise.all([
+    LiabilityService.getLiabilities(session.userId),
+    LiabilityService.getSummary(session.userId),
+    CashService.listCashAccounts(session.userId),
+  ]);
+
+  const cashOptions = cashAccounts.map((c) => ({
+    id: c.id,
+    name: c.name,
+    institution: c.institution,
+    currentBalance: c.currentBalance,
+  }));
+
+  const hasLiabilities = liabilitiesList.length > 0;
+  const isDebtFree = parseFloat(summary.totalOutstanding) === 0;
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-[#E4E8EF]">
         <div>
-          <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-rose-600 block mb-0.5">
+          <span className="text-xs font-semibold uppercase tracking-wider text-rose-600 block mb-1">
             MANAJEMEN KEWAJIBAN
           </span>
-          <h1 className="text-2xl font-bold tracking-tight text-[#1E293B]">Liabilitas & Utang</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-[#1E293B]">Liabilitas &amp; Utang</h1>
           <p className="text-sm text-[#64748B]">
-            Pencatatan PayLater, tagihan kartu kredit, cicilan pembelian, dan pinjaman aktif.
+            Pencatatan PayLater, tagihan kartu kredit, cicilan pembelian, dan pinjaman aktif terverifikasi.
           </p>
         </div>
         <div className="flex items-center gap-2.5">
-          <Button size="sm" className="gap-2 h-9 bg-blue-600 hover:bg-blue-700 text-white shadow-sm">
-            <Plus className="h-4 w-4" />
-            Catat Liabilitas
-          </Button>
+          <LiabilityDialog />
         </div>
       </div>
 
-      {/* Main Adminator Card */}
+      {/* 4 KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* KPI 1: Total Sisa Utang */}
+        <div className="adm-card p-5 flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
+              Total Sisa Liabilitas
+            </span>
+            <CreditCard className="h-4 w-4 text-rose-600" />
+          </div>
+          <div>
+            <div className="text-2xl font-bold tracking-tight text-rose-600 font-mono">
+              {formatCurrency(summary.totalOutstanding, "IDR")}
+            </div>
+            <p className="text-xs text-[#64748B] mt-1">
+              Dari total pokok pinjaman {formatCurrency(summary.totalOriginalAmount, "IDR")}
+            </p>
+          </div>
+        </div>
+
+        {/* KPI 2: Beban Cicilan Bulanan */}
+        <div className="adm-card p-5 flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
+              Beban Cicilan Bulanan
+            </span>
+            <CalendarClock className="h-4 w-4 text-blue-600" />
+          </div>
+          <div>
+            <div className="text-2xl font-bold tracking-tight text-[#1E293B] font-mono">
+              {formatCurrency(summary.totalMonthlyCommitment, "IDR")}
+            </div>
+            <p className="text-xs text-[#64748B] mt-1">
+              Total komitmen pengeluaran rutin bulanan
+            </p>
+          </div>
+        </div>
+
+        {/* KPI 3: Jatuh Tempo Terdekat */}
+        <div className="adm-card p-5 flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
+              Jatuh Tempo Terdekat
+            </span>
+            {summary.nextDuePayment?.isOverdue ? (
+              <AlertCircle className="h-4 w-4 text-red-600" />
+            ) : (
+              <CalendarClock className="h-4 w-4 text-amber-600" />
+            )}
+          </div>
+          <div>
+            {summary.nextDuePayment ? (
+              <>
+                <div className="text-2xl font-bold tracking-tight text-[#1E293B] font-mono">
+                  {formatDate(summary.nextDuePayment.dueDate)}
+                </div>
+                <p className="text-xs text-[#64748B] mt-1 truncate">
+                  {summary.nextDuePayment.liabilityName} ({formatCurrency(summary.nextDuePayment.amount, "IDR")})
+                </p>
+              </>
+            ) : (
+              <>
+                <div className="text-2xl font-bold tracking-tight text-[#1E293B]">
+                  Tidak Ada
+                </div>
+                <p className="text-xs text-[#64748B] mt-1">
+                  Tidak ada tagihan mendesak
+                </p>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* KPI 4: Status Kewajiban */}
+        <div className="adm-card p-5 flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
+              Status Kesehatan Utang
+            </span>
+            <ShieldCheck className="h-4 w-4 text-emerald-600" />
+          </div>
+          <div>
+            <div className="text-2xl font-bold tracking-tight text-emerald-600">
+              {isDebtFree ? "Bebas Utang" : `${summary.activeCount} Aktif`}
+            </div>
+            <p className="text-xs text-[#64748B] mt-1">
+              {summary.settledCount} lunas &bull; {summary.overdueCount} terlambat
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Liabilities Table */}
       <div className="adm-card p-6">
         <div className="flex items-center justify-between border-b border-[#EEF1F5] pb-4 mb-6">
           <div className="flex items-center gap-2.5">
             <CreditCard className="h-5 w-5 text-rose-600" />
             <div>
-              <h2 className="text-base font-bold text-[#1E293B]">Daftar Kewajiban & Tagihan</h2>
-              <p className="text-xs text-[#94A3B8]">Saldo sisa berkurang berdasarkan pembayaran riil yang tercatat</p>
+              <h2 className="text-base font-bold text-[#1E293B]">Daftar Kewajiban &amp; Tagihan</h2>
+              <p className="text-xs text-[#64748B]">
+                Saldo sisa berkurang berdasarkan pencatatan pembayaran cicilan riil
+              </p>
             </div>
           </div>
+          {hasLiabilities && (
+            <span className="text-xs text-[#64748B]">
+              {liabilitiesList.length} Akun Liabilitas
+            </span>
+          )}
         </div>
 
-        <div className="min-h-[300px] flex flex-col items-center justify-center text-center p-8 bg-[#F8FAFC] rounded-xl border border-dashed border-[#E4E8EF]">
-          <CreditCard className="h-8 w-8 text-[#94A3B8] mb-3" strokeWidth={1.5} />
-          <h3 className="text-sm font-bold text-[#1E293B]">Bebas dari Liabilitas</h3>
-          <p className="text-xs text-[#64748B] max-w-sm mt-1 leading-relaxed">
-            Pencatatan kewajiban, jadwal pembayaran cicilan, dan kalkulasi jatuh tempo utang siap dikonfigurasi.
-          </p>
-        </div>
+        <LiabilitiesTable
+          liabilities={liabilitiesList}
+          cashAccounts={cashOptions}
+        />
       </div>
     </div>
   );

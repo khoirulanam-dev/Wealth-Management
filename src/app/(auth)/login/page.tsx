@@ -24,7 +24,7 @@ export default async function LoginPage() {
           </div>
           <div>
             <span className="text-lg font-bold tracking-tight">WEALTH OS</span>
-            <span className="block text-[11px] uppercase tracking-wider text-blue-200 font-mono">Private Edition</span>
+            <span className="block text-xs uppercase tracking-wider text-blue-200 font-mono">Private Edition</span>
           </div>
         </div>
 

@@ -48,7 +48,7 @@ export function CashAccountsTable({ accounts }: CashAccountsTableProps) {
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs border-collapse">
           <thead>
-            <tr className="border-b border-[#E4E8EF] bg-[#F8FAFC] text-[#64748B] font-semibold uppercase tracking-wider text-[11px]">
+            <tr className="border-b border-[#E4E8EF] bg-[#F8FAFC] text-[#64748B] font-semibold uppercase tracking-wider text-xs">
               <th className="py-3.5 px-4">Rekening &amp; Institusi</th>
               <th className="py-3.5 px-4">Jenis Akun</th>
               <th className="py-3.5 px-4 text-center">Status Alokasi</th>
@@ -76,7 +76,7 @@ export function CashAccountsTable({ accounts }: CashAccountsTableProps) {
                       </div>
                       <div>
                         <span className="font-bold text-[#1E293B] block">{acc.name}</span>
-                        <span className="text-[11px] text-[#64748B]">{acc.institution}</span>
+                        <span className="text-xs text-[#64748B]">{acc.institution}</span>
                       </div>
                     </div>
                   </td>
@@ -93,12 +93,12 @@ export function CashAccountsTable({ accounts }: CashAccountsTableProps) {
                   {/* Emergency Fund Badge */}
                   <td className="py-3.5 px-4 text-center">
                     {acc.isEmergencyFund ? (
-                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600">
+                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600">
                         <ShieldAlert className="h-3.5 w-3.5 text-emerald-600" />
                         Dana Darurat
                       </span>
                     ) : (
-                      <span className="text-[11px] text-[#94A3B8]">Operasional / Umum</span>
+                      <span className="text-xs text-[#94A3B8]">Operasional / Umum</span>
                     )}
                   </td>
 
@@ -113,7 +113,7 @@ export function CashAccountsTable({ accounts }: CashAccountsTableProps) {
                       <CashMovementDialog
                         accounts={accountOptions}
                         triggerButton={
-                          <button className="text-[11px] font-semibold text-blue-600 hover:underline">
+                          <button className="text-xs font-semibold text-blue-600 hover:underline">
                             Setor/Tarik
                           </button>
                         }
@@ -123,7 +123,7 @@ export function CashAccountsTable({ accounts }: CashAccountsTableProps) {
                         accounts={accountOptions}
                         defaultAccountId={acc.id}
                         triggerButton={
-                          <button className="text-[11px] font-semibold text-amber-600 hover:underline">
+                          <button className="text-xs font-semibold text-amber-600 hover:underline">
                             Rekonsiliasi
                           </button>
                         }

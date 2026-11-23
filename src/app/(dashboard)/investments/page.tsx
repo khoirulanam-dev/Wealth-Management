@@ -34,7 +34,7 @@ export default async function InvestmentsPage() {
       {/* Page Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-2 border-b border-[#E4E8EF]">
         <div>
-          <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-blue-600 block mb-0.5">
+          <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 block mb-0.5">
             PORTOFOLIO INSTRUMEN
           </span>
           <h1 className="text-2xl font-bold tracking-tight text-[#1E293B]">Portofolio Investasi</h1>
@@ -87,7 +87,7 @@ export default async function InvestmentsPage() {
           <div className="text-2xl font-bold text-[#1E293B] font-mono">
             {formatCurrency(summary.totalMarketValue)}
           </div>
-          <span className="text-[11px] text-[#94A3B8] mt-1 block">
+          <span className="text-xs text-[#94A3B8] mt-1 block">
             Berdasarkan valuasi harga pasar terkini
           </span>
         </div>
@@ -101,7 +101,7 @@ export default async function InvestmentsPage() {
           <div className="text-2xl font-bold text-[#1E293B] font-mono">
             {formatCurrency(summary.totalCostBasis)}
           </div>
-          <span className="text-[11px] text-[#94A3B8] mt-1 block">
+          <span className="text-xs text-[#94A3B8] mt-1 block">
             Total modal pokok (Weighted Average Basis)
           </span>
         </div>
@@ -125,7 +125,7 @@ export default async function InvestmentsPage() {
             {formatCurrency(summary.totalUnrealizedPL)}
           </div>
           <span
-            className={`text-[11px] font-semibold mt-1 block ${
+            className={`text-xs font-semibold mt-1 block ${
               isProfit ? "text-emerald-600" : "text-red-600"
             }`}
           >
@@ -143,7 +143,7 @@ export default async function InvestmentsPage() {
           <div className="text-2xl font-bold text-[#1E293B] font-mono">
             {summary.positionCount}
           </div>
-          <span className="text-[11px] text-[#94A3B8] mt-1 block">
+          <span className="text-xs text-[#94A3B8] mt-1 block">
             Instrumen dengan saldo kepemilikan &gt; 0
           </span>
         </div>

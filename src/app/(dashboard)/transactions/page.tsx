@@ -22,7 +22,7 @@ export default async function TransactionsPage() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-[#E4E8EF]">
         <div>
-          <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-blue-600 block mb-0.5">
+          <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 block mb-0.5">
             LOG AKTIVITAS KEUANGAN
           </span>
           <h1 className="text-2xl font-bold tracking-tight text-[#1E293B]">Buku Besar Transaksi</h1>
@@ -49,7 +49,7 @@ export default async function TransactionsPage() {
             </div>
             <div>
               <h2 className="text-sm font-bold text-[#1E293B]">Riwayat Ledger Terpadu</h2>
-              <p className="text-[11px] text-[#64748B]">
+              <p className="text-xs text-[#64748B]">
                 Total {transactions.length} transaksi tercatat di database
               </p>
             </div>

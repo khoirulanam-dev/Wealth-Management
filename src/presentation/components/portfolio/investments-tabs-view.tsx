@@ -33,7 +33,7 @@ export function InvestmentsTabsView({
         >
           <Briefcase className="h-4 w-4" />
           <span>Posisi Investasi (Holdings)</span>
-          <span className="font-mono text-[11px] text-[#94A3B8]">({holdings.length})</span>
+          <span className="font-mono text-xs text-[#94A3B8]">({holdings.length})</span>
         </button>
 
         <button
@@ -46,7 +46,7 @@ export function InvestmentsTabsView({
         >
           <Building2 className="h-4 w-4" />
           <span>Akun Sekuritas & Bank</span>
-          <span className="font-mono text-[11px] text-[#94A3B8]">({accounts.length})</span>
+          <span className="font-mono text-xs text-[#94A3B8]">({accounts.length})</span>
         </button>
 
         <button
@@ -59,7 +59,7 @@ export function InvestmentsTabsView({
         >
           <LineChart className="h-4 w-4" />
           <span>Katalog Instrumen</span>
-          <span className="font-mono text-[11px] text-[#94A3B8]">({instruments.length})</span>
+          <span className="font-mono text-xs text-[#94A3B8]">({instruments.length})</span>
         </button>
       </div>
 

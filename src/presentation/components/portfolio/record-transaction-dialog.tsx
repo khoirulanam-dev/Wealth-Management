@@ -371,7 +371,7 @@ export function RecordTransactionDialog({
                     <button
                       type="button"
                       onClick={() => setIsNewInstrument(!isNewInstrument)}
-                      className="text-[11px] font-semibold text-blue-600 hover:underline"
+                      className="text-xs font-semibold text-blue-600 hover:underline"
                     >
                       {isNewInstrument ? "← Pilih dari Daftar" : "+ Tambah Instrumen Baru"}
                     </button>
@@ -406,7 +406,7 @@ export function RecordTransactionDialog({
                       {/* Asset Class Selector First */}
                       <div className="grid grid-cols-2 gap-2">
                         <div>
-                          <span className="text-[11px] font-semibold text-[#64748B] block mb-1">Kelas Aset</span>
+                          <span className="text-xs font-semibold text-[#64748B] block mb-1">Kelas Aset</span>
                           <Select
                             value={newAssetType}
                             onValueChange={(val) => {
@@ -433,7 +433,7 @@ export function RecordTransactionDialog({
                         </div>
 
                         <div>
-                          <span className="text-[11px] font-semibold text-[#64748B] block mb-1">
+                          <span className="text-xs font-semibold text-[#64748B] block mb-1">
                             {isStock
                               ? "Ticker Saham"
                               : isMutualFund
@@ -466,7 +466,7 @@ export function RecordTransactionDialog({
 
                       {/* Name of Asset */}
                       <div>
-                        <span className="text-[11px] font-semibold text-[#64748B] block mb-1">
+                        <span className="text-xs font-semibold text-[#64748B] block mb-1">
                           {isStock
                             ? "Nama Perusahaan"
                             : isMutualFund
@@ -498,7 +498,7 @@ export function RecordTransactionDialog({
                       {/* Dynamic Quick Chips according to selected asset class */}
                       {quickChipsByAsset[newAssetType] && (
                         <div className="space-y-1 pt-1">
-                          <span className="text-[10px] text-[#94A3B8] block">
+                          <span className="text-xs text-[#94A3B8] block">
                             Pilihan Cepat {isMutualFund ? "Reksa Dana Populer" : isGold ? "Emas" : isBond ? "SBN" : isStock ? "Saham LQ45" : "Kripto"}:
                           </span>
                           <div className="flex flex-wrap items-center gap-1.5">
@@ -519,7 +519,7 @@ export function RecordTransactionDialog({
                                     }
                                   }
                                 }}
-                                className="rounded border border-[#CBD5E1] bg-white px-2 py-0.5 text-[10px] font-medium text-[#475569] hover:border-blue-500 hover:text-blue-600 transition-colors"
+                                className="rounded border border-[#CBD5E1] bg-white px-2 py-0.5 text-xs font-medium text-[#475569] hover:border-blue-500 hover:text-blue-600 transition-colors"
                               >
                                 +{c.sym}
                               </button>
@@ -563,7 +563,7 @@ export function RecordTransactionDialog({
                         <button
                           type="button"
                           onClick={() => setIsLotMode(!isLotMode)}
-                          className="text-[11px] font-semibold text-blue-600 hover:underline select-none"
+                          className="text-xs font-semibold text-blue-600 hover:underline select-none"
                         >
                           Ubah ke {isLotMode ? "Lembar Saham" : "Lot (100 lbr)"}
                         </button>
@@ -575,7 +575,7 @@ export function RecordTransactionDialog({
                             const newMode = mfInputMode === "unit" ? "nominal" : "unit";
                             setMfInputMode(newMode);
                           }}
-                          className="text-[11px] font-semibold text-blue-600 hover:underline select-none"
+                          className="text-xs font-semibold text-blue-600 hover:underline select-none"
                         >
                           {mfInputMode === "unit" ? "Beli via Nominal (Rp)" : "Input Unit Langsung"}
                         </button>
@@ -594,7 +594,7 @@ export function RecordTransactionDialog({
                           className="h-10 text-sm font-mono"
                         />
                         {quantity && (
-                          <p className="text-[11px] text-emerald-600 font-mono">
+                          <p className="text-xs text-emerald-600 font-mono">
                             Setara dengan: <strong>{quantity}</strong> Unit Penyertaan (UP)
                           </p>
                         )}
@@ -625,7 +625,7 @@ export function RecordTransactionDialog({
                     )}
 
                     {isStock && isLotMode && quantity && (
-                      <p className="text-[11px] text-[#64748B]">
+                      <p className="text-xs text-[#64748B]">
                         Setara dengan: <strong>{formatNumber(parseFloat(quantity) * 100)}</strong> lembar saham
                       </p>
                     )}
@@ -668,17 +668,17 @@ export function RecordTransactionDialog({
                     className="h-10 text-sm font-mono"
                   />
                   {isMutualFund && (
-                    <p className="text-[11px] text-[#94A3B8]">
+                    <p className="text-xs text-[#94A3B8]">
                       NAB (Nilai Aktiva Bersih) adalah harga per unit penyertaan reksa dana saat transaksi.
                     </p>
                   )}
                   {isGold && (
-                    <p className="text-[11px] text-[#94A3B8]">
+                    <p className="text-xs text-[#94A3B8]">
                       Harga jual/beli fisik per gram saat tanggal transaksi.
                     </p>
                   )}
                   {isBond && (
-                    <p className="text-[11px] text-[#94A3B8]">
+                    <p className="text-xs text-[#94A3B8]">
                       Standar nominal 1 unit SBN pemerintah adalah Rp 1.000.000 (100% Par).
                     </p>
                   )}

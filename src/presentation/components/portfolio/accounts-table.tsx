@@ -105,7 +105,7 @@ export function AccountsTable({ accounts }: AccountsTableProps) {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="border-b border-[#E4E8EF] bg-[#F8FAFC] text-[#64748B] font-semibold uppercase tracking-wider text-[11px]">
+              <tr className="border-b border-[#E4E8EF] bg-[#F8FAFC] text-[#64748B] font-semibold uppercase tracking-wider text-xs">
                 <th className="py-3.5 px-4">Nama Akun & Portofolio</th>
                 <th className="py-3.5 px-4">Institusi / Broker</th>
                 <th className="py-3.5 px-4">Tipe Akun</th>
@@ -119,7 +119,7 @@ export function AccountsTable({ accounts }: AccountsTableProps) {
                 <tr key={acc.id} className="hover:bg-slate-50/80 transition-colors">
                   <td className="py-3.5 px-4">
                     <span className="font-bold text-[#1E293B] text-sm block">{acc.name}</span>
-                    <span className="text-[10px] text-[#94A3B8] font-mono">{acc.id}</span>
+                    <span className="text-xs text-[#94A3B8] font-mono">{acc.id}</span>
                   </td>
                   <td className="py-3.5 px-4 font-medium text-[#1E293B]">{acc.institution}</td>
                   <td className="py-3.5 px-4 text-[#64748B]">
@@ -148,7 +148,7 @@ export function AccountsTable({ accounts }: AccountsTableProps) {
                           <button
                             disabled={deletingId === acc.id}
                             onClick={() => handleDelete(acc.id)}
-                            className="rounded bg-red-600 px-2.5 py-1 text-[11px] font-bold text-white hover:bg-red-700"
+                            className="rounded bg-red-600 px-2.5 py-1 text-xs font-bold text-white hover:bg-red-700"
                           >
                             {deletingId === acc.id ? (
                               <Loader2 className="h-3 w-3 animate-spin" />
@@ -158,7 +158,7 @@ export function AccountsTable({ accounts }: AccountsTableProps) {
                           </button>
                           <button
                             onClick={() => setConfirmDeleteId(null)}
-                            className="rounded bg-slate-200 px-2 py-1 text-[11px] text-slate-700 hover:bg-slate-300"
+                            className="rounded bg-slate-200 px-2 py-1 text-xs text-slate-700 hover:bg-slate-300"
                           >
                             Batal
                           </button>

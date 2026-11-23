@@ -184,7 +184,7 @@ export function CashMovementDialog({
                   </SelectContent>
                 </Select>
                 {selectedAccount && (
-                  <p className="text-[11px] text-[#64748B] pt-0.5">
+                  <p className="text-xs text-[#64748B] pt-0.5">
                     Saldo saat ini: <span className="font-mono font-semibold text-[#1E293B]">Rp {parseFloat(selectedAccount.currentBalance).toLocaleString("id-ID")}</span>
                   </p>
                 )}

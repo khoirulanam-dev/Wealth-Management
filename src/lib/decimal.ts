@@ -58,3 +58,17 @@ export function formatNumber(value: Decimal.Value | number, maximumFractionDigit
   }).format(dec.toNumber());
 }
 
+export function formatDate(
+  date: Date | string | number | null | undefined,
+  options?: Intl.DateTimeFormatOptions
+): string {
+  if (!date) return "-";
+  const d = typeof date === "string" || typeof date === "number" ? new Date(date) : date;
+  if (isNaN(d.getTime())) return "-";
+  return d.toLocaleDateString("id-ID", options || {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+

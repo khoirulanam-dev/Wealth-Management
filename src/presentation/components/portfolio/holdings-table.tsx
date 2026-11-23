@@ -63,7 +63,7 @@ export function HoldingsTable({ holdings, accounts, instruments }: HoldingsTable
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs border-collapse">
           <thead>
-            <tr className="border-b border-[#E4E8EF] bg-[#F8FAFC] text-[#64748B] font-semibold uppercase tracking-wider text-[11px]">
+            <tr className="border-b border-[#E4E8EF] bg-[#F8FAFC] text-[#64748B] font-semibold uppercase tracking-wider text-xs">
               <th className="py-3.5 px-4">Instrumen & Simbol</th>
               <th className="py-3.5 px-4">Akun / Sekuritas</th>
               <th className="py-3.5 px-4 text-right">Kuantitas</th>
@@ -96,7 +96,7 @@ export function HoldingsTable({ holdings, accounts, instruments }: HoldingsTable
                           <span className="font-bold text-[#1E293B] font-mono text-sm">
                             {item.instrumentSymbol || item.instrumentName}
                           </span>
-                          <span className="text-[11px] text-[#94A3B8]">
+                          <span className="text-xs text-[#94A3B8]">
                             {item.assetType === "stock"
                               ? "Saham"
                               : item.assetType === "mutual_fund"
@@ -106,7 +106,7 @@ export function HoldingsTable({ holdings, accounts, instruments }: HoldingsTable
                               : item.assetType}
                           </span>
                         </div>
-                        <span className="text-[11px] text-[#64748B] block truncate max-w-[200px]">
+                        <span className="text-xs text-[#64748B] block truncate max-w-[200px]">
                           {item.instrumentName}
                         </span>
                       </div>
@@ -116,7 +116,7 @@ export function HoldingsTable({ holdings, accounts, instruments }: HoldingsTable
                   {/* Account / Institution */}
                   <td className="py-3.5 px-4">
                     <span className="font-semibold text-[#1E293B] block">{item.accountName}</span>
-                    <span className="text-[11px] text-[#64748B]">{item.institution}</span>
+                    <span className="text-xs text-[#64748B]">{item.institution}</span>
                   </td>
 
                   {/* Quantity */}
@@ -128,7 +128,7 @@ export function HoldingsTable({ holdings, accounts, instruments }: HoldingsTable
                         ? formatNumber(qtyNum, 2)
                         : formatNumber(qtyNum)}
                     </span>
-                    <span className="text-[11px] text-[#64748B]">
+                    <span className="text-xs text-[#64748B]">
                       {isStock
                         ? `${formatNumber(lots)} lot (${formatNumber(qtyNum)} lbr)`
                         : item.assetType === "mutual_fund"
@@ -173,7 +173,7 @@ export function HoldingsTable({ holdings, accounts, instruments }: HoldingsTable
                         {formatCurrency(item.unrealizedPL)}
                       </span>
                       <span
-                        className={`text-[11px] font-semibold ${
+                        className={`text-xs font-semibold ${
                           isProfit ? "text-emerald-600" : "text-red-600"
                         }`}
                       >

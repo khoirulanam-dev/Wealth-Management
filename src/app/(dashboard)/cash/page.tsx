@@ -29,7 +29,7 @@ export default async function CashPage() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-[#E4E8EF]">
         <div>
-          <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-purple-600 block mb-0.5">
+          <span className="text-xs font-semibold uppercase tracking-wider text-purple-600 block mb-0.5">
             LIKUIDITAS &amp; REKENING
           </span>
           <h1 className="text-2xl font-bold tracking-tight text-[#1E293B]">Kas &amp; Simpanan</h1>
@@ -57,7 +57,7 @@ export default async function CashPage() {
             <div className="text-2xl font-bold tracking-tight text-[#1E293B] font-mono">
               {formatCurrency(summary.totalCashBalance, "IDR")}
             </div>
-            <p className="text-[11px] text-[#64748B] mt-1">
+            <p className="text-xs text-[#64748B] mt-1">
               Dari {summary.accountCount} akun terdaftar
             </p>
           </div>
@@ -73,7 +73,7 @@ export default async function CashPage() {
             <div className="text-2xl font-bold tracking-tight text-emerald-600 font-mono">
               {formatCurrency(summary.emergencyFundCurrent, "IDR")}
             </div>
-            <p className="text-[11px] text-[#64748B] mt-1">
+            <p className="text-xs text-[#64748B] mt-1">
               Tercapai {summary.emergencyFundCoverage}% dari target
             </p>
           </div>
@@ -89,7 +89,7 @@ export default async function CashPage() {
             <div className="text-2xl font-bold tracking-tight text-[#1E293B] font-mono">
               {summary.accountCount} Rekening
             </div>
-            <p className="text-[11px] text-[#64748B] mt-1">
+            <p className="text-xs text-[#64748B] mt-1">
               Bank, E-Wallet, &amp; Kas Fisik
             </p>
           </div>
@@ -105,7 +105,7 @@ export default async function CashPage() {
             <div className="text-2xl font-bold tracking-tight text-[#1E293B] font-mono">
               {movements.length} Mutasi
             </div>
-            <p className="text-[11px] text-[#64748B] mt-1">
+            <p className="text-xs text-[#64748B] mt-1">
               Riwayat transaksi kas aktif
             </p>
           </div>

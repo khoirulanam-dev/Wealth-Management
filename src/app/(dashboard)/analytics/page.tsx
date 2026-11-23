@@ -7,7 +7,7 @@ export default function AnalyticsPage() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-[#E4E8EF]">
         <div>
-          <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-purple-600 block mb-0.5">
+          <span className="text-xs font-semibold uppercase tracking-wider text-purple-600 block mb-0.5">
             LAPORAN KINERJA
           </span>
           <h1 className="text-2xl font-bold tracking-tight text-[#1E293B]">Analitik & Laporan Portofolio</h1>

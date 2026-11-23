@@ -56,7 +56,7 @@ export function MarketQuoteLookup() {
 
       {results.length > 0 && (
         <div className="rounded-xl border border-[#E4E8EF] bg-white overflow-hidden shadow-sm">
-          <div className="p-3 bg-[#F8FAFC] border-b border-[#E4E8EF] text-[11px] font-semibold text-[#64748B] uppercase tracking-wider">
+          <div className="p-3 bg-[#F8FAFC] border-b border-[#E4E8EF] text-xs font-semibold text-[#64748B] uppercase tracking-wider">
             Hasil Pencarian Pasar Real-Time (Harga Riil Pihak Ke-3)
           </div>
           <div className="divide-y divide-[#E4E8EF] max-h-72 overflow-y-auto">
@@ -65,7 +65,7 @@ export function MarketQuoteLookup() {
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="font-mono font-bold text-xs text-blue-600">{item.cleanSymbol}</span>
-                    <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-mono text-slate-600">
+                    <span className="rounded bg-slate-100 px-1.5 py-0.5 text-xs font-mono text-slate-600">
                       {item.exchange}
                     </span>
                   </div>
@@ -79,7 +79,7 @@ export function MarketQuoteLookup() {
                       </span>
                       {typeof item.changePercent === "number" && (
                         <span
-                          className={`text-[10px] font-mono font-semibold ${
+                          className={`text-xs font-mono font-semibold ${
                             item.changePercent >= 0 ? "text-emerald-600" : "text-red-600"
                           }`}
                         >
@@ -89,7 +89,7 @@ export function MarketQuoteLookup() {
                       )}
                     </div>
                   ) : (
-                    <span className="text-[11px] font-mono font-medium text-[#64748B]">
+                    <span className="text-xs font-mono font-medium text-[#64748B]">
                       {item.currency} · {item.assetType}
                     </span>
                   )}

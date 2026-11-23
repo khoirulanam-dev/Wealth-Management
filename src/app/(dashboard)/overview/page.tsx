@@ -19,6 +19,7 @@ import { AccountsService } from "@/application/use-cases/portfolio/accounts-serv
 import { InstrumentsService } from "@/application/use-cases/portfolio/instruments-service";
 import { MarketDataSyncService } from "@/application/use-cases/portfolio/market-data-sync-service";
 import { CashService } from "@/application/use-cases/cash/cash-service";
+import { LiabilityService } from "@/application/use-cases/liabilities/liability-service";
 import { Decimal } from "decimal.js";
 import { RecordTransactionDialog } from "@/presentation/components/portfolio/record-transaction-dialog";
 
@@ -28,19 +29,21 @@ export default async function OverviewPage() {
   // Automatic daily price sync check (triggers if quotes are > 24 hours old)
   await MarketDataSyncService.autoSyncIfStale(session.userId);
 
-  const [{ summary, assetBreakdown }, accounts, instruments, cashSummary] = await Promise.all([
+  const [{ summary, assetBreakdown }, accounts, instruments, cashSummary, liabilitySummary] = await Promise.all([
     HoldingsService.listActiveHoldings(session.userId),
     AccountsService.listAccounts(session.userId),
     InstrumentsService.listInstruments(session.userId),
     CashService.getCashSummary(session.userId),
+    LiabilityService.getSummary(session.userId),
   ]);
 
   const userName = session.email ? session.email.split("@")[0] : "Investor";
   const capitalUserName = userName.charAt(0).toUpperCase() + userName.slice(1);
 
-  // Total net worth = investments + cash & liquid savings (liabilities deducted in M4)
+  // Total net worth = (investments + cash & liquid savings) - liabilities
   const netWorth = new Decimal(summary.totalMarketValue)
     .plus(cashSummary.totalCashBalance)
+    .minus(liabilitySummary.totalOutstanding)
     .toFixed(2);
 
   return (
@@ -146,21 +149,28 @@ export default async function OverviewPage() {
         <article className="adm-card p-5 flex flex-col justify-between gap-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <CreditCard className="h-4 w-4 text-[#64748B]" />
+              <CreditCard className="h-4 w-4 text-rose-600" />
               <span className="text-xs font-medium text-[#64748B]">Total Liabilitas</span>
             </div>
-            <span className="text-xs font-medium text-[#64748B]">
-              Kewajiban
-            </span>
+            <Link
+              href="/liabilities"
+              className="text-xs font-semibold text-rose-600 hover:text-rose-700 transition-colors"
+            >
+              Kelola &rarr;
+            </Link>
           </div>
           <div>
-            <div className="text-3xl font-bold tracking-tight tabular-nums text-[#1E293B]">
-              {formatCurrency(0, "IDR")}
+            <div className="text-3xl font-bold tracking-tight tabular-nums text-rose-600">
+              {formatCurrency(liabilitySummary.totalOutstanding, "IDR")}
             </div>
           </div>
           <div className="pt-3 border-t border-dashed border-[#EEF1F5] text-xs text-[#94A3B8] flex items-center justify-between">
             <span>PayLater & Pinjaman</span>
-            <span className="font-mono text-[#475569]">Bebas Utang</span>
+            <span className="font-mono text-[#475569]">
+              {parseFloat(liabilitySummary.totalOutstanding) === 0
+                ? "Bebas Utang"
+                : `${liabilitySummary.activeCount} Utang Aktif`}
+            </span>
           </div>
         </article>
       </section>
@@ -171,7 +181,7 @@ export default async function OverviewPage() {
         <div className="lg:col-span-8 adm-card p-6 flex flex-col justify-between">
           <div className="flex items-center justify-between border-b border-[#EEF1F5] pb-4 mb-6">
             <div>
-              <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-blue-600 block mb-0.5">
+              <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 block mb-0.5">
                 HISTORIS TERVERIFIKASI
               </span>
               <h2 className="text-base font-bold text-[#1E293B]">Riwayat Kekayaan Bersih</h2>
@@ -200,7 +210,7 @@ export default async function OverviewPage() {
         <div className="lg:col-span-4 adm-card p-6 flex flex-col justify-between">
           <div className="flex items-center justify-between border-b border-[#EEF1F5] pb-4 mb-6">
             <div>
-              <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-purple-600 block mb-0.5">
+              <span className="text-xs font-semibold uppercase tracking-wider text-purple-600 block mb-0.5">
                 DISTRIBUSI KELAS ASET
               </span>
               <h2 className="text-base font-bold text-[#1E293B]">Alokasi Portofolio</h2>

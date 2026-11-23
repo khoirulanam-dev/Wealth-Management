@@ -10,7 +10,7 @@ export default async function SettingsPage() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-[#E4E8EF]">
         <div>
-          <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-blue-600 block mb-0.5">
+          <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 block mb-0.5">
             KONFIGURASI TERMINAL
           </span>
           <h1 className="text-2xl font-bold tracking-tight text-[#1E293B]">Pengaturan Sistem</h1>

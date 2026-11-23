@@ -90,7 +90,7 @@ export function CashMovementsTable({ movements }: CashMovementsTableProps) {
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs border-collapse">
           <thead>
-            <tr className="border-b border-[#E4E8EF] bg-[#F8FAFC] text-[#64748B] font-semibold uppercase tracking-wider text-[11px]">
+            <tr className="border-b border-[#E4E8EF] bg-[#F8FAFC] text-[#64748B] font-semibold uppercase tracking-wider text-xs">
               <th className="py-3 px-4">Tanggal</th>
               <th className="py-3 px-4">Rekening</th>
               <th className="py-3 px-4">Jenis Transaksi</th>
@@ -124,13 +124,13 @@ export function CashMovementsTable({ movements }: CashMovementsTableProps) {
                   {/* Account */}
                   <td className="py-3 px-4">
                     <span className="font-semibold text-[#1E293B] block">{mov.accountName}</span>
-                    <span className="text-[11px] text-[#94A3B8]">{mov.institution}</span>
+                    <span className="text-xs text-[#94A3B8]">{mov.institution}</span>
                   </td>
 
                   {/* Transaction Type */}
                   <td className="py-3 px-4 whitespace-nowrap">
                     <span
-                      className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-medium border ${badge.colorClass}`}
+                      className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium border ${badge.colorClass}`}
                     >
                       {badge.icon}
                       {badge.label}
@@ -140,7 +140,7 @@ export function CashMovementsTable({ movements }: CashMovementsTableProps) {
                   {/* Note / Audit details */}
                   <td className="py-3 px-4 text-[#475569] max-w-xs truncate">
                     {mov.note || (
-                      <span className="text-[#94A3B8] italic font-mono text-[11px]">-</span>
+                      <span className="text-[#94A3B8] italic font-mono text-xs">-</span>
                     )}
                   </td>
 

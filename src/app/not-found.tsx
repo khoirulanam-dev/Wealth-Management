@@ -35,7 +35,7 @@ export default function NotFound() {
           </Link>
         </div>
 
-        <div className="mt-8 pt-6 border-t border-[#EEF1F5] text-[11px] text-[#94A3B8] font-mono">
+        <div className="mt-8 pt-6 border-t border-[#EEF1F5] text-xs text-[#94A3B8] font-mono">
           WEALTH OS · Private Financial Architecture
         </div>
       </div>

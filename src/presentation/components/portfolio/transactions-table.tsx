@@ -64,7 +64,7 @@ export function TransactionsTable({ transactions }: TransactionsTableProps) {
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs border-collapse">
           <thead>
-            <tr className="border-b border-[#E4E8EF] bg-[#F8FAFC] text-[#64748B] font-semibold uppercase tracking-wider text-[11px]">
+            <tr className="border-b border-[#E4E8EF] bg-[#F8FAFC] text-[#64748B] font-semibold uppercase tracking-wider text-xs">
               <th className="py-3.5 px-4">Tanggal</th>
               <th className="py-3.5 px-4">Tipe Transaksi</th>
               <th className="py-3.5 px-4">Instrumen & Simbol</th>
@@ -120,7 +120,7 @@ export function TransactionsTable({ transactions }: TransactionsTableProps) {
                       <span className="font-bold text-[#1E293B] font-mono text-sm">
                         {tx.instrumentSymbol || tx.instrumentName}
                       </span>
-                      <span className="text-[11px] text-[#64748B] truncate max-w-[150px]">
+                      <span className="text-xs text-[#64748B] truncate max-w-[150px]">
                         {tx.instrumentName}
                       </span>
                     </div>
@@ -129,7 +129,7 @@ export function TransactionsTable({ transactions }: TransactionsTableProps) {
                   {/* Account */}
                   <td className="py-3.5 px-4">
                     <span className="font-medium text-[#1E293B] block">{tx.accountName}</span>
-                    <span className="text-[10px] text-[#64748B]">{tx.institution}</span>
+                    <span className="text-xs text-[#64748B]">{tx.institution}</span>
                   </td>
 
                   {/* Quantity */}
@@ -168,7 +168,7 @@ export function TransactionsTable({ transactions }: TransactionsTableProps) {
                           <button
                             disabled={voidingId === tx.id}
                             onClick={() => handleVoid(tx.id)}
-                            className="rounded bg-red-600 px-2 py-1 text-[10px] font-bold text-white hover:bg-red-700"
+                            className="rounded bg-red-600 px-2 py-1 text-xs font-bold text-white hover:bg-red-700"
                           >
                             {voidingId === tx.id ? (
                               <Loader2 className="h-3 w-3 animate-spin" />
@@ -178,7 +178,7 @@ export function TransactionsTable({ transactions }: TransactionsTableProps) {
                           </button>
                           <button
                             onClick={() => setConfirmId(null)}
-                            className="rounded bg-slate-200 px-2 py-1 text-[10px] text-slate-700 hover:bg-slate-300"
+                            className="rounded bg-slate-200 px-2 py-1 text-xs text-slate-700 hover:bg-slate-300"
                           >
                             Batal
                           </button>

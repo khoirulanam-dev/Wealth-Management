@@ -188,11 +188,11 @@ export function InstrumentDialog({ onInstrumentCreated, triggerButton }: Instrum
             {/* Quick Picker / Online API Search */}
             <div className="mt-4 p-3 bg-[#F8FAFC] border border-[#E4E8EF] rounded-xl space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-[11px] font-semibold text-[#1E293B] flex items-center gap-1.5">
+                <span className="text-xs font-semibold text-[#1E293B] flex items-center gap-1.5">
                   <Sparkles className="h-3.5 w-3.5 text-amber-500" />
                   Pilih Cepat Saham IDX (API Terintegrasi)
                 </span>
-                <span className="text-[10px] text-[#94A3B8]">Auto-fill info pasar</span>
+                <span className="text-xs text-[#94A3B8]">Auto-fill info pasar</span>
               </div>
 
               {/* Search box for live API */}
@@ -226,7 +226,7 @@ export function InstrumentDialog({ onInstrumentCreated, triggerButton }: Instrum
                         </span>
                         <span className="text-xs text-[#1E293B]">{item.name}</span>
                       </div>
-                      <span className="text-[10px] font-mono text-[#64748B]">{item.exchange}</span>
+                      <span className="text-xs font-mono text-[#64748B]">{item.exchange}</span>
                     </button>
                   ))}
                 </div>
@@ -239,7 +239,7 @@ export function InstrumentDialog({ onInstrumentCreated, triggerButton }: Instrum
                     key={stock.cleanSymbol}
                     type="button"
                     onClick={() => selectStockItem(stock)}
-                    className="rounded-md border border-[#E2E8F0] bg-white px-2 py-0.5 text-[11px] font-mono font-medium text-[#475569] hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50/50 transition-colors"
+                    className="rounded-md border border-[#E2E8F0] bg-white px-2 py-0.5 text-xs font-mono font-medium text-[#475569] hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50/50 transition-colors"
                   >
                     +{stock.cleanSymbol}
                   </button>

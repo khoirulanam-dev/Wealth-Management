@@ -35,7 +35,7 @@ export default function ErrorBoundary({
         </p>
 
         {error.digest && (
-          <div className="mb-6 rounded-lg bg-slate-50 border border-[#E4E8EF] p-2.5 text-[10px] font-mono text-[#64748B]">
+          <div className="mb-6 rounded-lg bg-slate-50 border border-[#E4E8EF] p-2.5 text-xs font-mono text-[#64748B]">
             Digest ID: {error.digest}
           </div>
         )}
@@ -59,7 +59,7 @@ export default function ErrorBoundary({
           </Link>
         </div>
 
-        <div className="mt-8 pt-6 border-t border-[#EEF1F5] text-[11px] text-[#94A3B8] font-mono">
+        <div className="mt-8 pt-6 border-t border-[#EEF1F5] text-xs text-[#94A3B8] font-mono">
           WEALTH OS · Zero Data Loss Architecture
         </div>
       </div>

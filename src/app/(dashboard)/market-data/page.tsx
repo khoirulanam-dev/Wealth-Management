@@ -67,7 +67,7 @@ export default async function MarketDataPage() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-[#E4E8EF]">
         <div>
-          <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-blue-600 block mb-0.5">
+          <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 block mb-0.5">
             VALUASI & KUOTASI PASAR
           </span>
           <h1 className="text-2xl font-bold tracking-tight text-[#1E293B]">Pusat Data Pasar (Market Data)</h1>
@@ -112,7 +112,7 @@ export default async function MarketDataPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="border-b border-[#E4E8EF] bg-[#F8FAFC] text-[#64748B] font-semibold uppercase tracking-wider text-[11px]">
+                <tr className="border-b border-[#E4E8EF] bg-[#F8FAFC] text-[#64748B] font-semibold uppercase tracking-wider text-xs">
                   <th className="py-3 px-4">Ticker / Simbol</th>
                   <th className="py-3 px-4">Nama Instrumen</th>
                   <th className="py-3 px-4">Bursa</th>
@@ -153,7 +153,7 @@ export default async function MarketDataPage() {
                           ? formatCurrency(item.marketValue)
                           : "-"}
                       </td>
-                      <td className="py-3 px-4 text-center font-mono text-[11px] text-[#64748B]">
+                      <td className="py-3 px-4 text-center font-mono text-xs text-[#64748B]">
                         {formattedDate}
                       </td>
                     </tr>
@@ -172,19 +172,19 @@ export default async function MarketDataPage() {
             <h3 className="text-xs font-bold uppercase tracking-wider text-[#64748B]">
               Log Audit Kuotasi Terakhir (Immutable Ledger)
             </h3>
-            <span className="text-[11px] font-mono text-[#94A3B8]">10 Kuotasi Terbaru</span>
+            <span className="text-xs font-mono text-[#94A3B8]">10 Kuotasi Terbaru</span>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="border-b border-[#E4E8EF] bg-[#F8FAFC] text-[#64748B] font-semibold text-[10px] uppercase">
+                <tr className="border-b border-[#E4E8EF] bg-[#F8FAFC] text-[#64748B] font-semibold text-xs uppercase">
                   <th className="py-2.5 px-4">Waktu Penarikan</th>
                   <th className="py-2.5 px-4">ID Valuasi</th>
                   <th className="py-2.5 px-4">Sumber Data</th>
                   <th className="py-2.5 px-4 text-right">Harga Kuotasi</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#E4E8EF] text-[#1E293B] font-mono text-[11px]">
+              <tbody className="divide-y divide-[#E4E8EF] text-[#1E293B] font-mono text-xs">
                 {recentValuations.map((v) => (
                   <tr key={v.id} className="hover:bg-slate-50/50">
                     <td className="py-2 px-4 text-[#64748B]">

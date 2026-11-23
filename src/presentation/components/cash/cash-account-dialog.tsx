@@ -177,7 +177,7 @@ export function CashAccountDialog({ onAccountCreated }: { onAccountCreated?: () 
 
                 {isEmergencyFund && (
                   <div className="pt-2 animate-in fade-in duration-150">
-                    <label className="text-[11px] font-semibold text-[#64748B] block mb-1">
+                    <label className="text-xs font-semibold text-[#64748B] block mb-1">
                       Target Dana Darurat untuk Rekening Ini (Rp)
                     </label>
                     <Input
