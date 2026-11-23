@@ -2,7 +2,7 @@ import { requireAuth } from "@/lib/auth";
 import { LiabilityService } from "@/application/use-cases/liabilities/liability-service";
 import { CashService } from "@/application/use-cases/cash/cash-service";
 import { formatCurrency, formatDate } from "@/lib/decimal";
-import { CreditCard, CalendarClock, ShieldCheck, AlertCircle } from "lucide-react";
+import { CreditCard, CalendarClock, CheckCircle2, AlertCircle } from "lucide-react";
 import { LiabilityDialog } from "@/presentation/components/liabilities/liability-dialog";
 import { LiabilitiesTable } from "@/presentation/components/liabilities/liabilities-table";
 
@@ -122,7 +122,7 @@ export default async function LiabilitiesPage() {
             <span className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
               Status Kesehatan Utang
             </span>
-            <ShieldCheck className="h-4 w-4 text-emerald-600" />
+            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
           </div>
           <div>
             <div className="text-2xl font-bold tracking-tight text-emerald-600">

@@ -1,6 +1,6 @@
 import { requireAuth } from "@/lib/auth";
 import { WatchlistService } from "@/application/use-cases/portfolio/watchlist-service";
-import { Eye, ShieldCheck, Clock, Layers } from "lucide-react";
+import { Eye, CheckCircle2, Clock, Layers } from "lucide-react";
 import { AddWatchlistDialog } from "@/presentation/components/watchlist/add-watchlist-dialog";
 import { RefreshWatchlistButton } from "@/presentation/components/watchlist/refresh-watchlist-button";
 import { WatchlistTable } from "@/presentation/components/watchlist/watchlist-table";
@@ -61,7 +61,7 @@ export default async function WatchlistPage() {
             <span className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
               Dampak ke Net Worth
             </span>
-            <ShieldCheck className="h-4 w-4 text-emerald-600" />
+            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
           </div>
           <div>
             <div className="text-2xl font-bold tracking-tight text-emerald-600 font-mono">

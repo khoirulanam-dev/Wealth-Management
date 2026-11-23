@@ -6,7 +6,7 @@ import {
   RefreshCw,
   Trash2,
   CheckCircle2,
-  ShieldCheck,
+  Sliders,
   Loader2,
 } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/decimal";
@@ -154,7 +154,7 @@ export function WatchlistTable({ items, onDataChanged }: WatchlistTableProps) {
               <td className="py-3.5 px-4 text-center">
                 {item.isManualOverride ? (
                   <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
-                    <ShieldCheck className="h-3 w-3" />
+                    <Sliders className="h-3 w-3" />
                     Manual
                   </span>
                 ) : item.sourceName ? (

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Download, FileSpreadsheet, FileText, Loader2, X, ShieldCheck } from "lucide-react";
+import { Download, FileSpreadsheet, FileText, Loader2, X, CheckCircle2 } from "lucide-react";
 import { Button } from "@/presentation/components/ui/button";
 import { useToast } from "@/presentation/components/ui/toast";
 import { exportDataAction } from "@/app/actions/import-export-actions";
@@ -169,7 +169,7 @@ export function ExportDialog({ triggerButton }: ExportDialogProps) {
 
             {/* Formula Injection Security Notice */}
             <div className="flex items-center gap-2 p-3 rounded-xl bg-slate-50 border border-[#E4E8EF] text-xs text-[#64748B]">
-              <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0" />
+              <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
               <span>
                 Proteksi Formula Injection (CWE-1236) aktif: sel karakter berbahaya dinetralisir secara otomatis.
               </span>

@@ -1,6 +1,6 @@
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { ShieldCheck, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { LoginForm } from "@/presentation/components/auth/login-form";
 
 export default async function LoginPage() {
@@ -19,8 +19,8 @@ export default async function LoginPage() {
 
         {/* Brand Header */}
         <div className="relative z-10 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15 border border-white/25 backdrop-blur-md shadow-sm">
-            <ShieldCheck className="h-6 w-6 text-white" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15 border border-white/25 backdrop-blur-md shadow-sm font-black text-lg text-white">
+            W
           </div>
           <div>
             <span className="text-lg font-bold tracking-tight">WEALTH OS</span>

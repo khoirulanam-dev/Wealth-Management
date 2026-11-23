@@ -12,7 +12,6 @@ import { formatCurrency } from "@/lib/decimal";
 import {
   BarChart3,
   TrendingUp,
-  ShieldCheck,
   Wallet,
   CreditCard,
   Building2,
@@ -73,7 +72,7 @@ export default async function AnalyticsPage() {
         <div className="adm-card p-5 space-y-2">
           <div className="flex items-center justify-between text-xs text-[#64748B]">
             <span className="font-medium">Kekayaan Bersih</span>
-            <ShieldCheck className="h-4 w-4 text-blue-600" />
+            <Wallet className="h-4 w-4 text-blue-600" />
           </div>
           <div className="text-2xl font-bold font-mono text-[#1E293B]">
             {formatCurrency(analytics.netWorth, currency)}

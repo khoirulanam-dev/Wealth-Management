@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { AlertTriangle, RotateCcw, ShieldCheck } from "lucide-react";
+import { AlertTriangle, RotateCcw, CheckCircle2 } from "lucide-react";
 
 export default function GlobalError({
   error,
@@ -42,7 +42,7 @@ export default function GlobalError({
           </button>
 
           <div className="flex items-center justify-center gap-2 text-[11px] font-mono text-[#94A3B8] pt-2 border-t border-[#EEF1F5]">
-            <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
+            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
             <span>WEALTH OS · Fault-Tolerant Engine</span>
           </div>
         </div>

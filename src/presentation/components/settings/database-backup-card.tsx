@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Database, ShieldCheck, Trash2, RotateCcw, Plus, Loader2 } from "lucide-react";
+import { Database, CheckCircle2, Trash2, RotateCcw, Plus, Loader2 } from "lucide-react";
 import { Button } from "@/presentation/components/ui/button";
 import { useToast } from "@/presentation/components/ui/toast";
 import { createDatabaseBackupAction, restoreDatabaseBackupAction, deleteDatabaseBackupAction } from "@/app/actions/backup-actions";
@@ -157,7 +157,7 @@ export function DatabaseBackupCard({ initialBackups }: DatabaseBackupCardProps) 
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-xs font-bold text-[#1E293B] truncate">{item.name}</span>
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-semibold border border-emerald-200/60">
-                      <ShieldCheck className="h-3 w-3" />
+                      <CheckCircle2 className="h-3 w-3" />
                       SHA-256 Valid
                     </span>
                   </div>

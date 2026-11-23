@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { LogOut, User, ShieldCheck } from "lucide-react";
+import { LogOut, User } from "lucide-react";
 import { Button } from "@/presentation/components/ui/button";
 import { logoutAction } from "@/app/actions/auth-actions";
 import { SessionUser } from "@/lib/auth";
@@ -20,9 +20,9 @@ export function Header({ title = "Ringkasan Portofolio", currency = "IDR", user 
     <header className="h-14 sm:h-[60px] flex items-center justify-between border-b border-[#E4E8EF] bg-white/95 px-4 sm:px-6 backdrop-blur-md sticky top-0 z-30">
       {/* Left: Brand Badge on Mobile + Breadcrumb / Title */}
       <div className="flex items-center gap-2 sm:gap-3 min-w-0 pr-2">
-        {/* Mobile Shield Icon */}
-        <div className="flex h-7 w-7 sm:hidden items-center justify-center rounded-lg bg-blue-600 text-white shadow-xs shrink-0">
-          <ShieldCheck className="h-4 w-4" />
+        {/* Mobile Brand Icon */}
+        <div className="flex h-7 w-7 sm:hidden items-center justify-center rounded-lg bg-blue-600 text-white shadow-xs font-black text-xs shrink-0">
+          W
         </div>
 
         {/* Desktop Breadcrumb */}

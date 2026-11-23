@@ -4,7 +4,7 @@ import {
   Wallet,
   CreditCard,
   PiggyBank,
-  ShieldCheck,
+  CheckCircle2,
   ArrowUpRight,
   Calendar,
   Layers,
@@ -106,7 +106,7 @@ export default async function OverviewPage() {
         <article className="adm-card p-5 flex flex-col justify-between gap-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <ShieldCheck className="h-4 w-4 text-emerald-600" />
+              <Wallet className="h-4 w-4 text-emerald-600" />
               <span className="text-xs font-medium text-[#64748B]">Kekayaan Bersih</span>
             </div>
             <span className="text-xs font-medium text-emerald-600 flex items-center gap-0.5">
@@ -272,7 +272,7 @@ export default async function OverviewPage() {
                 : "Cadangan likuid darurat"}
             </p>
           </div>
-          <ShieldCheck className="h-6 w-6 text-emerald-600" strokeWidth={1.5} />
+          <CheckCircle2 className="h-6 w-6 text-emerald-600" strokeWidth={1.5} />
         </div>
 
         <Link

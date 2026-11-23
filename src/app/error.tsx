@@ -7,7 +7,7 @@ import {
   RotateCcw,
   LayoutDashboard,
   Activity,
-  ShieldCheck,
+  CheckCircle2,
 } from "lucide-react";
 import { Button } from "@/presentation/components/ui/button";
 
@@ -99,7 +99,7 @@ export default function ErrorBoundary({
 
         {/* Architecture Security Badge */}
         <div className="flex items-center justify-center gap-2 text-[11px] font-mono text-[#94A3B8] pt-2 border-t border-[#EEF1F5]">
-          <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
+          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
           <span>WEALTH OS · Zero Data Loss Architecture</span>
         </div>
       </div>

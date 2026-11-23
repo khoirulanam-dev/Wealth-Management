@@ -6,7 +6,6 @@ import {
   Download,
   Eye,
   EyeOff,
-  ShieldCheck,
   Copy,
   Check,
   X,
@@ -76,10 +75,10 @@ export function ShareAllocationDialog({
     year: "numeric",
   });
 
-  // Pure SVG Donut calculations (circumference based for 100% vector accuracy in html-to-image)
-  const radius = 68;
-  const strokeWidth = 24;
-  const circumference = 2 * Math.PI * radius; // ~427.25
+  // Pure SVG Donut calculations (circumference based with generous inner diameter)
+  const radius = 76;
+  const strokeWidth = 20;
+  const circumference = 2 * Math.PI * radius; // ~477.52
 
   let accumulatedPercent = 0;
   const svgSlices = chartItems.map((item) => {
@@ -263,7 +262,7 @@ export function ShareAllocationDialog({
                 <div
                   ref={cardRef}
                   className={cn(
-                    "relative w-full max-w-[380px] rounded-3xl p-6 border shadow-xl transition-all duration-200 overflow-hidden select-none",
+                    "relative w-full max-w-[420px] rounded-3xl p-6 border shadow-xl transition-all duration-200 overflow-hidden select-none",
                     theme === "light"
                       ? "bg-white border-slate-200 text-[#1E293B]"
                       : "bg-[#0F172A] border-slate-800 text-white"
@@ -282,55 +281,47 @@ export function ShareAllocationDialog({
                           theme === "light" ? "text-slate-900" : "text-white"
                         )}
                       >
-                        • {userName.toUpperCase()} • WEALTH OS • VERIFIED •
+                        • {userName.toUpperCase()} • PORTOFOLIO •
                       </span>
                     ))}
                   </div>
 
-                  {/* Card Header */}
+                  {/* Card Header (Clean & Minimalist: No W Logo, No Wealth OS Text) */}
                   <div className="relative z-10 flex items-center justify-between pb-4 border-b border-slate-200/60 dark:border-slate-800">
-                    <div className="flex items-center gap-2">
-                      <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-600 text-white shadow-xs font-bold text-xs">
-                        W
-                      </div>
-                      <div>
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 block">
-                          WEALTH OS
-                        </span>
-                        <h4
-                          className={cn(
-                            "text-sm font-bold tracking-tight",
-                            theme === "light" ? "text-[#1E293B]" : "text-white"
-                          )}
-                        >
-                          Alokasi Portofolio
-                        </h4>
-                      </div>
+                    <div>
+                      <h4
+                        className={cn(
+                          "text-base font-bold tracking-tight",
+                          theme === "light" ? "text-[#1E293B]" : "text-white"
+                        )}
+                      >
+                        Alokasi Portofolio
+                      </h4>
                     </div>
 
-                    {/* Official Verified Badge with User Display Name */}
+                    {/* Minimalist Profile Pill (Clean green dot, No Shield icon) */}
                     <div
                       className={cn(
-                        "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold border shadow-2xs",
+                        "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border shadow-2xs",
                         theme === "light"
-                          ? "bg-blue-50/90 text-blue-700 border-blue-200/80"
-                          : "bg-blue-950/80 text-blue-300 border-blue-800/80"
+                          ? "bg-slate-50 text-slate-700 border-slate-200"
+                          : "bg-slate-800/90 text-slate-200 border-slate-700"
                       )}
                     >
-                      <ShieldCheck className="h-3 w-3 text-blue-500" />
-                      <span className="truncate max-w-[110px]">{userName}</span>
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" />
+                      <span className="font-semibold truncate max-w-[150px]">{userName}</span>
                     </div>
                   </div>
 
-                  {/* Pure Vector Donut Chart (Sharp & Instant Rendering) */}
+                  {/* Pure Vector Donut Chart (Sharp & Instant Rendering with Wide Inner Hole) */}
                   <div className="relative z-10 my-6 flex items-center justify-center">
-                    <div className="relative w-[180px] h-[180px] flex items-center justify-center">
-                      <svg viewBox="0 0 180 180" className="w-full h-full block -rotate-90">
+                    <div className="relative w-[200px] h-[200px] flex items-center justify-center">
+                      <svg viewBox="0 0 200 200" className="w-full h-full block -rotate-90">
                         {svgSlices.map((slice, idx) => (
                           <circle
                             key={idx}
-                            cx="90"
-                            cy="90"
+                            cx="100"
+                            cy="100"
                             r={radius}
                             fill="transparent"
                             stroke={slice.color}
@@ -342,8 +333,8 @@ export function ShareAllocationDialog({
                         ))}
                       </svg>
 
-                      {/* Center Content Overlay */}
-                      <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none p-2">
+                      {/* Center Content Overlay (Spacious padding so nominal never overlaps ring) */}
+                      <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none px-3">
                         <span
                           className={cn(
                             "text-[10px] font-bold uppercase tracking-wider",
@@ -354,48 +345,49 @@ export function ShareAllocationDialog({
                         </span>
                         <span
                           className={cn(
-                            "text-base font-extrabold font-mono tracking-tight my-0.5",
+                            "font-extrabold font-mono tracking-tight my-0.5 whitespace-nowrap",
+                            showNominals ? "text-[13px] leading-tight" : "text-base",
                             theme === "light" ? "text-[#1E293B]" : "text-white"
                           )}
                         >
                           {showNominals ? formatCurrency(finalTotalValue, currency) : "100%"}
                         </span>
 
-                        {/* Center Micro-Watermark (Cannot be removed without damaging chart center) */}
-                        <span className="text-[8.5px] font-semibold text-slate-400/80 tracking-tight truncate max-w-[100px]">
+                        {/* Center Micro-Watermark */}
+                        <span className="text-[9px] font-medium text-slate-400/80 tracking-tight truncate max-w-[110px]">
                           @{userName.toLowerCase().replace(/\s+/g, "")}
                         </span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Allocation Legend List */}
+                  {/* Allocation Legend List (Responsive grid with perfect vertical column alignment) */}
                   <div
                     className={cn(
-                      "relative z-10 space-y-2 pt-3 border-t",
+                      "relative z-10 space-y-2.5 pt-3.5 border-t",
                       theme === "light" ? "border-slate-100" : "border-slate-800"
                     )}
                   >
                     {chartItems.map((item) => (
-                      <div key={item.name} className="flex items-center justify-between text-xs">
-                        <div className="flex items-center gap-2 min-w-0">
+                      <div key={item.name} className="flex items-center justify-between text-xs gap-3">
+                        <div className="flex items-center gap-2.5 min-w-0 flex-1">
                           <span
                             className="h-2.5 w-2.5 rounded-full shrink-0 shadow-2xs"
                             style={{ backgroundColor: item.color }}
                           />
                           <span
                             className={cn(
-                              "font-medium truncate",
+                              "font-medium truncate text-xs",
                               theme === "light" ? "text-[#1E293B]" : "text-slate-200"
                             )}
                           >
                             {item.name}
                           </span>
                         </div>
-                        <div className="flex items-center gap-2 font-mono shrink-0">
+                        <div className="flex items-center gap-3 font-mono shrink-0">
                           <span
                             className={cn(
-                              "font-bold",
+                              "font-bold text-xs min-w-[42px] text-right",
                               theme === "light" ? "text-[#1E293B]" : "text-white"
                             )}
                           >
@@ -404,8 +396,8 @@ export function ShareAllocationDialog({
                           {showNominals && (
                             <span
                               className={cn(
-                                "text-[11px]",
-                                theme === "light" ? "text-[#64748B]" : "text-slate-400"
+                                "text-xs font-semibold tabular-nums min-w-[96px] text-right",
+                                theme === "light" ? "text-slate-600" : "text-slate-300"
                               )}
                             >
                               {formatCurrency(item.value, currency)}
@@ -416,16 +408,16 @@ export function ShareAllocationDialog({
                     ))}
                   </div>
 
-                  {/* Card Security Footer & Anti-Tamper Bar */}
+                  {/* Card Security Footer */}
                   <div
                     className={cn(
-                      "relative z-10 mt-5 pt-3 border-t flex items-center justify-between text-[10px] font-mono",
+                      "relative z-10 mt-5 pt-3 border-t flex items-center justify-between text-[11px] font-mono",
                       theme === "light"
                         ? "border-slate-100 text-slate-400"
                         : "border-slate-800 text-slate-500"
                     )}
                   >
-                    <span className="truncate">Verified: {userName}</span>
+                    <span className="truncate">{userName}</span>
                     <span>{todayFormatted}</span>
                   </div>
                 </div>

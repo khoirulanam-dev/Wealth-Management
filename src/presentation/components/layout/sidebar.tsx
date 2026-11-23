@@ -14,7 +14,6 @@ import {
   BarChart3,
   RefreshCw,
   Settings,
-  ShieldCheck,
   LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -81,8 +80,8 @@ export function Sidebar({ user }: SidebarProps) {
     <aside className="hidden lg:flex w-[248px] flex-col border-r border-[#E4E8EF] bg-white sticky top-0 h-screen overflow-y-auto">
       {/* Brand Header (Adminator Signature Brand) */}
       <div className="flex items-center gap-3 px-5 py-4 border-b border-[#EEF1F5]">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white shadow-sm">
-          <ShieldCheck className="h-4.5 w-4.5" />
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white shadow-sm font-black text-sm tracking-tighter">
+          W
         </div>
         <div className="flex flex-col">
           <span className="text-base font-bold tracking-tight text-[#1E293B]">WEALTH OS</span>

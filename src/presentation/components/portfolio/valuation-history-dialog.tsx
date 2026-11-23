@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { History, X, CheckCircle2, ShieldCheck, Loader2 } from "lucide-react";
+import { History, X, CheckCircle2, Loader2, Sliders } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/decimal";
 
 interface ValuationHistoryRecord {
@@ -115,7 +115,7 @@ export function ValuationHistoryDialog({
                           </span>
                           {record.isManualOverride ? (
                             <span className="inline-flex items-center gap-1 rounded bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-700 border border-amber-200">
-                              <ShieldCheck className="h-3 w-3" />
+                              <Sliders className="h-3 w-3" />
                               Manual Override
                             </span>
                           ) : (

@@ -1,4 +1,4 @@
-import { ShieldAlert, ShieldCheck, Target, Info } from "lucide-react";
+import { AlertCircle, CheckCircle2, Target, Info } from "lucide-react";
 import { formatCurrency } from "@/lib/decimal";
 
 interface EmergencyFundCardProps {
@@ -27,9 +27,9 @@ export function EmergencyFundCard({
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
             {isTargetAchieved ? (
-              <ShieldCheck className="h-5 w-5 text-emerald-600" />
+              <CheckCircle2 className="h-5 w-5 text-emerald-600" />
             ) : (
-              <ShieldAlert className="h-5 w-5 text-emerald-600" />
+              <AlertCircle className="h-5 w-5 text-emerald-600" />
             )}
           </div>
           <div>
