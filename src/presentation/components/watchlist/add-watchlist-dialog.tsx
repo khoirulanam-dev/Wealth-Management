@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Eye, AlertCircle, Loader2, X, Search } from "lucide-react";
+import { Plus, Eye, AlertCircle, Loader2, X, Search, TrendingUp, TrendingDown } from "lucide-react";
 import { Button } from "@/presentation/components/ui/button";
 import { Input } from "@/presentation/components/ui/input";
 import {
@@ -14,6 +14,20 @@ import {
 import { useToast } from "@/presentation/components/ui/toast";
 import { addToWatchlistAction } from "@/app/actions/watchlist-actions";
 import { searchMarketStocksAction } from "@/app/actions/portfolio-actions";
+import { AssetLogo } from "@/presentation/components/ui/asset-logo";
+import { formatCurrency } from "@/lib/decimal";
+import { cn } from "@/lib/utils";
+
+export interface WatchlistSearchItem {
+  symbol: string;
+  cleanSymbol: string;
+  name: string;
+  exchange: string;
+  assetType: string;
+  currency: string;
+  price?: number;
+  changePercent?: number;
+}
 
 const POPULAR_WATCHLIST_PRESETS = [
   { symbol: "BBCA", name: "Bank Central Asia Tbk", assetType: "stock", market: "IDX" },
@@ -42,7 +56,7 @@ export function AddWatchlistDialog({ onWatchlistAdded }: { onWatchlistAdded?: ()
   // Search states
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
-  const [suggestions, setSuggestions] = useState<Array<{ symbol: string; name: string; cleanSymbol: string }>>([]);
+  const [suggestions, setSuggestions] = useState<WatchlistSearchItem[]>([]);
 
   const { toast } = useToast();
 
@@ -64,14 +78,17 @@ export function AddWatchlistDialog({ onWatchlistAdded }: { onWatchlistAdded?: ()
     setIsSearching(true);
     const res = await searchMarketStocksAction(q);
     if (res.success && res.data) {
-      setSuggestions(res.data.slice(0, 5));
+      setSuggestions(res.data.slice(0, 6));
     }
     setIsSearching(false);
   }
 
-  function handleSelectSuggestion(item: { symbol: string; name: string; cleanSymbol: string }) {
+  function handleSelectSuggestion(item: WatchlistSearchItem) {
     setSymbol(item.cleanSymbol || item.symbol);
     setName(item.name);
+    if (item.assetType) setAssetType(item.assetType);
+    if (item.exchange) setMarket(item.exchange);
+    if (item.currency) setCurrency(item.currency);
     setSuggestions([]);
     setSearchQuery("");
   }
@@ -180,19 +197,93 @@ export function AddWatchlistDialog({ onWatchlistAdded }: { onWatchlistAdded?: ()
               </div>
 
               {suggestions.length > 0 && (
-                <div className="divide-y divide-[#E4E8EF] rounded-xl border border-[#E4E8EF] bg-white shadow-md overflow-hidden max-h-40 overflow-y-auto">
-                  {suggestions.map((item) => (
-                    <div
-                      key={item.symbol}
-                      onClick={() => handleSelectSuggestion(item)}
-                      className="p-3 hover:bg-blue-50/50 cursor-pointer flex items-center justify-between text-xs transition-colors"
-                    >
-                      <span className="font-bold text-blue-600 font-mono">
-                        {item.cleanSymbol || item.symbol}
-                      </span>
-                      <span className="text-[#64748B] truncate max-w-xs">{item.name}</span>
-                    </div>
-                  ))}
+                <div className="divide-y divide-[#EEF1F5] rounded-2xl border border-[#CBD5E1] bg-white shadow-xl overflow-hidden max-h-72 overflow-y-auto animate-in fade-in duration-150">
+                  {suggestions.map((item) => {
+                    const isProfit = (item.changePercent ?? 0) >= 0;
+                    return (
+                      <div
+                        key={item.symbol}
+                        onClick={() => handleSelectSuggestion(item)}
+                        className="p-3 hover:bg-blue-50/70 cursor-pointer flex items-center justify-between gap-3 text-xs transition-colors group"
+                      >
+                        {/* Left: Asset Logo + Identity */}
+                        <div className="flex items-center gap-3 min-w-0">
+                          <AssetLogo
+                            symbol={item.cleanSymbol || item.symbol}
+                            name={item.name}
+                            assetType={item.assetType}
+                            market={item.exchange}
+                            size="md"
+                          />
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="font-mono font-bold text-sm text-[#1E293B] group-hover:text-blue-600 transition-colors">
+                                {item.cleanSymbol || item.symbol}
+                              </span>
+                              <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-mono font-medium text-slate-600">
+                                {item.exchange}
+                              </span>
+                              <span className="rounded bg-blue-50 text-blue-700 px-1.5 py-0.5 text-[10px] font-medium capitalize">
+                                {item.assetType === "stock"
+                                  ? "Saham"
+                                  : item.assetType === "mutual_fund"
+                                  ? "Reksa Dana"
+                                  : item.assetType === "gold"
+                                  ? "Emas"
+                                  : item.assetType === "crypto"
+                                  ? "Kripto"
+                                  : item.assetType === "bond"
+                                  ? "SBN"
+                                  : item.assetType}
+                              </span>
+                            </div>
+                            <span className="text-xs text-[#64748B] truncate block mt-0.5 max-w-sm sm:max-w-md">
+                              {item.name}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Right: Real-Time Price & PnL / Daily Change */}
+                        <div className="text-right shrink-0">
+                          {typeof item.price === "number" ? (
+                            <div className="space-y-0.5">
+                              <span className="font-mono font-bold text-xs text-[#1E293B] block">
+                                {item.currency === "IDR"
+                                  ? formatCurrency(item.price, "IDR")
+                                  : `${item.currency || "USD"} ${item.price.toLocaleString("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                              </span>
+                              {typeof item.changePercent === "number" && (
+                                <div className="flex items-center justify-end gap-1">
+                                  <span
+                                    className={cn(
+                                      "inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-mono font-bold",
+                                      isProfit
+                                        ? "text-emerald-700 bg-emerald-50 border border-emerald-200/60"
+                                        : "text-rose-700 bg-rose-50 border border-rose-200/60"
+                                    )}
+                                  >
+                                    {isProfit ? (
+                                      <TrendingUp className="h-2.5 w-2.5" />
+                                    ) : (
+                                      <TrendingDown className="h-2.5 w-2.5" />
+                                    )}
+                                    <span>
+                                      {isProfit ? "+" : ""}
+                                      {item.changePercent.toFixed(2)}%
+                                    </span>
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-[11px] font-mono text-[#94A3B8]">
+                              Pasar Real-Time
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>

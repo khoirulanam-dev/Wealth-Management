@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, LineChart, AlertCircle, Loader2, X, Search, Sparkles } from "lucide-react";
+import { Plus, LineChart, AlertCircle, Loader2, X, Search, Sparkles, TrendingUp, TrendingDown } from "lucide-react";
 import { Button } from "@/presentation/components/ui/button";
 import { Input } from "@/presentation/components/ui/input";
 import {
@@ -17,6 +17,9 @@ import {
   searchMarketStocksAction,
   getCuratedStocksAction,
 } from "@/app/actions/portfolio-actions";
+import { AssetLogo } from "@/presentation/components/ui/asset-logo";
+import { formatCurrency } from "@/lib/decimal";
+import { cn } from "@/lib/utils";
 
 interface StockSuggestion {
   symbol: string;
@@ -25,6 +28,8 @@ interface StockSuggestion {
   exchange: string;
   assetType: string;
   currency: string;
+  price?: number;
+  changePercent?: number;
 }
 
 interface InstrumentDialogProps {
@@ -210,25 +215,96 @@ export function InstrumentDialog({ onInstrumentCreated, triggerButton }: Instrum
                 )}
               </div>
 
-              {/* Suggestions Dropdown */}
+              {/* Suggestions Dropdown with Logo, Real-time Price, and PnL */}
               {suggestions.length > 0 && (
-                <div className="max-h-36 overflow-y-auto divide-y divide-[#E4E8EF] rounded-lg border border-[#CBD5E1] bg-white shadow-md">
-                  {suggestions.map((item) => (
-                    <button
-                      key={item.symbol}
-                      type="button"
-                      onClick={() => selectStockItem(item)}
-                      className="w-full text-left px-3 py-2 hover:bg-blue-50 flex items-center justify-between transition-colors"
-                    >
-                      <div>
-                        <span className="font-mono font-bold text-xs text-blue-600 mr-2">
-                          {item.cleanSymbol}
-                        </span>
-                        <span className="text-xs text-[#1E293B]">{item.name}</span>
-                      </div>
-                      <span className="text-xs font-mono text-[#64748B]">{item.exchange}</span>
-                    </button>
-                  ))}
+                <div className="max-h-64 overflow-y-auto divide-y divide-[#EEF1F5] rounded-2xl border border-[#CBD5E1] bg-white shadow-xl animate-in fade-in duration-150">
+                  {suggestions.map((item) => {
+                    const isProfit = (item.changePercent ?? 0) >= 0;
+                    return (
+                      <button
+                        key={item.symbol}
+                        type="button"
+                        onClick={() => selectStockItem(item)}
+                        className="w-full text-left p-3 hover:bg-blue-50/70 flex items-center justify-between gap-3 transition-colors group cursor-pointer"
+                      >
+                        {/* Left: Asset Logo + Identity */}
+                        <div className="flex items-center gap-3 min-w-0">
+                          <AssetLogo
+                            symbol={item.cleanSymbol || item.symbol}
+                            name={item.name}
+                            assetType={item.assetType}
+                            market={item.exchange}
+                            size="md"
+                          />
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="font-mono font-bold text-sm text-[#1E293B] group-hover:text-blue-600 transition-colors">
+                                {item.cleanSymbol}
+                              </span>
+                              <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-mono font-medium text-slate-600">
+                                {item.exchange}
+                              </span>
+                              <span className="rounded bg-blue-50 text-blue-700 px-1.5 py-0.5 text-[10px] font-medium capitalize">
+                                {item.assetType === "stock"
+                                  ? "Saham"
+                                  : item.assetType === "mutual_fund"
+                                  ? "Reksa Dana"
+                                  : item.assetType === "gold"
+                                  ? "Emas"
+                                  : item.assetType === "crypto"
+                                  ? "Kripto"
+                                  : item.assetType === "bond"
+                                  ? "SBN"
+                                  : item.assetType}
+                              </span>
+                            </div>
+                            <span className="text-xs text-[#64748B] truncate block mt-0.5 max-w-sm">
+                              {item.name}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Right: Real-time Price & Daily PnL */}
+                        <div className="text-right shrink-0">
+                          {typeof item.price === "number" ? (
+                            <div className="space-y-0.5">
+                              <span className="font-mono font-bold text-xs text-[#1E293B] block">
+                                {item.currency === "IDR"
+                                  ? formatCurrency(item.price, "IDR")
+                                  : `${item.currency || "USD"} ${item.price.toLocaleString("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                              </span>
+                              {typeof item.changePercent === "number" && (
+                                <div className="flex items-center justify-end gap-1">
+                                  <span
+                                    className={cn(
+                                      "inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-mono font-bold",
+                                      isProfit
+                                        ? "text-emerald-700 bg-emerald-50 border border-emerald-200/60"
+                                        : "text-rose-700 bg-rose-50 border border-rose-200/60"
+                                    )}
+                                  >
+                                    {isProfit ? (
+                                      <TrendingUp className="h-2.5 w-2.5" />
+                                    ) : (
+                                      <TrendingDown className="h-2.5 w-2.5" />
+                                    )}
+                                    <span>
+                                      {isProfit ? "+" : ""}
+                                      {item.changePercent.toFixed(2)}%
+                                    </span>
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-[11px] font-mono text-[#94A3B8]">
+                              Pasar Real-Time
+                            </span>
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
               )}
 
