@@ -5,6 +5,8 @@ import { AssetAllocationDonut } from "@/presentation/components/analytics/asset-
 import { ContributionsVsGrowth } from "@/presentation/components/analytics/contributions-vs-growth";
 import { CaptureSnapshotButton } from "@/presentation/components/analytics/capture-snapshot-button";
 import { AssetLogo } from "@/presentation/components/ui/asset-logo";
+import { ExportDialog } from "@/presentation/components/import-export/export-dialog";
+import { SharePortfolioDialog } from "@/presentation/components/import-export/share-portfolio-dialog";
 import { formatCurrency } from "@/lib/decimal";
 import {
   BarChart3,
@@ -43,7 +45,23 @@ export default async function AnalyticsPage() {
             Analisis pertumbuhan kekayaan bersih, pemisahan setoran modal vs pertumbuhan pasar riil, dan alokasi aset.
           </p>
         </div>
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <SharePortfolioDialog
+            netWorth={analytics.netWorth}
+            totalInvestments={analytics.totalInvestments}
+            totalCash={analytics.totalCash}
+            totalLiabilities={analytics.totalLiabilities}
+            overallReturnPercent={analytics.contributionsVsGains.gainPercentage}
+            allocations={analytics.assetAllocation.map((a) => ({
+              category: a.name,
+              value: a.value,
+              percentage: a.percentage,
+              color: a.color,
+            }))}
+            userName={session.email ? session.email.split("@")[0] : "Investor"}
+            currency={currency}
+          />
+          <ExportDialog />
           <CaptureSnapshotButton />
         </div>
       </div>

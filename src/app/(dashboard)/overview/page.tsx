@@ -26,6 +26,9 @@ import { RecordTransactionDialog } from "@/presentation/components/portfolio/rec
 import { NetWorthChart } from "@/presentation/components/analytics/net-worth-chart";
 import { AssetAllocationDonut } from "@/presentation/components/analytics/asset-allocation-donut";
 import { CaptureSnapshotButton } from "@/presentation/components/analytics/capture-snapshot-button";
+import { ExportDialog } from "@/presentation/components/import-export/export-dialog";
+import { ImportDialog } from "@/presentation/components/import-export/import-dialog";
+import { SharePortfolioDialog } from "@/presentation/components/import-export/share-portfolio-dialog";
 
 export default async function OverviewPage() {
   const session = await requireAuth();
@@ -70,7 +73,24 @@ export default async function OverviewPage() {
             Konsolidasi menyeluruh posisi aset finansial, portofolio investasi, saldo kas likuid, dan jadwal liabilitas.
           </p>
         </div>
-        <div className="flex items-center gap-2.5 shrink-0">
+        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+          <SharePortfolioDialog
+            netWorth={netWorth}
+            totalInvestments={summary.totalMarketValue}
+            totalCash={cashSummary.totalCashBalance}
+            totalLiabilities={liabilitySummary.totalOutstanding}
+            overallReturnPercent={Number(summary.totalUnrealizedPLPercentage) || 0}
+            allocations={analytics.assetAllocation.map((a) => ({
+              category: a.name,
+              value: a.value,
+              percentage: a.percentage,
+              color: a.color,
+            }))}
+            userName={capitalUserName}
+            currency={session.reportingCurrency || "IDR"}
+          />
+          <ExportDialog />
+          <ImportDialog />
           <CaptureSnapshotButton />
           <RecordTransactionDialog
             accounts={accounts}
