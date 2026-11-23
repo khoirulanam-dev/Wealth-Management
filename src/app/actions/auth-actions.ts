@@ -6,8 +6,6 @@ import { db } from "@/infrastructure/db/client";
 import { users } from "@/infrastructure/db/schema/users";
 import { createSession, destroySession, getSession, requireAuth, verifyPassword, hashPassword } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
-import fs from "fs";
-import path from "path";
 
 export async function loginAction(formData: FormData) {
   const email = (formData.get("email") as string)?.toLowerCase().trim();
@@ -39,7 +37,7 @@ export async function loginAction(formData: FormData) {
       userId: user.id,
       email: user.email,
       name: user.name || null,
-      avatarUrl: user.avatarUrl || null,
+      avatarUrl: user.avatarUrl ? "/api/user/avatar" : null,
       reportingCurrency: user.reportingCurrency || "IDR",
     });
   } catch (err) {
@@ -80,24 +78,8 @@ export async function updateProfileAction(data: {
       // User removed avatar
       finalAvatarUrl = null;
     } else if (data.avatarDataUrl && data.avatarDataUrl.startsWith("data:image/")) {
-      // User uploaded new image
-      const matches = data.avatarDataUrl.match(/^data:image\/([a-zA-Z0-9+]+);base64,(.+)$/);
-      if (matches) {
-        const ext = matches[1] === "jpeg" ? "jpg" : matches[1];
-        const base64Data = matches[2];
-        const buffer = Buffer.from(base64Data, "base64");
-
-        const uploadsDir = path.resolve(process.cwd(), "public/uploads/avatars");
-        if (!fs.existsSync(uploadsDir)) {
-          fs.mkdirSync(uploadsDir, { recursive: true });
-        }
-
-        const filename = `avatar-${session.userId}-${Date.now()}.${ext}`;
-        const filePath = path.join(uploadsDir, filename);
-        fs.writeFileSync(filePath, buffer);
-
-        finalAvatarUrl = `/uploads/avatars/${filename}`;
-      }
+      // Store Base64 image data directly in PostgreSQL database (zero files in project folder)
+      finalAvatarUrl = data.avatarDataUrl;
     }
 
     // Prepare update payload
@@ -118,7 +100,7 @@ export async function updateProfileAction(data: {
 
     await db.update(users).set(updatePayload).where(eq(users.id, session.userId));
 
-    // Refresh JWT session cookie
+    // Refresh JWT session cookie with lightweight avatar URL pointer
     const [updatedUser] = await db.select().from(users).where(eq(users.id, session.userId)).limit(1);
 
     if (updatedUser) {
@@ -127,7 +109,7 @@ export async function updateProfileAction(data: {
         userId: updatedUser.id,
         email: updatedUser.email,
         name: updatedUser.name || null,
-        avatarUrl: updatedUser.avatarUrl || null,
+        avatarUrl: updatedUser.avatarUrl ? `/api/user/avatar?t=${Date.now()}` : null,
         reportingCurrency: updatedUser.reportingCurrency || "IDR",
       });
     }

@@ -9,4 +9,5 @@ export * from "./liabilities";
 export * from "./income";
 export * from "./snapshots";
 export * from "./audit";
+export * from "./backups";
 

@@ -15,8 +15,9 @@ import {
   investmentIncome,
   snapshots,
   auditEvents,
+  systemBackups,
 } from "@/infrastructure/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import crypto from "crypto";
 
 export interface BackupMetadata {
@@ -239,5 +240,99 @@ export class BackupService {
       const message = err instanceof Error ? err.message : "Gagal memulihkan cadangan database";
       return { success: false, restoredCounts, error: message };
     }
+  }
+
+  /**
+   * Saves a full system backup directly into the Neon PostgreSQL `system_backups` table.
+   * Eliminates the need to commit new JSON files into the git repository.
+   */
+  static async saveBackupToDatabase(options?: { name?: string; userId?: string }) {
+    const bundle = await this.createBackup(options?.userId);
+    const backupId = `bkp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    const backupName =
+      options?.name?.trim() ||
+      `Cadangan Sistem ${new Date().toLocaleDateString("id-ID", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      })}`;
+
+    const bundleJson = JSON.stringify(bundle);
+
+    await db.insert(systemBackups).values({
+      id: backupId,
+      name: backupName,
+      scope: bundle.metadata.scope,
+      checksum: bundle.metadata.checksum,
+      recordCounts: bundle.metadata.recordCounts,
+      bundleJson,
+      createdAt: new Date(),
+    });
+
+    return {
+      backupId,
+      name: backupName,
+      checksum: bundle.metadata.checksum,
+      recordCounts: bundle.metadata.recordCounts,
+      createdAt: new Date(),
+    };
+  }
+
+  /**
+   * Lists all existing system backups stored in the database.
+   */
+  static async listDatabaseBackups() {
+    return await db
+      .select({
+        id: systemBackups.id,
+        name: systemBackups.name,
+        scope: systemBackups.scope,
+        checksum: systemBackups.checksum,
+        recordCounts: systemBackups.recordCounts,
+        createdAt: systemBackups.createdAt,
+      })
+      .from(systemBackups)
+      .orderBy(desc(systemBackups.createdAt));
+  }
+
+  /**
+   * Retrieves full backup bundle from database for inspection or user download.
+   */
+  static async getDatabaseBackupBundle(backupId: string): Promise<FullBackupBundle | null> {
+    const [record] = await db
+      .select()
+      .from(systemBackups)
+      .where(eq(systemBackups.id, backupId))
+      .limit(1);
+
+    if (!record || !record.bundleJson) return null;
+    return JSON.parse(record.bundleJson) as FullBackupBundle;
+  }
+
+  /**
+   * Restores database state directly from a database-stored backup record.
+   */
+  static async restoreFromDatabaseBackup(backupId: string) {
+    const bundle = await this.getDatabaseBackupBundle(backupId);
+    if (!bundle) {
+      return { success: false, restoredCounts: {}, error: "Catatan cadangan database tidak ditemukan." };
+    }
+
+    const verification = this.verifyBackup(bundle);
+    if (!verification.isValid) {
+      return { success: false, restoredCounts: {}, error: verification.error };
+    }
+
+    return await this.restoreBackup(bundle);
+  }
+
+  /**
+   * Deletes a backup record from the database.
+   */
+  static async deleteDatabaseBackup(backupId: string) {
+    await db.delete(systemBackups).where(eq(systemBackups.id, backupId));
+    return true;
   }
 }

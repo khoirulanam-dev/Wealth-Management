@@ -3,6 +3,8 @@ import { db } from "@/infrastructure/db/client";
 import { users } from "@/infrastructure/db/schema/users";
 import { eq } from "drizzle-orm";
 import { ProfileForm } from "@/presentation/components/settings/profile-form";
+import { DatabaseBackupCard } from "@/presentation/components/settings/database-backup-card";
+import { BackupService } from "@/application/use-cases/system/backup-service";
 import { UserCheck } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -24,13 +26,13 @@ export default async function SettingsPage() {
     .where(eq(users.id, session.userId))
     .limit(1);
 
-  const userData = currentUser || {
+  const userData = {
     id: session.userId,
-    email: session.email,
-    name: session.name || null,
-    avatarUrl: session.avatarUrl || null,
-    reportingCurrency: session.reportingCurrency || "IDR",
-    createdAt: new Date(),
+    email: currentUser?.email || session.email,
+    name: currentUser?.name || session.name || null,
+    avatarUrl: currentUser?.avatarUrl ? "/api/user/avatar" : null,
+    reportingCurrency: currentUser?.reportingCurrency || session.reportingCurrency || "IDR",
+    createdAt: currentUser?.createdAt || new Date(),
   };
 
   const formattedDate = userData.createdAt
@@ -40,6 +42,9 @@ export default async function SettingsPage() {
         year: "numeric",
       })
     : "-";
+
+  // Fetch backups stored in Neon database
+  const backups = await BackupService.listDatabaseBackups();
 
   return (
     <div className="space-y-6 max-w-4xl">
@@ -60,6 +65,9 @@ export default async function SettingsPage() {
 
       {/* Main Profile Form */}
       <ProfileForm initialUser={userData} />
+
+      {/* Database Backup Management Card */}
+      <DatabaseBackupCard initialBackups={backups} />
 
       {/* Account Status & Security Card */}
       <div className="adm-card p-5 bg-[#F8FAFC]/80 border border-[#E4E8EF] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#64748B]">

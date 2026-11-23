@@ -7,18 +7,52 @@ import path from "path";
 import { BackupService, FullBackupBundle } from "@/application/use-cases/system/backup-service";
 
 async function runRestore() {
-  const filePathArg = process.argv[2];
+  const arg = process.argv[2];
 
-  if (!filePathArg) {
-    console.error("❌ [WEALTH OS] Berkas cadangan tidak ditentukan.");
-    console.log("Penggunaan: npx tsx scripts/restore.ts <path-to-backup.json>");
-    process.exit(1);
+  if (!arg || arg === "--list") {
+    console.log("📋 [WEALTH OS] Mengambil daftar cadangan yang tersimpan di Database...");
+    const backups = await BackupService.listDatabaseBackups();
+    if (backups.length === 0) {
+      console.log("Belum ada cadangan yang tersimpan di database.");
+      console.log("Gunakan: npm run db:backup untuk membuat cadangan baru.");
+    } else {
+      console.log(`Ditemukan ${backups.length} cadangan di database:`);
+      for (const b of backups) {
+        console.log(` - ID: ${b.id}`);
+        console.log(`   Nama: ${b.name}`);
+        console.log(`   Waktu: ${new Date(b.createdAt).toLocaleString("id-ID")}`);
+        console.log(`   Checksum: ${b.checksum.slice(0, 16)}...`);
+      }
+      console.log("\nUntuk memulihkan, jalankan: npx tsx scripts/restore.ts <ID_CADANGAN>");
+    }
+    process.exit(0);
   }
 
-  const resolvedPath = path.resolve(process.cwd(), filePathArg);
+  // 1. Jika argumen adalah ID cadangan database (dimulai dengan bkp_)
+  if (arg.startsWith("bkp_")) {
+    console.log(`🔒 [WEALTH OS] Memulihkan cadangan dari Database (ID: ${arg})...`);
+    const restoreResult = await BackupService.restoreFromDatabaseBackup(arg);
+
+    if (!restoreResult.success) {
+      console.error(`❌ [WEALTH OS] Pemulihan gagal: ${restoreResult.error}`);
+      process.exit(1);
+    }
+
+    console.log("🎉 [WEALTH OS] Pemulihan database berhasil tuntas!");
+    if ("restoredCounts" in restoreResult && restoreResult.restoredCounts) {
+      for (const [table, count] of Object.entries(restoreResult.restoredCounts)) {
+        console.log(`   - ${table}: ${count} baris dipulihkan`);
+      }
+    }
+    return;
+  }
+
+  // 2. Jika argumen adalah path file JSON
+  const resolvedPath = path.resolve(process.cwd(), arg);
 
   if (!fs.existsSync(resolvedPath)) {
-    console.error(`❌ [WEALTH OS] Berkas cadangan tidak ditemukan di: ${resolvedPath}`);
+    console.error(`❌ [WEALTH OS] Berkas cadangan atau ID tidak ditemukan: ${arg}`);
+    console.log("Jalankan `npx tsx scripts/restore.ts --list` untuk melihat daftar cadangan database.");
     process.exit(1);
   }
 
