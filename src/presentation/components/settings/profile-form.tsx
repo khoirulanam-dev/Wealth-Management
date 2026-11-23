@@ -8,7 +8,6 @@ import {
   Trash2,
   Mail,
   Coins,
-  ShieldCheck,
   Loader2,
   Save,
   KeyRound,
@@ -290,10 +289,6 @@ export function ProfileForm({ initialUser }: ProfileFormProps) {
 
         {/* Submit Button */}
         <div className="pt-4 border-t border-[#EEF1F5] flex items-center justify-between">
-          <div className="flex items-center gap-2 text-xs text-emerald-600 font-medium">
-            <ShieldCheck className="h-4 w-4" />
-            <span>Boundary Otentikasi Privat Terenkripsi</span>
-          </div>
 
           <Button
             type="submit"
