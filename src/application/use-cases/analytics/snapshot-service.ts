@@ -67,22 +67,45 @@ export class SnapshotService {
    * Watchlist items and forecast income are strictly excluded from net worth.
    */
   static async captureSnapshot(userId: string, targetDate = new Date()) {
-    // 1. Fetch user to get reporting currency
-    const [user] = await db.select().from(users).where(eq(users.id, userId));
-    const reportingCurrency = user?.reportingCurrency || "IDR";
+    // Normalize date to start of UTC day for daily snapshot uniqueness
+    const snapshotDate = new Date(
+      Date.UTC(
+        targetDate.getUTCFullYear(),
+        targetDate.getUTCMonth(),
+        targetDate.getUTCDate(),
+        0,
+        0,
+        0,
+        0
+      )
+    );
 
-    // 2. Fetch authoritative domain data
+    // Fetch user and all financial domain data in a single parallel roundtrip
     const [
+      [user],
       { holdings, summary: holdingSummary, assetBreakdown },
       cashSummary,
       cashAccounts,
       liabilitySummary,
+      [existing],
     ] = await Promise.all([
+      db.select({ reportingCurrency: users.reportingCurrency }).from(users).where(eq(users.id, userId)),
       HoldingsService.listActiveHoldings(userId),
       CashService.getCashSummary(userId),
       CashService.listCashAccounts(userId),
       LiabilityService.getSummary(userId),
+      db
+        .select({ id: snapshots.id })
+        .from(snapshots)
+        .where(
+          and(
+            eq(snapshots.userId, userId),
+            eq(snapshots.snapshotDate, snapshotDate)
+          )
+        ),
     ]);
+
+    const reportingCurrency = user?.reportingCurrency || "IDR";
 
     const totalInvestments = new Decimal(holdingSummary.totalMarketValue || 0);
     const totalCash = new Decimal(cashSummary.totalCashBalance || 0);
@@ -201,32 +224,7 @@ export class SnapshotService {
       topHoldings,
     };
 
-    // Normalize date to start of UTC day for daily snapshot uniqueness
-    const snapshotDate = new Date(
-      Date.UTC(
-        targetDate.getUTCFullYear(),
-        targetDate.getUTCMonth(),
-        targetDate.getUTCDate(),
-        0,
-        0,
-        0,
-        0
-      )
-    );
-
     const snapshotId = `snp_${userId.slice(-6)}_${snapshotDate.toISOString().slice(0, 10).replace(/-/g, "")}`;
-
-    // 6. Check existing snapshot for today to maintain uniqueness
-    const [existing] = await db
-      .select()
-      .from(snapshots)
-      .where(
-        and(
-          eq(snapshots.userId, userId),
-          eq(snapshots.snapshotDate, snapshotDate),
-          eq(snapshots.reportingCurrency, reportingCurrency)
-        )
-      );
 
     if (existing) {
       // Update today's snapshot in-place with latest valuations
