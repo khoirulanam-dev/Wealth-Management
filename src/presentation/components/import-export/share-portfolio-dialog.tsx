@@ -9,7 +9,6 @@ import {
   Shield,
   Sparkles,
   TrendingUp,
-  Wallet,
   PieChart,
   X,
   Loader2,
@@ -408,21 +407,29 @@ export function SharePortfolioDialog({
                       {maskValue(netWorth)}
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3 pt-2 text-xs">
-                      <div className="p-2.5 rounded-xl bg-slate-800/60 border border-slate-700/50">
-                        <span className="text-[10px] text-slate-400 block mb-0.5">
-                          Portofolio Investasi
+                    <div className="grid grid-cols-3 gap-2 pt-2 text-xs">
+                      <div className="p-2 rounded-xl bg-slate-800/60 border border-slate-700/50">
+                        <span className="text-[9px] text-slate-400 block mb-0.5 truncate">
+                          Investasi
                         </span>
-                        <span className="font-mono font-bold text-slate-200">
+                        <span className="font-mono font-bold text-slate-200 text-[11px] block truncate">
                           {maskValue(totalInvestments)}
                         </span>
                       </div>
-                      <div className="p-2.5 rounded-xl bg-slate-800/60 border border-slate-700/50">
-                        <span className="text-[10px] text-slate-400 block mb-0.5">
-                          Kas &amp; Likuid
+                      <div className="p-2 rounded-xl bg-slate-800/60 border border-slate-700/50">
+                        <span className="text-[9px] text-slate-400 block mb-0.5 truncate">
+                          Kas Likuid
                         </span>
-                        <span className="font-mono font-bold text-slate-200">
+                        <span className="font-mono font-bold text-slate-200 text-[11px] block truncate">
                           {maskValue(totalCash)}
+                        </span>
+                      </div>
+                      <div className="p-2 rounded-xl bg-slate-800/60 border border-slate-700/50">
+                        <span className="text-[9px] text-slate-400 block mb-0.5 truncate">
+                          Liabilitas
+                        </span>
+                        <span className="font-mono font-bold text-slate-200 text-[11px] block truncate">
+                          {maskValue(totalLiabilities)}
                         </span>
                       </div>
                     </div>

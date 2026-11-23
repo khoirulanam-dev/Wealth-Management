@@ -4,9 +4,6 @@ import {
   investmentTransactions,
   instruments,
   financialAccounts,
-  cashAccounts,
-  liabilities,
-  investmentIncome,
 } from "@/infrastructure/db/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { sanitizeCsvCell, desanitizeCsvCell } from "@/lib/csv-sanitizer";
@@ -34,8 +31,8 @@ export interface ValidationResult {
   totalRows: number;
   validCount: number;
   errorCount: number;
-  validRows: any[];
-  invalidRows: Array<{ rowNumber: number; data: any; errors: string[] }>;
+  validRows: Record<string, unknown>[];
+  invalidRows: Array<{ rowNumber: number; data: Record<string, unknown>; errors: string[] }>;
   errors: ValidationErrorItem[];
   warnings: ValidationWarningItem[];
   duplicateCount: number;
@@ -93,9 +90,9 @@ export class ImportExportService {
   /**
    * Pure row-by-row validation engine supporting CSV & XLSX normalized objects.
    */
-  static validateData(type: ImportType, rawRows: any[]): ValidationResult {
-    const validRows: any[] = [];
-    const invalidRows: Array<{ rowNumber: number; data: any; errors: string[] }> = [];
+  static validateData(type: ImportType, rawRows: Record<string, unknown>[]): ValidationResult {
+    const validRows: Record<string, unknown>[] = [];
+    const invalidRows: Array<{ rowNumber: number; data: Record<string, unknown>; errors: string[] }> = [];
     const errors: ValidationErrorItem[] = [];
     const warnings: ValidationWarningItem[] = [];
 
@@ -290,7 +287,7 @@ export class ImportExportService {
     const workbook = XLSX.read(buffer, { type: "buffer" });
     const firstSheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[firstSheetName];
-    const rawRows: any[] = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+    const rawRows = XLSX.utils.sheet_to_json<Record<string, unknown>>(worksheet, { defval: "" });
 
     return this.validateData(type, rawRows);
   }
@@ -301,17 +298,25 @@ export class ImportExportService {
   static async executeImport(
     userId: string,
     type: ImportType,
-    rows: any[]
+    rows: Record<string, unknown>[]
   ): Promise<{ importedCount: number }> {
     let importedCount = 0;
 
     if (type === "transactions") {
       for (const item of rows) {
+        const accountName = String(item.accountName || "Akun Utama");
+        const symbol = String(item.symbol || "");
+        const txType = String(item.type || "buy");
+        const tradeDate = item.tradeDate instanceof Date ? item.tradeDate : new Date(String(item.tradeDate));
+        const quantity = String(item.quantity || "0");
+        const unitPrice = String(item.unitPrice || "0");
+        const note = item.notes ? String(item.notes) : "Imported batch";
+
         // 1. Resolve or create account
         let [acc] = await db
           .select()
           .from(financialAccounts)
-          .where(and(eq(financialAccounts.userId, userId), eq(financialAccounts.name, item.accountName)));
+          .where(and(eq(financialAccounts.userId, userId), eq(financialAccounts.name, accountName)));
 
         if (!acc) {
           const [newAcc] = await db
@@ -319,7 +324,7 @@ export class ImportExportService {
             .values({
               id: crypto.randomUUID(),
               userId,
-              name: item.accountName,
+              name: accountName,
               accountType: "brokerage",
               institution: "Sekuritas",
               currency: "IDR",
@@ -332,7 +337,7 @@ export class ImportExportService {
         let [inst] = await db
           .select()
           .from(instruments)
-          .where(and(eq(instruments.userId, userId), eq(instruments.symbol, item.symbol)));
+          .where(and(eq(instruments.userId, userId), eq(instruments.symbol, symbol)));
 
         if (!inst) {
           const [newInst] = await db
@@ -340,8 +345,8 @@ export class ImportExportService {
             .values({
               id: crypto.randomUUID(),
               userId,
-              symbol: item.symbol,
-              name: item.symbol,
+              symbol,
+              name: symbol,
               assetType: "stock",
               market: "IDX",
               currency: "IDR",
@@ -355,60 +360,63 @@ export class ImportExportService {
         await TransactionsService.recordTransaction(userId, {
           instrumentId: inst.id,
           accountId: acc.id,
-          type: item.type.toLowerCase(),
-          tradeDate: item.tradeDate,
-          quantity: String(item.quantity),
-          unitPrice: String(item.unitPrice),
-          note: item.notes || "Imported batch",
+          type: txType.toLowerCase(),
+          tradeDate,
+          quantity,
+          unitPrice,
+          note,
         });
         importedCount++;
       }
     } else if (type === "cash") {
       for (const item of rows) {
         await CashService.createCashAccount(userId, {
-          name: item.name,
-          institution: item.institution,
-          accountType: item.accountType || "bank",
-          openingBalance: item.currentBalance,
-          currency: item.currency || "IDR",
+          name: String(item.name || ""),
+          institution: String(item.institution || ""),
+          accountType: String(item.accountType || "bank"),
+          openingBalance: String(item.currentBalance || "0"),
+          currency: String(item.currency || "IDR"),
           isEmergencyFund: Boolean(item.isEmergencyFund),
-          emergencyFundTarget: item.emergencyFundTarget,
+          emergencyFundTarget: item.emergencyFundTarget ? String(item.emergencyFundTarget) : null,
         });
         importedCount++;
       }
     } else if (type === "liabilities") {
       for (const item of rows) {
         await LiabilityService.createLiability(userId, {
-          name: item.name,
-          creditor: item.creditor,
-          type: item.type || "other",
-          originalAmount: item.originalAmount,
-          outstandingBalance: item.outstandingBalance,
-          installmentAmount: item.monthlyPayment,
+          name: String(item.name || ""),
+          creditor: String(item.creditor || ""),
+          type: String(item.type || "other"),
+          originalAmount: String(item.originalAmount || "0"),
+          outstandingBalance: String(item.outstandingBalance || "0"),
+          installmentAmount: String(item.monthlyPayment || "0"),
           startDate: new Date(),
-          dueDate: item.dueDate ? new Date(item.dueDate) : undefined,
+          dueDate: item.dueDate ? new Date(String(item.dueDate)) : undefined,
         });
         importedCount++;
       }
     } else if (type === "income") {
       for (const item of rows) {
+        const symbol = item.symbol ? String(item.symbol) : null;
         let instId: string | null = null;
-        if (item.symbol) {
+        if (symbol) {
           const [found] = await db
             .select()
             .from(instruments)
-            .where(and(eq(instruments.userId, userId), eq(instruments.symbol, item.symbol)));
+            .where(and(eq(instruments.userId, userId), eq(instruments.symbol, symbol)));
           if (found) instId = found.id;
         }
 
+        const status = String(item.status || "received");
+        const amount = String(item.amount || "0");
         await IncomeService.createIncome(userId, {
           instrumentId: instId,
-          type: item.type || "dividend",
-          status: item.status || "received",
-          paymentDate: item.paymentDate ? new Date(item.paymentDate) : new Date(),
-          actualAmount: item.status === "received" ? item.amount : null,
-          expectedAmount: item.status === "forecast" ? item.amount : null,
-          note: item.note,
+          type: String(item.type || "dividend"),
+          status,
+          paymentDate: item.paymentDate ? new Date(String(item.paymentDate)) : new Date(),
+          actualAmount: status === "received" ? amount : null,
+          expectedAmount: status === "forecast" ? amount : null,
+          note: item.note ? String(item.note) : null,
         });
         importedCount++;
       }
@@ -428,7 +436,7 @@ export class ImportExportService {
     const timestamp = new Date().toISOString().slice(0, 10);
     const filename = `wealth_os_${module}_${timestamp}.${format}`;
 
-    const exportSheets: Record<string, any[]> = {};
+    const exportSheets: Record<string, Record<string, string>[]> = {};
 
     if (module === "all" || module === "transactions") {
       const allTx = await db

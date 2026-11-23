@@ -12,7 +12,10 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:seed": "tsx src/infrastructure/db/seed.ts",
+    "db:backup": "tsx scripts/backup.ts",
+    "db:restore": "tsx scripts/restore.ts",
     "db:studio": "drizzle-kit studio",
+    "release:check": "bash scripts/release-gate.sh",
     "test": "vitest run",
     "test:watch": "vitest"
   },

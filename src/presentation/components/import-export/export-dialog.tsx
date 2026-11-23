@@ -113,7 +113,7 @@ export function ExportDialog({ triggerButton }: ExportDialogProps) {
                   <button
                     key={item.id}
                     type="button"
-                    onClick={() => setSelectedModule(item.id as any)}
+                    onClick={() => setSelectedModule(item.id as typeof selectedModule)}
                     className={`p-3 rounded-xl border text-left transition-all ${
                       selectedModule === item.id
                         ? "border-blue-600 bg-blue-50/70 text-blue-900 shadow-xs ring-1 ring-blue-600"
@@ -213,3 +213,4 @@ export function ExportDialog({ triggerButton }: ExportDialogProps) {
     </>
   );
 }
+
