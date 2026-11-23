@@ -6,13 +6,11 @@ import {
   PiggyBank,
   ShieldCheck,
   ArrowUpRight,
-  Download,
   Calendar,
   Layers,
   ChevronRight,
 } from "lucide-react";
 import { formatCurrency } from "@/lib/decimal";
-import { Button } from "@/presentation/components/ui/button";
 import { requireAuth } from "@/lib/auth";
 import { HoldingsService } from "@/application/use-cases/portfolio/holdings-service";
 import { AccountsService } from "@/application/use-cases/portfolio/accounts-service";
@@ -22,8 +20,12 @@ import { CashService } from "@/application/use-cases/cash/cash-service";
 import { LiabilityService } from "@/application/use-cases/liabilities/liability-service";
 import { WatchlistService } from "@/application/use-cases/portfolio/watchlist-service";
 import { IncomeService } from "@/application/use-cases/income/income-service";
+import { SnapshotService } from "@/application/use-cases/analytics/snapshot-service";
 import { Decimal } from "decimal.js";
 import { RecordTransactionDialog } from "@/presentation/components/portfolio/record-transaction-dialog";
+import { NetWorthChart } from "@/presentation/components/analytics/net-worth-chart";
+import { AssetAllocationDonut } from "@/presentation/components/analytics/asset-allocation-donut";
+import { CaptureSnapshotButton } from "@/presentation/components/analytics/capture-snapshot-button";
 
 export default async function OverviewPage() {
   const session = await requireAuth();
@@ -31,7 +33,7 @@ export default async function OverviewPage() {
   // Automatic daily price sync check (triggers if quotes are > 24 hours old)
   await MarketDataSyncService.autoSyncIfStale(session.userId);
 
-  const [{ summary, assetBreakdown }, accounts, instruments, cashSummary, liabilitySummary, watchlistItems, incomeSummary] = await Promise.all([
+  const [{ summary }, accounts, instruments, cashSummary, liabilitySummary, watchlistItems, incomeSummary, snapshots, analytics] = await Promise.all([
     HoldingsService.listActiveHoldings(session.userId),
     AccountsService.listAccounts(session.userId),
     InstrumentsService.listInstruments(session.userId),
@@ -39,6 +41,8 @@ export default async function OverviewPage() {
     LiabilityService.getSummary(session.userId),
     WatchlistService.listWatchlist(session.userId),
     IncomeService.getSummary(session.userId),
+    SnapshotService.listSnapshots(session.userId),
+    SnapshotService.getAnalytics(session.userId),
   ]);
 
   const userName = session.email ? session.email.split("@")[0] : "Investor";
@@ -67,10 +71,7 @@ export default async function OverviewPage() {
           </p>
         </div>
         <div className="flex items-center gap-2.5 shrink-0">
-          <Button variant="outline" size="sm" className="gap-2 h-9 border-[#E4E8EF] bg-white text-[#1E293B] hover:bg-[#F8FAFC]">
-            <Download className="h-4 w-4 text-[#64748B]" />
-            Ekspor
-          </Button>
+          <CaptureSnapshotButton />
           <RecordTransactionDialog
             accounts={accounts}
             instruments={instruments}
@@ -183,7 +184,7 @@ export default async function OverviewPage() {
       <section className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Main Chart Panel (8 Columns) */}
         <div className="lg:col-span-8 adm-card p-6 flex flex-col justify-between">
-          <div className="flex items-center justify-between border-b border-[#EEF1F5] pb-4 mb-6">
+          <div className="flex items-center justify-between border-b border-[#EEF1F5] pb-4 mb-4">
             <div>
               <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 block mb-0.5">
                 HISTORIS TERVERIFIKASI
@@ -199,20 +200,12 @@ export default async function OverviewPage() {
             </Link>
           </div>
 
-          <div className="min-h-[260px] flex flex-col items-center justify-center text-center p-6 bg-[#F8FAFC] rounded-xl border border-dashed border-[#E4E8EF]">
-            <TrendingUp className="h-7 w-7 text-[#94A3B8] mb-2.5" strokeWidth={1.5} />
-            <h3 className="text-sm font-bold text-[#1E293B]">Kurva Net Worth Aktif</h3>
-            <p className="text-xs text-[#64748B] max-w-sm mt-1 leading-relaxed">
-              {summary.positionCount > 0
-                ? `Portofolio memiliki ${summary.positionCount} posisi aktif bernilai ${formatCurrency(summary.totalMarketValue)}. Snapshot historis harian akan tersimpan secara teratur.`
-                : "Catat aset finansial atau transaksi pertama Anda untuk mulai membentuk kurva net worth secara otomatis."}
-            </p>
-          </div>
+          <NetWorthChart initialData={snapshots} currency="IDR" />
         </div>
 
         {/* Side Panel: Asset Allocation (4 Columns) */}
         <div className="lg:col-span-4 adm-card p-6 flex flex-col justify-between">
-          <div className="flex items-center justify-between border-b border-[#EEF1F5] pb-4 mb-6">
+          <div className="flex items-center justify-between border-b border-[#EEF1F5] pb-4 mb-4">
             <div>
               <span className="text-xs font-semibold uppercase tracking-wider text-purple-600 block mb-0.5">
                 DISTRIBUSI KELAS ASET
@@ -221,42 +214,7 @@ export default async function OverviewPage() {
             </div>
           </div>
 
-          {assetBreakdown.length > 0 ? (
-            <div className="space-y-4 py-2">
-              {assetBreakdown.map((item) => (
-                <div key={item.assetType} className="space-y-1.5">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-semibold text-[#1E293B] uppercase">
-                      {item.assetType === "stock"
-                        ? "Saham"
-                        : item.assetType === "mutual_fund"
-                        ? "Reksa Dana"
-                        : item.assetType === "gold"
-                        ? "Emas Fisik"
-                        : item.assetType}
-                    </span>
-                    <span className="font-mono text-[#64748B]">
-                      {item.percentage}% ({formatCurrency(item.value)})
-                    </span>
-                  </div>
-                  <div className="h-1.5 w-full rounded bg-slate-100 overflow-hidden">
-                    <div
-                      className="h-full bg-blue-600 rounded"
-                      style={{ width: `${item.percentage}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="min-h-[260px] flex flex-col items-center justify-center text-center p-6 bg-[#F8FAFC] rounded-xl border border-dashed border-[#E4E8EF]">
-              <Layers className="h-7 w-7 text-[#94A3B8] mb-2.5" strokeWidth={1.5} />
-              <h3 className="text-sm font-bold text-[#1E293B]">Belum Ada Aset Terdaftar</h3>
-              <p className="text-xs text-[#64748B] max-w-xs mt-1 leading-relaxed">
-                Diagram proporsi kelas aset (saham, reksa dana, kas, emas) akan muncul secara otomatis setelah Anda mencatat transaksi pertama.
-              </p>
-            </div>
-          )}
+          <AssetAllocationDonut data={analytics.assetAllocation} currency="IDR" />
         </div>
       </section>
 

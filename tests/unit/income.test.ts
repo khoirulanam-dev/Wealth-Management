@@ -77,3 +77,4 @@ describe("Milestone 6: Passive Income, Dividends, Coupons & Yield", () => {
     expect(netWorth.toString()).toBe("61500000");
   });
 });
+
