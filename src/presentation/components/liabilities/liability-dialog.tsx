@@ -97,7 +97,7 @@ export function LiabilityDialog({ onLiabilityCreated }: { onLiabilityCreated?: (
     <>
       <Button
         onClick={() => setIsOpen(true)}
-        className="gap-2 bg-rose-600 hover:bg-rose-700 text-white font-medium text-xs h-9 shadow-sm"
+        className="gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs h-9 shadow-sm"
       >
         <Plus className="h-4 w-4" />
         Catat Liabilitas
@@ -105,11 +105,11 @@ export function LiabilityDialog({ onLiabilityCreated }: { onLiabilityCreated?: (
 
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 overflow-y-auto">
-          <div className="relative w-full max-w-lg rounded-2xl border border-[#E4E8EF] bg-white p-6 shadow-xl animate-in fade-in zoom-in-95 duration-150 my-6 max-h-[90vh] overflow-y-auto">
+          <div className="relative w-full max-w-2xl rounded-2xl border border-[#E4E8EF] bg-white p-6 sm:p-7 shadow-xl animate-in fade-in zoom-in-95 duration-150 my-6 max-h-[90vh] overflow-y-auto">
             {/* Header */}
             <div className="flex items-center justify-between pb-4 border-b border-[#E4E8EF]">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-rose-50 text-rose-600">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
                   <CreditCard className="h-5 w-5" />
                 </div>
                 <div>
@@ -120,24 +120,24 @@ export function LiabilityDialog({ onLiabilityCreated }: { onLiabilityCreated?: (
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
-                className="rounded-lg p-1 text-[#94A3B8] hover:bg-slate-100 hover:text-[#1E293B]"
+                className="rounded-lg p-1.5 text-[#94A3B8] hover:bg-slate-100 hover:text-[#1E293B] transition-colors"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
             {/* Quick Presets */}
-            <div className="mt-4 space-y-1.5">
+            <div className="mt-4 space-y-2">
               <label className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
                 Pilihan Cepat (Indonesia)
               </label>
-              <div className="flex flex-wrap gap-1.5">
+              <div className="flex flex-wrap gap-2">
                 {PRESET_CREDITORS.map((p) => (
                   <button
                     key={p.name}
                     type="button"
                     onClick={() => applyPreset(p)}
-                    className="rounded-md border border-[#E2E8F0] bg-white px-2.5 py-1 text-xs font-medium text-[#475569] hover:border-rose-500 hover:text-rose-600 hover:bg-rose-50/50 transition-colors"
+                    className="rounded-lg border border-[#E2E8F0] bg-white px-3 py-1.5 text-xs font-medium text-[#475569] hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50/50 transition-colors"
                   >
                     +{p.name}
                   </button>
@@ -329,7 +329,7 @@ export function LiabilityDialog({ onLiabilityCreated }: { onLiabilityCreated?: (
                 <Button
                   type="submit"
                   disabled={isLoading}
-                  className="bg-rose-600 hover:bg-rose-700 text-white gap-2 font-medium"
+                  className="bg-blue-600 hover:bg-blue-700 text-white gap-2 font-medium"
                 >
                   {isLoading ? (
                     <>

@@ -71,3 +71,4 @@ describe("Liabilities & Debt Management Domain Calculations (Milestone 4)", () =
     expect(cashBalanceAfter.gte(0)).toBe(true);
   });
 });
+
