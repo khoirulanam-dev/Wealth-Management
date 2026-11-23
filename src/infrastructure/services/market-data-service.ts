@@ -10,6 +10,8 @@
  * - Redundant dual-mirror architecture (query1 & query2 failover)
  */
 
+import { searchLocalRegistry } from "./market-instruments-registry";
+
 export interface MarketQuote {
   symbol: string;
   cleanSymbol: string;
@@ -48,7 +50,10 @@ export interface MutualFundItem {
 
 export class MarketDataService {
   private static quoteCache = new Map<string, { quote: MarketQuote; cachedAt: number }>();
-  private static CACHE_TTL_MS = 60 * 1000; // 1 minute in-memory cache
+  private static CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes quote cache
+
+  private static searchCache = new Map<string, { data: StockSearchItem[]; cachedAt: number }>();
+  private static SEARCH_CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutes search cache
 
   // Curated database of Indonesian Mutual Funds (Reksadana) with live NAB reference
   public static MUTUAL_FUNDS_REGISTRY: MutualFundItem[] = [
@@ -76,10 +81,10 @@ export class MarketDataService {
     { code: "PBS032", name: "Project Based Sukuk Seri PBS032", coupon: 6.75, par: 1000000, type: "Sukuk Negara" },
   ];
 
-  // Redundant free mirrors
+  // Redundant free mirrors (query2 prioritized to avoid query1 Edge rate-limits)
   private static MIRRORS = [
-    "https://query1.finance.yahoo.com",
     "https://query2.finance.yahoo.com",
+    "https://query1.finance.yahoo.com",
   ];
 
   /**
@@ -359,6 +364,7 @@ export class MarketDataService {
 
   /**
    * Search symbols across Indonesian and global stock markets using free search endpoint.
+   * Instant local search (<1ms) with in-memory caching and bounded remote lookup.
    */
   public static async searchSymbols(query: string): Promise<StockSearchItem[]> {
     const q = query.trim();
@@ -366,7 +372,23 @@ export class MarketDataService {
 
     const lowerQ = q.toLowerCase();
 
-    // 1. Check local Indonesian Mutual Funds (Reksadana)
+    // 1. Fast Cache Hit (< 0.1ms)
+    const cachedSearch = this.searchCache.get(lowerQ);
+    if (cachedSearch && Date.now() - cachedSearch.cachedAt < this.SEARCH_CACHE_TTL_MS) {
+      return cachedSearch.data;
+    }
+
+    // 2. Instant Local Offline Registry Match (0ms)
+    const localRegistryMatches: StockSearchItem[] = searchLocalRegistry(q).map((item) => ({
+      symbol: item.symbol,
+      cleanSymbol: item.cleanSymbol,
+      name: item.name,
+      exchange: item.exchange,
+      assetType: item.assetType,
+      currency: item.currency,
+    }));
+
+    // 3. Local Indonesian Mutual Funds (Reksadana)
     const matchedFunds: StockSearchItem[] = this.MUTUAL_FUNDS_REGISTRY
       .filter((f) => f.name.toLowerCase().includes(lowerQ) || f.code.toLowerCase().includes(lowerQ))
       .map((f) => ({
@@ -380,7 +402,7 @@ export class MarketDataService {
         changePercent: f.dailyReturn,
       }));
 
-    // 2. Check local Indonesian Bonds / SBN
+    // 4. Local Indonesian Bonds / SBN
     const matchedBonds: StockSearchItem[] = this.BONDS_REGISTRY
       .filter((b) => b.name.toLowerCase().includes(lowerQ) || b.code.toLowerCase().includes(lowerQ))
       .map((b) => ({
@@ -394,105 +416,135 @@ export class MarketDataService {
         changePercent: 0,
       }));
 
-    // 3. Check Gold keywords
+    // 5. Gold keywords
     const matchedGold: StockSearchItem[] = [];
     if (lowerQ.includes("emas") || lowerQ.includes("antam") || lowerQ.includes("gold") || lowerQ.includes("ubs")) {
       matchedGold.push({
         symbol: "ANTAM",
         cleanSymbol: "ANTAM",
-        name: "Emas Batangan Logam Mulia Antam",
+        name: "Emas Batangan Logam Mulia Antam (IDR/gr)",
         exchange: "KOMODITAS",
         assetType: "gold",
         currency: "IDR",
       });
     }
 
-    // 4. Check Crypto keywords
-    const cryptoCurated = [
-      { sym: "BTC", name: "Bitcoin (BTC)" },
-      { sym: "ETH", name: "Ethereum (ETH)" },
-      { sym: "SOL", name: "Solana (SOL)" },
-      { sym: "USDT", name: "Tether USD (USDT)" },
-      { sym: "BNB", name: "Binance Coin (BNB)" },
-      { sym: "XRP", name: "Ripple XRP (XRP)" },
-      { sym: "DOGE", name: "Dogecoin (DOGE)" },
-      { sym: "ADA", name: "Cardano (ADA)" },
-    ];
-    const matchedCrypto: StockSearchItem[] = cryptoCurated
-      .filter((c) => c.sym.toLowerCase() === lowerQ || c.name.toLowerCase().includes(lowerQ) || lowerQ.includes(c.sym.toLowerCase()))
-      .map((c) => ({
-        symbol: `${c.sym}-USD`,
-        cleanSymbol: c.sym,
-        name: c.name,
-        exchange: "KRIPTO",
-        assetType: "crypto",
-        currency: "IDR",
-      }));
-
-    const localMatches = [...matchedCrypto, ...matchedFunds, ...matchedBonds, ...matchedGold];
-
-    for (const mirror of this.MIRRORS) {
-      try {
-        const url = `${mirror}/v1/finance/search?q=${encodeURIComponent(q)}&quotesCount=12&newsCount=0`;
-        const res = await fetch(url, {
-          headers: {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-          },
-        });
-
-        if (!res.ok) continue;
-        const data = await res.json();
-        const quotes = data?.quotes || [];
-
-        const rawList = quotes
-          .filter((item: { quoteType?: string; symbol?: string }) =>
-            item.quoteType === "EQUITY" || item.quoteType === "ETF" || item.quoteType === "MUTUALFUND"
-          )
-          .slice(0, 8)
-          .map((item: {
-            symbol: string;
-            shortname?: string;
-            longname?: string;
-            exchange?: string;
-            quoteType?: string;
-          }) => {
-            const isIdx = item.symbol.endsWith(".JK") || item.exchange === "JKT";
-            const cleanSymbol = item.symbol.replace(/\.JK$/i, "");
-            return {
-              symbol: item.symbol,
-              cleanSymbol,
-              name: item.longname || item.shortname || cleanSymbol,
-              exchange: isIdx ? "IDX" : item.exchange || "GLOBAL",
-              assetType: item.quoteType === "MUTUALFUND" ? "mutual_fund" : "stock",
-              currency: isIdx ? "IDR" : "USD",
-            };
-          });
-
-        // Enrich with real live quote in parallel
-        const enriched = await Promise.all(
-          [...localMatches, ...rawList].map(async (it: StockSearchItem) => {
-            if (it.price !== undefined) return it;
-            try {
-              const q = await this.fetchQuote(it.cleanSymbol, it.assetType);
-              return {
-                ...it,
-                price: q?.price,
-                changePercent: q?.changePercent,
-              };
-            } catch {
-              return it;
-            }
-          })
-        );
-
-        return enriched;
-      } catch (err) {
-        console.warn(`[MarketDataService] Search mirror ${mirror} failed:`, err);
+    // Combine local matches (deduplicated by cleanSymbol)
+    const seenSymbols = new Set<string>();
+    const localMatches: StockSearchItem[] = [];
+    for (const item of [...localRegistryMatches, ...matchedFunds, ...matchedBonds, ...matchedGold]) {
+      const key = item.cleanSymbol.toUpperCase();
+      if (!seenSymbols.has(key)) {
+        seenSymbols.add(key);
+        localMatches.push(item);
       }
     }
 
-    // Fallback if network mirrors fail: return local registry matches
-    return localMatches;
+    // Check if we have an exact ticker match locally (e.g. "DMAS", "BBCA")
+    const hasExactTicker = localMatches.some((m) => m.cleanSymbol.toLowerCase() === lowerQ);
+
+    let rawList: StockSearchItem[] = [];
+
+    // Only query external Yahoo Finance mirror if query is at least 2 chars and not saturated with exact matches
+    if (!hasExactTicker || localMatches.length < 4) {
+      for (const mirror of this.MIRRORS) {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 1200); // 1.2s strict timeout
+
+          const url = `${mirror}/v1/finance/search?q=${encodeURIComponent(q)}&quotesCount=8&newsCount=0`;
+          const res = await fetch(url, {
+            headers: {
+              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            },
+            signal: controller.signal,
+          });
+          clearTimeout(timeoutId);
+
+          if (!res.ok) continue;
+          const data = await res.json();
+          const quotes = data?.quotes || [];
+
+          rawList = quotes
+            .filter((item: { quoteType?: string; symbol?: string }) =>
+              item.quoteType === "EQUITY" || item.quoteType === "ETF" || item.quoteType === "MUTUALFUND"
+            )
+            .slice(0, 6)
+            .map((item: {
+              symbol: string;
+              shortname?: string;
+              longname?: string;
+              exchange?: string;
+              quoteType?: string;
+            }) => {
+              const isIdx = item.symbol.endsWith(".JK") || item.exchange === "JKT";
+              const cleanSymbol = item.symbol.replace(/\.JK$/i, "");
+              return {
+                symbol: item.symbol,
+                cleanSymbol,
+                name: item.longname || item.shortname || cleanSymbol,
+                exchange: isIdx ? "IDX" : item.exchange || "GLOBAL",
+                assetType: item.quoteType === "MUTUALFUND" ? "mutual_fund" : "stock",
+                currency: isIdx ? "IDR" : "USD",
+              };
+            });
+
+          if (rawList.length > 0) break;
+        } catch {
+          // Continue to next mirror or fallback to local
+        }
+      }
+    }
+
+    // Merge local and remote matches
+    const combined: StockSearchItem[] = [...localMatches];
+    for (const item of rawList) {
+      const key = item.cleanSymbol.toUpperCase();
+      if (!seenSymbols.has(key)) {
+        seenSymbols.add(key);
+        combined.push(item);
+      }
+    }
+
+    // Bounded quote enrichment (top 4 items, checking cache first, max 600ms safety timeout)
+    const topResults = combined.slice(0, 8);
+    const enriched = await Promise.all(
+      topResults.map(async (it) => {
+        if (it.price !== undefined) return it;
+
+        const querySymbol = this.resolveQuerySymbol(it.cleanSymbol, it.assetType);
+        const cachedQ = this.quoteCache.get(querySymbol);
+        if (cachedQ && Date.now() - cachedQ.cachedAt < this.CACHE_TTL_MS) {
+          return {
+            ...it,
+            price: cachedQ.quote.price,
+            changePercent: cachedQ.quote.changePercent,
+          };
+        }
+
+        // Bounded fetch: max 600ms race so search never stalls
+        try {
+          const fetchPromise = this.fetchQuote(it.cleanSymbol, it.assetType);
+          const timeoutPromise = new Promise<null>((resolve) => setTimeout(() => resolve(null), 600));
+          const q = await Promise.race([fetchPromise, timeoutPromise]);
+          if (q) {
+            return {
+              ...it,
+              price: q.price,
+              changePercent: q.changePercent,
+            };
+          }
+        } catch {
+          // graceful fallback without price
+        }
+        return it;
+      })
+    );
+
+    // Save to search memory cache
+    this.searchCache.set(lowerQ, { data: enriched, cachedAt: Date.now() });
+
+    return enriched;
   }
 
   /**

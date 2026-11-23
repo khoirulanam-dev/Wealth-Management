@@ -17,6 +17,7 @@ import {
   searchMarketStocksAction,
   getCuratedStocksAction,
 } from "@/app/actions/portfolio-actions";
+import { searchLocalRegistry } from "@/infrastructure/services/market-instruments-registry";
 import { AssetLogo } from "@/presentation/components/ui/asset-logo";
 import { formatCurrency } from "@/lib/decimal";
 import { cn } from "@/lib/utils";
@@ -68,19 +69,35 @@ export function InstrumentDialog({ onInstrumentCreated, triggerButton }: Instrum
   }, [isOpen, curatedList.length]);
 
   useEffect(() => {
-    if (!searchQuery.trim()) {
+    const trimmed = searchQuery.trim();
+    if (!trimmed) {
       setSuggestions([]);
       return;
     }
 
+    // 1. INSTANT LOCAL FILTER (0ms): render immediately from offline registry
+    const localMatches: StockSuggestion[] = searchLocalRegistry(trimmed).map((it) => ({
+      symbol: it.symbol,
+      cleanSymbol: it.cleanSymbol,
+      name: it.name,
+      exchange: it.exchange,
+      assetType: it.assetType,
+      currency: it.currency,
+    }));
+
+    if (localMatches.length > 0) {
+      setSuggestions(localMatches.slice(0, 6));
+    }
+
+    // 2. Debounced background enrichment (150ms) to augment with live prices & remote search
     const timer = setTimeout(async () => {
       setIsSearching(true);
-      const res = await searchMarketStocksAction(searchQuery);
-      if (res.success && res.data) {
-        setSuggestions(res.data);
+      const res = await searchMarketStocksAction(trimmed);
+      if (res.success && res.data && res.data.length > 0) {
+        setSuggestions(res.data.slice(0, 6));
       }
       setIsSearching(false);
-    }, 300);
+    }, 150);
 
     return () => clearTimeout(timer);
   }, [searchQuery]);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Plus, Eye, AlertCircle, Loader2, X, Search, TrendingUp, TrendingDown } from "lucide-react";
 import { Button } from "@/presentation/components/ui/button";
 import { Input } from "@/presentation/components/ui/input";
@@ -14,6 +14,7 @@ import {
 import { useToast } from "@/presentation/components/ui/toast";
 import { addToWatchlistAction } from "@/app/actions/watchlist-actions";
 import { searchMarketStocksAction } from "@/app/actions/portfolio-actions";
+import { searchLocalRegistry } from "@/infrastructure/services/market-instruments-registry";
 import { AssetLogo } from "@/presentation/components/ui/asset-logo";
 import { formatCurrency } from "@/lib/decimal";
 import { cn } from "@/lib/utils";
@@ -57,6 +58,7 @@ export function AddWatchlistDialog({ onWatchlistAdded }: { onWatchlistAdded?: ()
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [suggestions, setSuggestions] = useState<WatchlistSearchItem[]>([]);
+  const searchDebounceRef = useRef<NodeJS.Timeout | null>(null);
 
   const { toast } = useToast();
 
@@ -68,19 +70,44 @@ export function AddWatchlistDialog({ onWatchlistAdded }: { onWatchlistAdded?: ()
     setSuggestions([]);
   }
 
-  async function handleSearch(q: string) {
+  function handleSearch(q: string) {
     setSearchQuery(q);
-    if (!q || q.length < 2) {
+    const trimmed = q.trim();
+
+    if (!trimmed) {
       setSuggestions([]);
+      if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+      setIsSearching(false);
       return;
     }
 
-    setIsSearching(true);
-    const res = await searchMarketStocksAction(q);
-    if (res.success && res.data) {
-      setSuggestions(res.data.slice(0, 6));
+    // 1. INSTANT LOCAL FILTER (0ms): display local matches immediately without waiting
+    const localMatches: WatchlistSearchItem[] = searchLocalRegistry(trimmed).map((it) => ({
+      symbol: it.symbol,
+      cleanSymbol: it.cleanSymbol,
+      name: it.name,
+      exchange: it.exchange,
+      assetType: it.assetType,
+      currency: it.currency,
+    }));
+
+    if (localMatches.length > 0) {
+      setSuggestions(localMatches.slice(0, 6));
     }
-    setIsSearching(false);
+
+    // 2. Debounced background enrichment (150ms) to augment with live prices & broader search
+    if (searchDebounceRef.current) {
+      clearTimeout(searchDebounceRef.current);
+    }
+
+    searchDebounceRef.current = setTimeout(async () => {
+      setIsSearching(true);
+      const res = await searchMarketStocksAction(trimmed);
+      if (res.success && res.data && res.data.length > 0) {
+        setSuggestions(res.data.slice(0, 6));
+      }
+      setIsSearching(false);
+    }, 150);
   }
 
   function handleSelectSuggestion(item: WatchlistSearchItem) {

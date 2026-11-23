@@ -5,6 +5,7 @@ import { Search, Loader2 } from "lucide-react";
 import { Button } from "@/presentation/components/ui/button";
 import { formatCurrency } from "@/lib/decimal";
 import { searchMarketStocksAction } from "@/app/actions/portfolio-actions";
+import { searchLocalRegistry } from "@/infrastructure/services/market-instruments-registry";
 import { AssetLogo } from "@/presentation/components/ui/asset-logo";
 
 export function MarketQuoteLookup() {
@@ -20,6 +21,19 @@ export function MarketQuoteLookup() {
     price?: number;
     changePercent?: number;
   }>>([]);
+
+  function handleInputChange(val: string) {
+    setQuery(val);
+    const trimmed = val.trim();
+    if (!trimmed) {
+      setResults([]);
+      return;
+    }
+    const local = searchLocalRegistry(trimmed);
+    if (local.length > 0) {
+      setResults(local);
+    }
+  }
 
   async function handleSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -41,7 +55,7 @@ export function MarketQuoteLookup() {
             type="text"
             placeholder="Cari instrumen (contoh: BBCA, Sucorinvest, Antam, ORI026, BTC, Apple)..."
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => handleInputChange(e.target.value)}
             className="w-full rounded-xl border border-[#E4E8EF] bg-white pl-9 pr-4 py-2 text-xs text-[#1E293B] placeholder-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-blue-600"
           />
         </div>
