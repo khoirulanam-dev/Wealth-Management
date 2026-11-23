@@ -7,6 +7,7 @@ import { MarketQuoteLookup } from "@/presentation/components/portfolio/market-qu
 import { MarketDataSyncService } from "@/application/use-cases/portfolio/market-data-sync-service";
 import { formatCurrency } from "@/lib/decimal";
 import { LineChart, Search } from "lucide-react";
+import { AssetLogo } from "@/presentation/components/ui/asset-logo";
 
 export const dynamic = "force-dynamic";
 
@@ -138,8 +139,19 @@ export default async function MarketDataPage() {
 
                   return (
                     <tr key={item.id} className="hover:bg-slate-50/80 transition-colors">
-                      <td className="py-3 px-4 font-mono font-bold text-blue-600 text-sm">
-                        {item.symbol || "-"}
+                      <td className="py-3 px-4">
+                        <div className="flex items-center gap-2.5">
+                          <AssetLogo
+                            symbol={item.symbol}
+                            name={item.name}
+                            assetType={item.assetType}
+                            market={item.market}
+                            size="sm"
+                          />
+                          <span className="font-mono font-bold text-blue-600 text-sm">
+                            {item.symbol || "-"}
+                          </span>
+                        </div>
                       </td>
                       <td className="py-3 px-4 font-medium">{item.name}</td>
                       <td className="py-3 px-4 font-mono text-[#64748B]">{item.market || "IDX"}</td>

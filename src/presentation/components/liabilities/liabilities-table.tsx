@@ -3,9 +3,6 @@
 import { useState } from "react";
 import {
   CreditCard,
-  ShoppingBag,
-  Building,
-  Users,
   CheckCircle2,
   Trash2,
   AlertTriangle,
@@ -15,6 +12,7 @@ import { deleteLiabilityAction } from "@/app/actions/liability-actions";
 import { useToast } from "@/presentation/components/ui/toast";
 import { LiabilityPaymentDialog } from "./liability-payment-dialog";
 import { Decimal } from "decimal.js";
+import { AssetLogo } from "@/presentation/components/ui/asset-logo";
 
 interface CashAccountOption {
   id: string;
@@ -72,21 +70,6 @@ export function LiabilitiesTable({
     } else {
       toast.error(result.error || "Gagal menghapus liabilitas");
       setDeletingId(null);
-    }
-  }
-
-  function getTypeIcon(type: string) {
-    switch (type) {
-      case "paylater":
-        return <ShoppingBag className="h-4 w-4 text-purple-600" />;
-      case "credit_card":
-        return <CreditCard className="h-4 w-4 text-rose-600" />;
-      case "bank_loan":
-        return <Building className="h-4 w-4 text-blue-600" />;
-      case "informal":
-        return <Users className="h-4 w-4 text-amber-600" />;
-      default:
-        return <CreditCard className="h-4 w-4 text-slate-600" />;
     }
   }
 
@@ -148,9 +131,11 @@ export function LiabilitiesTable({
               <tr key={item.id} className="hover:bg-[#F8FAFC] transition-colors">
                 <td className="py-3 px-4">
                   <div className="flex items-center gap-2.5">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-50 border border-[#E4E8EF] shrink-0">
-                      {getTypeIcon(item.type)}
-                    </div>
+                    <AssetLogo
+                      symbol={item.creditor}
+                      name={item.creditor || item.name}
+                      size="md"
+                    />
                     <div>
                       <span className="font-semibold text-sm text-[#1E293B] block leading-tight">
                         {item.name}

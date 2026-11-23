@@ -5,6 +5,7 @@ import { ArrowDownRight, ArrowUpRight, Ban, Loader2 } from "lucide-react";
 import { formatCurrency, formatNumber } from "@/lib/decimal";
 import { useToast } from "@/presentation/components/ui/toast";
 import { voidTransactionAction } from "@/app/actions/portfolio-actions";
+import { AssetLogo } from "@/presentation/components/ui/asset-logo";
 
 export interface TransactionItem {
   id: string;
@@ -116,13 +117,21 @@ export function TransactionsTable({ transactions }: TransactionsTableProps) {
 
                   {/* Instrument */}
                   <td className="py-3.5 px-4">
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-[#1E293B] font-mono text-sm">
-                        {tx.instrumentSymbol || tx.instrumentName}
-                      </span>
-                      <span className="text-xs text-[#64748B] truncate max-w-[150px]">
-                        {tx.instrumentName}
-                      </span>
+                    <div className="flex items-center gap-2.5">
+                      <AssetLogo
+                        symbol={tx.instrumentSymbol}
+                        name={tx.instrumentName}
+                        assetType={tx.assetType}
+                        size="sm"
+                      />
+                      <div>
+                        <span className="font-bold text-[#1E293B] font-mono text-sm block">
+                          {tx.instrumentSymbol || tx.instrumentName}
+                        </span>
+                        <span className="text-xs text-[#64748B] block truncate max-w-[150px]">
+                          {tx.instrumentName}
+                        </span>
+                      </div>
                     </div>
                   </td>
 

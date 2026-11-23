@@ -1,9 +1,10 @@
 "use client";
 
-import { Wallet, Landmark, Smartphone, Banknote, ShieldAlert } from "lucide-react";
+import { Wallet, ShieldAlert } from "lucide-react";
 import { formatCurrency } from "@/lib/decimal";
 import { CashMovementDialog } from "./cash-movement-dialog";
 import { ReconcileDialog } from "./reconcile-dialog";
+import { AssetLogo } from "@/presentation/components/ui/asset-logo";
 
 export interface CashAccountItem {
   id: string;
@@ -65,15 +66,11 @@ export function CashAccountsTable({ accounts }: CashAccountsTableProps) {
                   {/* Account & Institution */}
                   <td className="py-3.5 px-4">
                     <div className="flex items-center gap-2.5">
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
-                        {acc.accountType === "e_wallet" ? (
-                          <Smartphone className="h-4 w-4" />
-                        ) : acc.accountType === "cash" ? (
-                          <Banknote className="h-4 w-4" />
-                        ) : (
-                          <Landmark className="h-4 w-4" />
-                        )}
-                      </div>
+                      <AssetLogo
+                        symbol={acc.institution}
+                        name={acc.institution || acc.name}
+                        size="md"
+                      />
                       <div>
                         <span className="font-bold text-[#1E293B] block">{acc.name}</span>
                         <span className="text-xs text-[#64748B]">{acc.institution}</span>

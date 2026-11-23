@@ -5,6 +5,7 @@ import { Search, Loader2 } from "lucide-react";
 import { Button } from "@/presentation/components/ui/button";
 import { formatCurrency } from "@/lib/decimal";
 import { searchMarketStocksAction } from "@/app/actions/portfolio-actions";
+import { AssetLogo } from "@/presentation/components/ui/asset-logo";
 
 export function MarketQuoteLookup() {
   const [query, setQuery] = useState("");
@@ -62,14 +63,23 @@ export function MarketQuoteLookup() {
           <div className="divide-y divide-[#E4E8EF] max-h-72 overflow-y-auto">
             {results.map((item) => (
               <div key={item.symbol} className="p-3 flex items-center justify-between hover:bg-slate-50 transition-colors">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono font-bold text-xs text-blue-600">{item.cleanSymbol}</span>
-                    <span className="rounded bg-slate-100 px-1.5 py-0.5 text-xs font-mono text-slate-600">
-                      {item.exchange}
-                    </span>
+                <div className="flex items-center gap-2.5">
+                  <AssetLogo
+                    symbol={item.cleanSymbol || item.symbol}
+                    name={item.name}
+                    assetType={item.assetType}
+                    market={item.exchange}
+                    size="sm"
+                  />
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono font-bold text-xs text-blue-600">{item.cleanSymbol}</span>
+                      <span className="rounded bg-slate-100 px-1.5 py-0.5 text-xs font-mono text-slate-600">
+                        {item.exchange}
+                      </span>
+                    </div>
+                    <span className="text-xs text-[#1E293B] block mt-0.5">{item.name}</span>
                   </div>
-                  <span className="text-xs text-[#1E293B] block mt-0.5">{item.name}</span>
                 </div>
                 <div className="text-right">
                   {typeof item.price === "number" ? (

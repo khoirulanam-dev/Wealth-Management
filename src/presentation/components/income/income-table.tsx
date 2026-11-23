@@ -6,15 +6,13 @@ import {
   CheckCircle2,
   Clock,
   Trash2,
-  TrendingUp,
-  Receipt,
-  Landmark,
 } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/decimal";
 import { deleteIncomeAction } from "@/app/actions/income-actions";
 import { useToast } from "@/presentation/components/ui/toast";
 import { MarkReceivedDialog } from "./mark-received-dialog";
 import { IncomeItemDetail } from "@/application/use-cases/income/income-service";
+import { AssetLogo } from "@/presentation/components/ui/asset-logo";
 
 interface CashAccountOption {
   id: string;
@@ -48,19 +46,6 @@ export function IncomeTable({ items, cashAccounts, onDataChanged }: IncomeTableP
       toast.error(result.error || "Gagal menghapus");
     }
     setDeletingId(null);
-  }
-
-  function getTypeIcon(type: string) {
-    switch (type) {
-      case "dividend":
-        return <TrendingUp className="h-4 w-4 text-emerald-600" />;
-      case "coupon":
-        return <Landmark className="h-4 w-4 text-blue-600" />;
-      case "interest":
-        return <PiggyBank className="h-4 w-4 text-purple-600" />;
-      default:
-        return <Receipt className="h-4 w-4 text-slate-600" />;
-    }
   }
 
   function getTypeLabel(type: string) {
@@ -113,9 +98,12 @@ export function IncomeTable({ items, cashAccounts, onDataChanged }: IncomeTableP
               <tr key={item.id} className="hover:bg-[#F8FAFC] transition-colors">
                 <td className="py-3.5 px-4">
                   <div className="flex items-center gap-2.5">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-50 border border-[#E4E8EF] shrink-0">
-                      {getTypeIcon(item.type)}
-                    </div>
+                    <AssetLogo
+                      symbol={item.instrumentSymbol}
+                      name={item.instrumentName}
+                      assetType={item.assetType}
+                      size="md"
+                    />
                     <div>
                       <span className="font-semibold text-sm text-[#1E293B] block">
                         {item.instrumentSymbol || item.instrumentName || "Pendapatan Langsung"}

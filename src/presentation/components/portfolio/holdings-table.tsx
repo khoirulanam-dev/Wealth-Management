@@ -4,6 +4,7 @@ import { TrendingUp, TrendingDown, ArrowDownRight, ArrowUpRight, Wallet, Edit3 }
 import { formatCurrency, formatNumber } from "@/lib/decimal";
 import { RecordTransactionDialog } from "./record-transaction-dialog";
 import { ManualValuationDialog } from "./manual-valuation-dialog";
+import { AssetLogo } from "@/presentation/components/ui/asset-logo";
 
 export interface HoldingItem {
   positionId: string;
@@ -89,9 +90,13 @@ export function HoldingsTable({ holdings, accounts, instruments }: HoldingsTable
                   {/* Instrument & Symbol */}
                   <td className="py-3.5 px-4">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-[#F1F5F9] text-[#1E293B] font-semibold text-xs font-mono">
-                        {item.instrumentSymbol?.substring(0, 4) || item.instrumentName.substring(0, 3).toUpperCase()}
-                      </div>
+                      <AssetLogo
+                        symbol={item.instrumentSymbol}
+                        name={item.instrumentName}
+                        assetType={item.assetType}
+                        market={item.market}
+                        size="md"
+                      />
                       <div>
                         <div className="flex items-center gap-2">
                           <span className="font-bold text-[#1E293B] font-mono text-sm">

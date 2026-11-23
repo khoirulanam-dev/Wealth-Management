@@ -14,6 +14,7 @@ import {
 import { useToast } from "@/presentation/components/ui/toast";
 import { updateInstrumentAction, deleteInstrumentAction } from "@/app/actions/portfolio-actions";
 import { InstrumentDialog } from "./instrument-dialog";
+import { AssetLogo } from "@/presentation/components/ui/asset-logo";
 
 export interface InstrumentItem {
   id: string;
@@ -114,10 +115,21 @@ export function InstrumentsTable({ instruments }: InstrumentsTableProps) {
               {instruments.map((inst) => (
                 <tr key={inst.id} className="hover:bg-slate-50/80 transition-colors">
                   <td className="py-3.5 px-4">
-                    <span className="font-bold text-[#1E293B] font-mono text-sm block">
-                      {inst.symbol || "-"}
-                    </span>
-                    <span className="text-xs text-[#94A3B8] font-mono">{inst.id}</span>
+                    <div className="flex items-center gap-2.5">
+                      <AssetLogo
+                        symbol={inst.symbol}
+                        name={inst.name}
+                        assetType={inst.assetType}
+                        market={inst.market}
+                        size="md"
+                      />
+                      <div>
+                        <span className="font-bold text-[#1E293B] font-mono text-sm block">
+                          {inst.symbol || "-"}
+                        </span>
+                        <span className="text-xs text-[#94A3B8] font-mono">{inst.id}</span>
+                      </div>
+                    </div>
                   </td>
                   <td className="py-3.5 px-4 font-medium text-[#1E293B]">{inst.name}</td>
                   <td className="py-3.5 px-4 text-[#64748B]">

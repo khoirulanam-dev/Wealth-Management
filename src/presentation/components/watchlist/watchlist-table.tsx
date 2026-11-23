@@ -5,10 +5,6 @@ import {
   Eye,
   RefreshCw,
   Trash2,
-  TrendingUp,
-  Coins,
-  Gem,
-  Building,
   CheckCircle2,
   ShieldCheck,
   Loader2,
@@ -20,6 +16,7 @@ import { useToast } from "@/presentation/components/ui/toast";
 import { ManualValuationDialog } from "@/presentation/components/portfolio/manual-valuation-dialog";
 import { ValuationHistoryDialog } from "@/presentation/components/portfolio/valuation-history-dialog";
 import { WatchlistItemDetail } from "@/application/use-cases/portfolio/watchlist-service";
+import { AssetLogo } from "@/presentation/components/ui/asset-logo";
 
 interface WatchlistTableProps {
   items: WatchlistItemDetail[];
@@ -58,19 +55,6 @@ export function WatchlistTable({ items, onDataChanged }: WatchlistTableProps) {
       toast.error(result.error || "Gagal menghapus");
     }
     setDeletingId(null);
-  }
-
-  function getAssetIcon(type: string) {
-    switch (type) {
-      case "crypto":
-        return <Coins className="h-4 w-4 text-amber-500" />;
-      case "gold":
-        return <Gem className="h-4 w-4 text-yellow-500" />;
-      case "stock":
-        return <TrendingUp className="h-4 w-4 text-blue-600" />;
-      default:
-        return <Building className="h-4 w-4 text-indigo-600" />;
-    }
   }
 
   function getAssetLabel(type: string) {
@@ -121,9 +105,13 @@ export function WatchlistTable({ items, onDataChanged }: WatchlistTableProps) {
             <tr key={item.id} className="hover:bg-[#F8FAFC] transition-colors">
               <td className="py-3.5 px-4">
                 <div className="flex items-center gap-2.5">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-50 border border-[#E4E8EF] shrink-0">
-                    {getAssetIcon(item.assetType)}
-                  </div>
+                  <AssetLogo
+                    symbol={item.symbol}
+                    name={item.name}
+                    assetType={item.assetType}
+                    market={item.market}
+                    size="md"
+                  />
                   <div>
                     <div className="flex items-center gap-1.5">
                       <span className="font-bold text-sm text-[#1E293B] font-mono">
