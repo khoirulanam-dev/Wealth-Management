@@ -87,7 +87,7 @@ export function MobileNav() {
           />
 
           {/* Slide-Up Card Drawer */}
-          <div className="fixed bottom-24 inset-x-3 max-w-md mx-auto z-50 rounded-3xl bg-white/98 backdrop-blur-2xl border border-slate-200/90 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.25)] p-5 lg:hidden animate-in slide-in-from-bottom-4 duration-200">
+          <div className="fixed bottom-26 inset-x-3 max-w-md mx-auto z-50 rounded-3xl bg-white/98 backdrop-blur-2xl border border-slate-200/90 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.25)] p-5 lg:hidden animate-in slide-in-from-bottom-4 duration-200">
             {/* Top Sheet Handle */}
             <div className="w-10 h-1 rounded-full bg-slate-300 mx-auto mb-3" />
 
@@ -159,139 +159,152 @@ export function MobileNav() {
         </>
       )}
 
-      {/* Modern Scooped Bottom Navigation Bar (No Text, Floating Center Circle) */}
-      <div className="fixed bottom-3 inset-x-3 max-w-md mx-auto z-40 lg:hidden pointer-events-none">
-        <div className="pointer-events-auto relative filter drop-shadow-[0_12px_28px_rgba(15,23,42,0.14)]">
-          {/* Composite Scooped Shape */}
-          <div className="relative flex items-stretch h-[62px] w-full">
+      {/* Modern Scooped Bottom Navigation Bar */}
+      <div className="fixed bottom-3 inset-x-4 max-w-md mx-auto z-40 lg:hidden pointer-events-none">
+        <div className="pointer-events-auto relative h-[68px] w-full">
+          {/* Layer 0: Seamless Scooped White Bar with Soft Elevation Shadow */}
+          <div className="absolute inset-0 flex items-stretch h-full w-full filter drop-shadow-[0_12px_24px_rgba(15,23,42,0.12)]">
             {/* Left Pill Half */}
-            <div className="flex-1 bg-white rounded-l-[32px] flex items-center justify-around pl-3 pr-1">
-              {/* 1. Beranda */}
-              <Link
-                href="/overview"
-                onClick={() => setIsMenuOpen(false)}
-                title="Beranda"
-                className="flex flex-col items-center justify-center h-full px-3 group select-none"
-              >
-                <LayoutDashboard
-                  className={cn(
-                    "h-5 w-5 transition-colors",
-                    isOverviewActive
-                      ? "text-blue-600 stroke-[2.25]"
-                      : "text-slate-400 group-hover:text-slate-600 stroke-[1.75]"
-                  )}
-                />
-                <div className="h-1.5 w-1.5 flex items-center justify-center mt-1">
-                  {isOverviewActive && (
-                    <span className="h-1.5 w-1.5 rounded-full bg-blue-600" />
-                  )}
-                </div>
-              </Link>
+            <div className="flex-1 bg-white rounded-l-[34px] h-full" />
 
-              {/* 2. Kas */}
-              <Link
-                href="/cash"
-                onClick={() => setIsMenuOpen(false)}
-                title="Kas & Simpanan"
-                className="flex flex-col items-center justify-center h-full px-3 group select-none"
-              >
-                <Wallet
-                  className={cn(
-                    "h-5 w-5 transition-colors",
-                    isCashActive
-                      ? "text-blue-600 stroke-[2.25]"
-                      : "text-slate-400 group-hover:text-slate-600 stroke-[1.75]"
-                  )}
-                />
-                <div className="h-1.5 w-1.5 flex items-center justify-center mt-1">
-                  {isCashActive && (
-                    <span className="h-1.5 w-1.5 rounded-full bg-blue-600" />
-                  )}
-                </div>
-              </Link>
-            </div>
-
-            {/* Center Scoop Notch (Seamless SVG) */}
-            <div className="relative w-[100px] h-[62px] shrink-0 bg-transparent">
+            {/* Center Scoop Notch (Seamless Fixed SVG) */}
+            <div className="relative w-[90px] h-full shrink-0 -mx-[0.5px]">
               <svg
-                viewBox="0 0 100 62"
+                viewBox="0 0 90 68"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
-                className="w-full h-full text-white"
+                className="w-full h-full block"
                 preserveAspectRatio="none"
               >
                 <path
-                  d="M 0 0 L 14 0 C 22 0 26 8 31 19 C 36 30 42 41 50 41 C 58 41 64 30 69 19 C 74 8 78 0 86 0 L 100 0 L 100 62 L 0 62 Z"
-                  fill="currentColor"
+                  d="M 0 0 L 8 0 C 16 0 20 6 25 13 C 31 23 37 34 45 34 C 53 34 59 23 65 13 C 70 6 74 0 82 0 L 90 0 L 90 68 L 0 68 Z"
+                  fill="#FFFFFF"
                 />
               </svg>
+            </div>
 
-              {/* Protruding Center Circular Button (Porto) */}
+            {/* Right Pill Half */}
+            <div className="flex-1 bg-white rounded-r-[34px] h-full" />
+          </div>
+
+          {/* Layer 1: True 5-Column Grid with Perfectly Centered Icons */}
+          <div className="relative z-10 grid grid-cols-5 h-full w-full">
+            {/* 1. Beranda */}
+            <Link
+              href="/overview"
+              onClick={() => setIsMenuOpen(false)}
+              title="Beranda"
+              className="flex flex-col items-center justify-center h-full group select-none"
+            >
+              <LayoutDashboard
+                className={cn(
+                  "h-6 w-6 transition-colors",
+                  isOverviewActive
+                    ? "text-blue-600 stroke-[2.25]"
+                    : "text-slate-400 group-hover:text-slate-600 stroke-[1.75]"
+                )}
+              />
+              <div className="h-1.5 w-1.5 flex items-center justify-center mt-1.5">
+                {isOverviewActive ? (
+                  <span className="h-1.5 w-1.5 rounded-full bg-blue-600" />
+                ) : (
+                  <span className="h-1.5 w-1.5 opacity-0" />
+                )}
+              </div>
+            </Link>
+
+            {/* 2. Kas */}
+            <Link
+              href="/cash"
+              onClick={() => setIsMenuOpen(false)}
+              title="Kas & Simpanan"
+              className="flex flex-col items-center justify-center h-full group select-none"
+            >
+              <Wallet
+                className={cn(
+                  "h-6 w-6 transition-colors",
+                  isCashActive
+                    ? "text-blue-600 stroke-[2.25]"
+                    : "text-slate-400 group-hover:text-slate-600 stroke-[1.75]"
+                )}
+              />
+              <div className="h-1.5 w-1.5 flex items-center justify-center mt-1.5">
+                {isCashActive ? (
+                  <span className="h-1.5 w-1.5 rounded-full bg-blue-600" />
+                ) : (
+                  <span className="h-1.5 w-1.5 opacity-0" />
+                )}
+              </div>
+            </Link>
+
+            {/* 3. CENTER HERO: Porto (Elevated Floating Circle Button) */}
+            <div className="relative flex items-center justify-center h-full">
               <Link
                 href="/investments"
                 onClick={() => setIsMenuOpen(false)}
                 title="Portofolio Investasi"
-                className="absolute left-1/2 -translate-x-1/2 -top-4 flex items-center justify-center z-10 group select-none"
+                className="absolute -top-7 flex items-center justify-center select-none active:scale-95 transition-transform group"
               >
                 <div
                   className={cn(
-                    "flex h-13 w-13 items-center justify-center rounded-full bg-blue-600 text-white transition-all duration-200 active:scale-95 shadow-md shadow-blue-600/35",
+                    "flex h-[58px] w-[58px] items-center justify-center rounded-full bg-blue-600 text-white border-[3.5px] border-white shadow-lg shadow-blue-600/35 transition-all duration-200",
                     isPortoActive
-                      ? "bg-blue-600 scale-105 ring-2 ring-blue-500/40"
+                      ? "scale-105 shadow-xl shadow-blue-600/50 ring-2 ring-blue-500/30"
                       : "group-hover:scale-105"
                   )}
                 >
-                  <TrendingUp className="h-6 w-6 stroke-[2.25] text-white" />
+                  <TrendingUp className="h-7 w-7 stroke-[2.5] text-white" />
                 </div>
               </Link>
             </div>
 
-            {/* Right Pill Half */}
-            <div className="flex-1 bg-white rounded-r-[32px] flex items-center justify-around pl-1 pr-3">
-              {/* 3. Utang (Liabilitas) */}
-              <Link
-                href="/liabilities"
-                onClick={() => setIsMenuOpen(false)}
-                title="Liabilitas & Utang"
-                className="flex flex-col items-center justify-center h-full px-3 group select-none"
-              >
-                <CreditCard
-                  className={cn(
-                    "h-5 w-5 transition-colors",
-                    isLiabilitiesActive
-                      ? "text-blue-600 stroke-[2.25]"
-                      : "text-slate-400 group-hover:text-slate-600 stroke-[1.75]"
-                  )}
-                />
-                <div className="h-1.5 w-1.5 flex items-center justify-center mt-1">
-                  {isLiabilitiesActive && (
-                    <span className="h-1.5 w-1.5 rounded-full bg-blue-600" />
-                  )}
-                </div>
-              </Link>
+            {/* 4. Utang (Liabilitas) */}
+            <Link
+              href="/liabilities"
+              onClick={() => setIsMenuOpen(false)}
+              title="Liabilitas & Utang"
+              className="flex flex-col items-center justify-center h-full group select-none"
+            >
+              <CreditCard
+                className={cn(
+                  "h-6 w-6 transition-colors",
+                  isLiabilitiesActive
+                    ? "text-blue-600 stroke-[2.25]"
+                    : "text-slate-400 group-hover:text-slate-600 stroke-[1.75]"
+                )}
+              />
+              <div className="h-1.5 w-1.5 flex items-center justify-center mt-1.5">
+                {isLiabilitiesActive ? (
+                  <span className="h-1.5 w-1.5 rounded-full bg-blue-600" />
+                ) : (
+                  <span className="h-1.5 w-1.5 opacity-0" />
+                )}
+              </div>
+            </Link>
 
-              {/* 4. Menu Drawer Trigger */}
-              <button
-                type="button"
-                onClick={() => setIsMenuOpen((prev) => !prev)}
-                title="Menu Lengkap"
-                className="flex flex-col items-center justify-center h-full px-3 group select-none"
-              >
-                <Grid
-                  className={cn(
-                    "h-5 w-5 transition-colors",
-                    isMenuOpen || isMenuSectionActive
-                      ? "text-blue-600 stroke-[2.25]"
-                      : "text-slate-400 group-hover:text-slate-600 stroke-[1.75]"
-                  )}
-                />
-                <div className="h-1.5 w-1.5 flex items-center justify-center mt-1">
-                  {(isMenuOpen || isMenuSectionActive) && (
-                    <span className="h-1.5 w-1.5 rounded-full bg-blue-600" />
-                  )}
-                </div>
-              </button>
-            </div>
+            {/* 5. Menu Drawer Trigger */}
+            <button
+              type="button"
+              onClick={() => setIsMenuOpen((prev) => !prev)}
+              title="Menu Lengkap"
+              className="flex flex-col items-center justify-center h-full group select-none"
+            >
+              <Grid
+                className={cn(
+                  "h-6 w-6 transition-colors",
+                  isMenuOpen || isMenuSectionActive
+                    ? "text-blue-600 stroke-[2.25]"
+                    : "text-slate-400 group-hover:text-slate-600 stroke-[1.75]"
+                )}
+              />
+              <div className="h-1.5 w-1.5 flex items-center justify-center mt-1.5">
+                {(isMenuOpen || isMenuSectionActive) ? (
+                  <span className="h-1.5 w-1.5 rounded-full bg-blue-600" />
+                ) : (
+                  <span className="h-1.5 w-1.5 opacity-0" />
+                )}
+              </div>
+            </button>
           </div>
         </div>
       </div>
