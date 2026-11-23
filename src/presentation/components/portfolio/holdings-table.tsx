@@ -1,8 +1,9 @@
 "use client";
 
-import { TrendingUp, TrendingDown, ArrowDownRight, ArrowUpRight, Wallet } from "lucide-react";
+import { TrendingUp, TrendingDown, ArrowDownRight, ArrowUpRight, Wallet, Edit3 } from "lucide-react";
 import { formatCurrency, formatNumber } from "@/lib/decimal";
 import { RecordTransactionDialog } from "./record-transaction-dialog";
+import { ManualValuationDialog } from "./manual-valuation-dialog";
 
 export interface HoldingItem {
   positionId: string;
@@ -213,6 +214,20 @@ export function HoldingsTable({ holdings, accounts, instruments }: HoldingsTable
                             className="flex h-7 w-7 items-center justify-center rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
                           >
                             <ArrowUpRight className="h-3.5 w-3.5" />
+                          </button>
+                        }
+                      />
+                      <ManualValuationDialog
+                        instrumentId={item.instrumentId}
+                        instrumentName={item.instrumentName}
+                        symbol={item.instrumentSymbol}
+                        currentPrice={item.currentPrice}
+                        triggerButton={
+                          <button
+                            title="Override Harga Manual"
+                            className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-50 text-[#64748B] hover:bg-slate-100 hover:text-blue-600 transition-colors"
+                          >
+                            <Edit3 className="h-3.5 w-3.5" />
                           </button>
                         }
                       />

@@ -300,3 +300,45 @@ export async function getCuratedStocksAction() {
     return { success: false, error: message, data: [] };
   }
 }
+
+export async function recordManualValuationAction(formData: FormData) {
+  const session = await requireAuth();
+  const instrumentId = formData.get("instrumentId") as string;
+  const price = formData.get("price") as string;
+  const reason = formData.get("reason") as string;
+  const effectiveAt = formData.get("effectiveAt") as string;
+
+  try {
+    const result = await MarketDataSyncService.recordManualValuation(session.userId, {
+      instrumentId,
+      price,
+      reason,
+      effectiveAt: effectiveAt || new Date(),
+    });
+
+    revalidatePath("/investments");
+    revalidatePath("/market-data");
+    revalidatePath("/watchlist");
+    revalidatePath("/overview");
+    return { success: true, ...result };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Gagal menyimpan valuasi manual";
+    return { success: false, error: message };
+  }
+}
+
+export async function syncSingleInstrumentAction(instrumentId: string) {
+  const session = await requireAuth();
+  try {
+    const result = await MarketDataSyncService.syncSingleInstrumentQuote(session.userId, instrumentId);
+    revalidatePath("/investments");
+    revalidatePath("/market-data");
+    revalidatePath("/watchlist");
+    revalidatePath("/overview");
+    return result;
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Gagal memperbarui kuotasi instrumen";
+    return { success: false, error: message };
+  }
+}
+

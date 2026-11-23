@@ -20,6 +20,7 @@ import { InstrumentsService } from "@/application/use-cases/portfolio/instrument
 import { MarketDataSyncService } from "@/application/use-cases/portfolio/market-data-sync-service";
 import { CashService } from "@/application/use-cases/cash/cash-service";
 import { LiabilityService } from "@/application/use-cases/liabilities/liability-service";
+import { WatchlistService } from "@/application/use-cases/portfolio/watchlist-service";
 import { Decimal } from "decimal.js";
 import { RecordTransactionDialog } from "@/presentation/components/portfolio/record-transaction-dialog";
 
@@ -29,12 +30,13 @@ export default async function OverviewPage() {
   // Automatic daily price sync check (triggers if quotes are > 24 hours old)
   await MarketDataSyncService.autoSyncIfStale(session.userId);
 
-  const [{ summary, assetBreakdown }, accounts, instruments, cashSummary, liabilitySummary] = await Promise.all([
+  const [{ summary, assetBreakdown }, accounts, instruments, cashSummary, liabilitySummary, watchlistItems] = await Promise.all([
     HoldingsService.listActiveHoldings(session.userId),
     AccountsService.listAccounts(session.userId),
     InstrumentsService.listInstruments(session.userId),
     CashService.getCashSummary(session.userId),
     LiabilityService.getSummary(session.userId),
+    WatchlistService.listWatchlist(session.userId),
   ]);
 
   const userName = session.email ? session.email.split("@")[0] : "Investor";
@@ -282,14 +284,19 @@ export default async function OverviewPage() {
           <ShieldCheck className="h-6 w-6 text-emerald-600" strokeWidth={1.5} />
         </div>
 
-        <div className="adm-card p-6 flex items-center justify-between">
+        <Link
+          href="/watchlist"
+          className="adm-card p-6 flex items-center justify-between hover:border-blue-300 transition-colors"
+        >
           <div className="space-y-1">
             <span className="text-xs font-semibold text-[#64748B]">Instrumen Pantauan</span>
-            <div className="text-2xl font-bold tabular-nums text-[#1E293B]">0 Ticker</div>
-            <p className="text-xs text-[#94A3B8]">Watchlist terisolasi dari Net Worth</p>
+            <div className="text-2xl font-bold tabular-nums text-[#1E293B]">
+              {watchlistItems.length} Ticker
+            </div>
+            <p className="text-xs text-[#94A3B8]">Watchlist terisolasi dari Net Worth &rarr;</p>
           </div>
           <Layers className="h-6 w-6 text-indigo-600" strokeWidth={1.5} />
-        </div>
+        </Link>
       </section>
     </div>
   );
