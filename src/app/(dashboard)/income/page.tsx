@@ -1,51 +1,164 @@
-import { PiggyBank, Plus, Calendar } from "lucide-react";
-import { Button } from "@/presentation/components/ui/button";
+import { requireAuth } from "@/lib/auth";
+import { IncomeService } from "@/application/use-cases/income/income-service";
+import { InstrumentsService } from "@/application/use-cases/portfolio/instruments-service";
+import { AccountsService } from "@/application/use-cases/portfolio/accounts-service";
+import { CashService } from "@/application/use-cases/cash/cash-service";
+import { formatCurrency } from "@/lib/decimal";
+import { PiggyBank, CalendarClock, TrendingUp, Calendar, Layers } from "lucide-react";
+import { IncomeDialog } from "@/presentation/components/income/income-dialog";
+import { IncomeTable } from "@/presentation/components/income/income-table";
 
-export default function IncomePage() {
+export default async function IncomePage() {
+  const session = await requireAuth();
+
+  const [incomeList, summary, instruments, accounts, cashAccounts] = await Promise.all([
+    IncomeService.listIncome(session.userId),
+    IncomeService.getSummary(session.userId),
+    InstrumentsService.listInstruments(session.userId),
+    AccountsService.listAccounts(session.userId),
+    CashService.listCashAccounts(session.userId),
+  ]);
+
+  const instrumentOptions = instruments.map((i) => ({
+    id: i.id,
+    name: i.name,
+    symbol: i.symbol,
+    assetType: i.assetType,
+  }));
+
+  const accountOptions = accounts.map((a) => ({
+    id: a.id,
+    name: a.name,
+    institution: a.institution,
+  }));
+
+  const cashOptions = cashAccounts.map((c) => ({
+    id: c.id,
+    name: c.name,
+    institution: c.institution,
+    currentBalance: c.currentBalance,
+  }));
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-[#E4E8EF]">
         <div>
-          <span className="text-xs font-semibold uppercase tracking-wider text-emerald-600 block mb-0.5">
-            PENDAPATAN PASIF
+          <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 block mb-1">
+            PENDAPATAN PASIF &amp; IMBAL HASIL
           </span>
-          <h1 className="text-2xl font-bold tracking-tight text-[#1E293B]">Dividen & Passive Income</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-[#1E293B]">Dividen &amp; Passive Income</h1>
           <p className="text-sm text-[#64748B]">
-            Pencatatan pendapatan dividen saham, kupon obligasi, dan bagi hasil reksa dana secara terpisah antara realisasi dan estimasi.
+            Pencatatan dividen saham, kupon obligasi/SBN, bagi hasil reksa dana, dan bunga simpanan dengan pemisahan tegas antara realisasi riil dan estimasi proyeksi.
           </p>
         </div>
         <div className="flex items-center gap-2.5">
-          <Button variant="outline" size="sm" className="gap-2 h-9 border-[#E4E8EF] bg-white text-[#1E293B] hover:bg-[#F8FAFC]">
-            <Calendar className="h-4 w-4 text-[#64748B]" />
-            Kalender Dividen
-          </Button>
-          <Button size="sm" className="gap-2 h-9 bg-blue-600 hover:bg-blue-700 text-white shadow-sm">
-            <Plus className="h-4 w-4" />
-            Catat Pendapatan
-          </Button>
+          <IncomeDialog
+            instruments={instrumentOptions}
+            accounts={accountOptions}
+            cashAccounts={cashOptions}
+          />
         </div>
       </div>
 
-      {/* Main Adminator Card */}
-      <div className="adm-card p-6">
-        <div className="flex items-center justify-between border-b border-[#EEF1F5] pb-4 mb-6">
-          <div className="flex items-center gap-2.5">
-            <PiggyBank className="h-5 w-5 text-emerald-600" />
-            <div>
-              <h2 className="text-base font-bold text-[#1E293B]">Riwayat Dividen & Kupon</h2>
-              <p className="text-xs text-[#94A3B8]">Pemisahan tegas: pendapatan riil diterima tidak bercampur dengan proyeksi forecast</p>
+      {/* 4 KPI Summary Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* KPI 1: Realisasi Pendapatan YTD */}
+        <div className="adm-card p-5 flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
+              Realisasi Diterima YTD
+            </span>
+            <PiggyBank className="h-4 w-4 text-emerald-600" />
+          </div>
+          <div>
+            <div className="text-2xl font-bold tracking-tight text-emerald-600 font-mono">
+              {formatCurrency(summary.totalRealizedYTD, "IDR")}
             </div>
+            <p className="text-xs text-[#64748B] mt-1">
+              Tahun berjalan ({new Date().getFullYear()})
+            </p>
           </div>
         </div>
 
-        <div className="min-h-[300px] flex flex-col items-center justify-center text-center p-8 bg-[#F8FAFC] rounded-xl border border-dashed border-[#E4E8EF]">
-          <PiggyBank className="h-8 w-8 text-[#94A3B8] mb-3" strokeWidth={1.5} />
-          <h3 className="text-sm font-bold text-[#1E293B]">Belum Ada Pendapatan Dicatat</h3>
-          <p className="text-xs text-[#64748B] max-w-sm mt-1 leading-relaxed">
-            Pencatatan riil dividen diterima, kalender hasil investasi, dan yield on cost siap digunakan.
-          </p>
+        {/* KPI 2: Proyeksi Mendatang (Forecast) */}
+        <div className="adm-card p-5 flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
+              Proyeksi Mendatang
+            </span>
+            <CalendarClock className="h-4 w-4 text-blue-600" />
+          </div>
+          <div>
+            <div className="text-2xl font-bold tracking-tight text-[#1E293B] font-mono">
+              {formatCurrency(summary.totalForecastUpcoming, "IDR")}
+            </div>
+            <p className="text-xs text-[#64748B] mt-1">
+              Estimasi dividen &amp; kupon belum cair
+            </p>
+          </div>
         </div>
+
+        {/* KPI 3: Akumulasi Lifetime */}
+        <div className="adm-card p-5 flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
+              Total Akumulasi Lifetime
+            </span>
+            <TrendingUp className="h-4 w-4 text-purple-600" />
+          </div>
+          <div>
+            <div className="text-2xl font-bold tracking-tight text-[#1E293B] font-mono">
+              {formatCurrency(summary.totalRealizedLifetime, "IDR")}
+            </div>
+            <p className="text-xs text-[#64748B] mt-1">
+              Total hasil investasi riil seluruh waktu
+            </p>
+          </div>
+        </div>
+
+        {/* KPI 4: Rata-rata per Bulan */}
+        <div className="adm-card p-5 flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
+              Rata-rata per Bulan (YTD)
+            </span>
+            <Calendar className="h-4 w-4 text-amber-600" />
+          </div>
+          <div>
+            <div className="text-2xl font-bold tracking-tight text-[#1E293B] font-mono">
+              {formatCurrency(summary.monthlyAverageYTD, "IDR")}
+            </div>
+            <p className="text-xs text-[#64748B] mt-1">
+              Arus kas pasif bulanan berjalan
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Income Ledger Table */}
+      <div className="adm-card p-6">
+        <div className="flex items-center justify-between border-b border-[#EEF1F5] pb-4 mb-6">
+          <div className="flex items-center gap-2.5">
+            <Layers className="h-5 w-5 text-blue-600" />
+            <div>
+              <h2 className="text-base font-bold text-[#1E293B]">Buku Besar Dividen &amp; Kupon</h2>
+              <p className="text-xs text-[#64748B]">
+                Riwayat pendapatan riil diterima dan jadwal estimasi pembayaran berikutnya
+              </p>
+            </div>
+          </div>
+          {incomeList.length > 0 && (
+            <span className="text-xs text-[#64748B]">
+              {incomeList.length} Catatan Pendapatan
+            </span>
+          )}
+        </div>
+
+        <IncomeTable
+          items={incomeList}
+          cashAccounts={cashOptions}
+        />
       </div>
     </div>
   );

@@ -58,3 +58,4 @@ export async function refreshWatchlistQuotesAction() {
     return { success: false, error: message };
   }
 }
+

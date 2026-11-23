@@ -329,3 +329,4 @@ export function AddWatchlistDialog({ onWatchlistAdded }: { onWatchlistAdded?: ()
     </>
   );
 }
+

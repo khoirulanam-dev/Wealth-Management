@@ -239,3 +239,4 @@ export class WatchlistService {
     return { updatedCount, total: list.length };
   }
 }
+
