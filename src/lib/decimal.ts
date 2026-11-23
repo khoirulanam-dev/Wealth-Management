@@ -20,6 +20,10 @@ export function formatCurrency(
   const dec = toDecimal(value);
   const num = dec.toNumber();
 
+  if (!Number.isFinite(num)) {
+    return currency === "IDR" ? "Rp 0" : `${currency} 0.00`;
+  }
+
   if (currency === "IDR") {
     // Indonesian Rupiah format: Rp 1.500.000
     const formatted = new Intl.NumberFormat(locale, {
@@ -41,6 +45,10 @@ export function formatCurrency(
 
 export function formatPercent(value: Decimal.Value, decimals: number = 2): string {
   const dec = toDecimal(value);
+  const num = dec.toNumber();
+  if (!Number.isFinite(num)) {
+    return "0.00%";
+  }
   const sign = dec.isPositive() && !dec.isZero() ? "+" : "";
   return `${sign}${dec.toFixed(decimals)}%`;
 }
@@ -53,9 +61,13 @@ export function formatQuantity(value: Decimal.Value, unit?: string): string {
 
 export function formatNumber(value: Decimal.Value | number, maximumFractionDigits: number = 2): string {
   const dec = toDecimal(value);
+  const num = dec.toNumber();
+  if (!Number.isFinite(num)) {
+    return "0";
+  }
   return new Intl.NumberFormat("id-ID", {
     maximumFractionDigits,
-  }).format(dec.toNumber());
+  }).format(num);
 }
 
 export function formatDate(

@@ -3,6 +3,15 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  compress: true,
+  experimental: {
+    optimizePackageImports: [
+      "lucide-react",
+      "recharts",
+      "decimal.js",
+      "date-fns",
+    ],
+  },
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "assets.stockbit.com" },

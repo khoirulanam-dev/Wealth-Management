@@ -162,21 +162,21 @@ export function MobileNav() {
       {/* Modern Scooped Bottom Navigation Bar */}
       <div className="fixed bottom-3 inset-x-4 max-w-md mx-auto z-40 lg:hidden pointer-events-none">
         <div className="pointer-events-auto relative h-[64px] w-full">
-          {/* Layer 0: Seamless Scooped White Bar with Subtle Elevation Shadow */}
-          <div className="absolute inset-0 flex items-stretch h-full w-full filter drop-shadow-[0_8px_18px_rgba(15,23,42,0.08)]">
+          {/* Layer 0: Seamless Scooped White Bar with Soft Modern Elevation Shadow */}
+          <div className="absolute inset-0 flex items-stretch h-full w-full filter drop-shadow-[0_10px_25px_rgba(15,23,42,0.10)]">
             {/* Left Pill Half */}
             <div className="flex-1 bg-white rounded-l-[32px] h-full" />
 
-            {/* Center Scoop Notch (Seamless Fixed SVG Cradle) */}
-            <div className="relative w-[72px] h-full shrink-0 -mx-[0.5px]">
+            {/* Center Scoop Notch (Ultra-Smooth Cubic Bezier Cradle) */}
+            <div className="relative w-[76px] h-full shrink-0 -mx-[0.5px]">
               <svg
-                viewBox="0 0 72 64"
+                viewBox="0 0 76 64"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
                 className="w-full h-full block"
               >
                 <path
-                  d="M 0 0 L 10 0 C 18 0 23 8 27 18 C 30 26 33 38 36 38 C 39 38 42 26 45 18 C 49 8 54 0 62 0 L 72 0 L 72 64 L 0 64 Z"
+                  d="M 0 0 C 14 0 17 8 22 18 C 26 27 31 38 38 38 C 45 38 50 27 54 18 C 59 8 62 0 76 0 L 76 64 L 0 64 Z"
                   fill="#FFFFFF"
                 />
               </svg>
@@ -187,17 +187,17 @@ export function MobileNav() {
           </div>
 
           {/* Layer 1: True 5-Column Grid with Perfectly Centered Icons */}
-          <div className="relative z-10 grid grid-cols-5 h-full w-full">
+          <div className="relative z-10 grid grid-cols-5 h-full w-full items-center">
             {/* 1. Beranda */}
             <Link
               href="/overview"
               onClick={() => setIsMenuOpen(false)}
               title="Beranda"
-              className="flex flex-col items-center justify-center h-full group select-none"
+              className="flex flex-col items-center justify-center h-full group select-none py-1"
             >
               <LayoutDashboard
                 className={cn(
-                  "h-[25px] w-[25px] transition-colors",
+                  "h-[26px] w-[26px] transition-colors",
                   isOverviewActive
                     ? "text-blue-600 stroke-[2.25]"
                     : "text-slate-400 group-hover:text-slate-600 stroke-[1.85]"
@@ -217,11 +217,11 @@ export function MobileNav() {
               href="/cash"
               onClick={() => setIsMenuOpen(false)}
               title="Kas & Simpanan"
-              className="flex flex-col items-center justify-center h-full group select-none"
+              className="flex flex-col items-center justify-center h-full group select-none py-1"
             >
               <Wallet
                 className={cn(
-                  "h-[25px] w-[25px] transition-colors",
+                  "h-[26px] w-[26px] transition-colors",
                   isCashActive
                     ? "text-blue-600 stroke-[2.25]"
                     : "text-slate-400 group-hover:text-slate-600 stroke-[1.85]"
@@ -242,17 +242,17 @@ export function MobileNav() {
                 href="/investments"
                 onClick={() => setIsMenuOpen(false)}
                 title="Portofolio Investasi"
-                className="absolute -top-4 flex items-center justify-center select-none active:scale-95 transition-transform group"
+                className="absolute -top-4.5 flex items-center justify-center select-none active:scale-95 transition-transform group"
               >
                 <div
                   className={cn(
-                    "flex h-[52px] w-[52px] items-center justify-center rounded-full bg-blue-600 text-white border-[3px] border-white shadow-md shadow-blue-600/30 transition-all duration-200",
+                    "flex h-[54px] w-[54px] items-center justify-center rounded-full bg-blue-600 text-white border-[3.5px] border-white shadow-md shadow-blue-600/35 transition-all duration-200",
                     isPortoActive
-                      ? "scale-105 shadow-lg shadow-blue-600/45 ring-2 ring-blue-500/30"
+                      ? "scale-105 shadow-lg shadow-blue-600/50 ring-2 ring-blue-500/30"
                       : "group-hover:scale-105"
                   )}
                 >
-                  <TrendingUp className="h-6 w-6 stroke-[2.5] text-white" />
+                  <TrendingUp className="h-[26px] w-[26px] stroke-[2.5] text-white" />
                 </div>
               </Link>
             </div>
@@ -262,11 +262,11 @@ export function MobileNav() {
               href="/liabilities"
               onClick={() => setIsMenuOpen(false)}
               title="Liabilitas & Utang"
-              className="flex flex-col items-center justify-center h-full group select-none"
+              className="flex flex-col items-center justify-center h-full group select-none py-1"
             >
               <CreditCard
                 className={cn(
-                  "h-[25px] w-[25px] transition-colors",
+                  "h-[26px] w-[26px] transition-colors",
                   isLiabilitiesActive
                     ? "text-blue-600 stroke-[2.25]"
                     : "text-slate-400 group-hover:text-slate-600 stroke-[1.85]"
@@ -286,11 +286,11 @@ export function MobileNav() {
               type="button"
               onClick={() => setIsMenuOpen((prev) => !prev)}
               title="Menu Lengkap"
-              className="flex flex-col items-center justify-center h-full group select-none"
+              className="flex flex-col items-center justify-center h-full group select-none py-1"
             >
               <Grid
                 className={cn(
-                  "h-[25px] w-[25px] transition-colors",
+                  "h-[26px] w-[26px] transition-colors",
                   isMenuOpen || isMenuSectionActive
                     ? "text-blue-600 stroke-[2.25]"
                     : "text-slate-400 group-hover:text-slate-600 stroke-[1.85]"

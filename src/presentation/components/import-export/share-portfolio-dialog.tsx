@@ -17,7 +17,6 @@ import {
 import { Button } from "@/presentation/components/ui/button";
 import { useToast } from "@/presentation/components/ui/toast";
 import { formatCurrency } from "@/lib/decimal";
-import { toPng } from "html-to-image";
 
 export interface AllocationItem {
   category?: string;
@@ -84,6 +83,9 @@ export function SharePortfolioDialog({
     setIsGenerating(true);
 
     try {
+      // Dynamic import to trim initial bundle size and load only on demand
+      const { toPng } = await import("html-to-image");
+
       // 100% Client-side render with retina resolution (pixelRatio: 2)
       const dataUrl = await toPng(cardRef.current, {
         pixelRatio: 2,

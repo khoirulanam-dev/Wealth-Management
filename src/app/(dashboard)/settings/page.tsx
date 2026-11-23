@@ -3,7 +3,7 @@ import { db } from "@/infrastructure/db/client";
 import { users } from "@/infrastructure/db/schema/users";
 import { eq } from "drizzle-orm";
 import { ProfileForm } from "@/presentation/components/settings/profile-form";
-import { ShieldCheck, UserCheck } from "lucide-react";
+import { UserCheck } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -76,11 +76,6 @@ export default async function SettingsPage() {
               ID: {userData.id} · Terdaftar sejak {formattedDate}
             </div>
           </div>
-        </div>
-
-        <div className="flex items-center gap-2 font-mono text-[11px] text-[#475569] bg-white px-3 py-1.5 rounded-lg border border-[#E4E8EF]">
-          <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
-          <span>Single-User Private Boundary</span>
         </div>
       </div>
     </div>

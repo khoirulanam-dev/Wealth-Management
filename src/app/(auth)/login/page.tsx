@@ -1,6 +1,6 @@
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { ShieldCheck, Sparkles, CheckCircle2 } from "lucide-react";
+import { ShieldCheck, Sparkles } from "lucide-react";
 import { LoginForm } from "@/presentation/components/auth/login-form";
 
 export default async function LoginPage() {
@@ -46,10 +46,7 @@ export default async function LoginPage() {
             <p className="italic">
               &ldquo;Menggabungkan seluruh akun sekuritas, rekening bank, dan liabilitas ke dalam satu kokpit bersih tanpa kompromi pada privasi data.&rdquo;
             </p>
-            <div className="mt-4 flex items-center gap-2.5 text-xs text-blue-200">
-              <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
-              <span>Single-User Private Architecture · IDR Native · Zero Marketing</span>
-            </div>
+            
           </div>
         </div>
 
