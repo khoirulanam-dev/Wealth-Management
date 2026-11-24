@@ -59,7 +59,7 @@ export default async function InvestmentsPage() {
               instruments={instruments}
               triggerButton={
                 <Button
-                  className="w-full sm:w-auto h-11 sm:h-9.5 px-4 gap-2 bg-[#007AFF] hover:bg-[#0066D6] active:scale-[0.98] text-white font-semibold text-sm sm:text-xs rounded-2xl sm:rounded-xl shadow-xs shadow-[#007AFF]/25 transition-all justify-center whitespace-nowrap shrink-0"
+                  className="w-full sm:w-auto h-12 sm:h-9.5 px-4 gap-2 bg-[#007AFF] hover:bg-[#0066D6] active:scale-[0.98] text-white font-semibold text-[14px] sm:text-xs rounded-2xl sm:rounded-xl shadow-xs shadow-[#007AFF]/25 transition-all justify-center whitespace-nowrap shrink-0"
                 >
                   <Plus className="h-4.5 w-4.5 sm:h-4 sm:w-4 stroke-[2.5]" />
                   <span>Catat Transaksi</span>
@@ -69,16 +69,16 @@ export default async function InvestmentsPage() {
           </div>
 
           {/* Secondary Buttons Grid on Mobile (order-2), Inline on Desktop/Tablet (order-2) */}
-          <div className="grid grid-cols-3 sm:flex sm:items-center gap-2 order-2 w-full sm:w-auto shrink-0">
-            <RefreshQuotesButton className="w-full h-10.5 sm:h-9.5" />
+          <div className="grid grid-cols-3 sm:flex sm:items-center gap-2 sm:gap-2 order-2 w-full sm:w-auto shrink-0">
+            <RefreshQuotesButton className="w-full sm:w-auto h-12 sm:h-9.5" />
             <AccountDialog
               triggerButton={
                 <Button
                   variant="outline"
                   size="sm"
-                  className="w-full sm:w-auto gap-1.5 h-10.5 sm:h-9.5 px-2.5 sm:px-3 border border-black/[0.08] bg-white text-xs font-medium text-[#1C1C1E] hover:bg-black/[0.03] active:scale-[0.98] rounded-xl shadow-2xs transition-all justify-center whitespace-nowrap shrink-0"
+                  className="w-full sm:w-auto gap-1.5 sm:gap-2 h-12 sm:h-9.5 px-3 py-3 border border-black/[0.08] bg-white text-[13px] sm:text-xs font-semibold sm:font-medium text-[#1C1C1E] hover:bg-black/[0.03] active:scale-[0.98] rounded-2xl sm:rounded-xl shadow-xs transition-all justify-center whitespace-nowrap shrink-0"
                 >
-                  <Building2 className="h-4 w-4 sm:h-3.5 sm:w-3.5 text-[#007AFF]" />
+                  <Building2 className="h-4.5 w-4.5 sm:h-3.5 sm:w-3.5 text-[#007AFF]" />
                   <span className="truncate">+ Akun</span>
                 </Button>
               }
@@ -88,9 +88,9 @@ export default async function InvestmentsPage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="w-full sm:w-auto gap-1.5 h-10.5 sm:h-9.5 px-2.5 sm:px-3 border border-black/[0.08] bg-white text-xs font-medium text-[#1C1C1E] hover:bg-black/[0.03] active:scale-[0.98] rounded-xl shadow-2xs transition-all justify-center whitespace-nowrap shrink-0"
+                  className="w-full sm:w-auto gap-1.5 sm:gap-2 h-12 sm:h-9.5 px-3 py-3 border border-black/[0.08] bg-white text-[13px] sm:text-xs font-semibold sm:font-medium text-[#1C1C1E] hover:bg-black/[0.03] active:scale-[0.98] rounded-2xl sm:rounded-xl shadow-xs transition-all justify-center whitespace-nowrap shrink-0"
                 >
-                  <LineChart className="h-4 w-4 sm:h-3.5 sm:w-3.5 text-[#AF52DE]" />
+                  <LineChart className="h-4.5 w-4.5 sm:h-3.5 sm:w-3.5 text-[#AF52DE]" />
                   <span className="truncate">+ Instrumen</span>
                 </Button>
               }

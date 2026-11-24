@@ -6,7 +6,8 @@ import { TransactionsTable, TransactionItem } from "@/presentation/components/po
 import { RecordTransactionDialog } from "@/presentation/components/portfolio/record-transaction-dialog";
 import { AccountDialog } from "@/presentation/components/portfolio/account-dialog";
 import { InstrumentDialog } from "@/presentation/components/portfolio/instrument-dialog";
-import { History } from "lucide-react";
+import { History, Plus, Building2, LineChart } from "lucide-react";
+import { Button } from "@/presentation/components/ui/button";
 
 export default async function TransactionsPage() {
   const session = await requireAuth();
@@ -30,13 +31,45 @@ export default async function TransactionsPage() {
             Pencatatan kronologis aktivitas beli, jual, langganan, dan penebusan aset investasi.
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <AccountDialog />
-          <InstrumentDialog />
-          <RecordTransactionDialog
-            accounts={accounts}
-            instruments={instruments}
-          />
+        <div className="w-full xl:w-auto flex flex-col sm:flex-row sm:items-center sm:flex-wrap gap-2.5 sm:gap-2 shrink-0">
+          <div className="order-1 w-full sm:w-auto shrink-0">
+            <RecordTransactionDialog
+              accounts={accounts}
+              instruments={instruments}
+              triggerButton={
+                <Button className="w-full sm:w-auto h-12 sm:h-9.5 px-4 gap-2 bg-[#007AFF] hover:bg-[#0066D6] active:scale-[0.98] text-white font-semibold text-[14px] sm:text-xs rounded-2xl sm:rounded-xl shadow-xs shadow-[#007AFF]/25 transition-all justify-center whitespace-nowrap shrink-0">
+                  <Plus className="h-4.5 w-4.5 sm:h-4 sm:w-4 stroke-[2.5]" />
+                  <span>Catat Transaksi</span>
+                </Button>
+              }
+            />
+          </div>
+          <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 sm:gap-2 order-2 w-full sm:w-auto shrink-0">
+            <AccountDialog
+              triggerButton={
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full sm:w-auto gap-1.5 sm:gap-2 h-12 sm:h-9.5 px-3 py-3 border border-black/[0.08] bg-white text-[13px] sm:text-xs font-semibold sm:font-medium text-[#1C1C1E] hover:bg-black/[0.03] active:scale-[0.98] rounded-2xl sm:rounded-xl shadow-xs transition-all justify-center whitespace-nowrap shrink-0"
+                >
+                  <Building2 className="h-4.5 w-4.5 sm:h-3.5 sm:w-3.5 text-[#007AFF]" />
+                  <span className="truncate">+ Akun</span>
+                </Button>
+              }
+            />
+            <InstrumentDialog
+              triggerButton={
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full sm:w-auto gap-1.5 sm:gap-2 h-12 sm:h-9.5 px-3 py-3 border border-black/[0.08] bg-white text-[13px] sm:text-xs font-semibold sm:font-medium text-[#1C1C1E] hover:bg-black/[0.03] active:scale-[0.98] rounded-2xl sm:rounded-xl shadow-xs transition-all justify-center whitespace-nowrap shrink-0"
+                >
+                  <LineChart className="h-4.5 w-4.5 sm:h-3.5 sm:w-3.5 text-[#AF52DE]" />
+                  <span className="truncate">+ Instrumen</span>
+                </Button>
+              }
+            />
+          </div>
         </div>
       </div>
 

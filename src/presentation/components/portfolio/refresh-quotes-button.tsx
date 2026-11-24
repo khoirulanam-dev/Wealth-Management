@@ -5,13 +5,19 @@ import { RefreshCw } from "lucide-react";
 import { Button } from "@/presentation/components/ui/button";
 import { useToast } from "@/presentation/components/ui/toast";
 import { refreshMarketQuotesAction } from "@/app/actions/portfolio-actions";
+import { cn } from "@/lib/utils";
 
 export function RefreshQuotesButton({ className = "" }: { className?: string }) {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [autoSyncEnabled, setAutoSyncEnabled] = useState(true);
+  const [mounted, setMounted] = useState(false);
   const [lastSyncedTime, setLastSyncedTime] = useState<Date>(() => new Date());
   const { toast } = useToast();
   const isRefreshingRef = useRef(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const doSync = useCallback(async (isManual = false) => {
     if (isRefreshingRef.current) return;
@@ -86,11 +92,13 @@ export function RefreshQuotesButton({ className = "" }: { className?: string }) 
     };
   }, [autoSyncEnabled, doSync]);
 
-  const formattedTime = lastSyncedTime.toLocaleTimeString("id-ID", {
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  });
+  const formattedTime = mounted
+    ? lastSyncedTime.toLocaleTimeString("id-ID", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      })
+    : "";
 
   return (
     <Button
@@ -98,10 +106,14 @@ export function RefreshQuotesButton({ className = "" }: { className?: string }) 
       size="sm"
       onClick={() => doSync(true)}
       disabled={isRefreshing}
-      title={`Terakhir update: ${formattedTime}. Klik untuk refresh sekarang.`}
-      className={`w-full sm:w-auto gap-1.5 border border-black/[0.08] bg-white text-[#1C1C1E] hover:bg-black/[0.03] active:scale-[0.98] font-medium h-10.5 sm:h-9.5 px-3 text-xs rounded-xl shadow-2xs transition-all justify-center whitespace-nowrap shrink-0 ${className}`}
+      title={mounted ? `Terakhir update: ${formattedTime}. Klik untuk refresh sekarang.` : "Segarkan harga pasar terkini"}
+      suppressHydrationWarning
+      className={cn(
+        "w-full sm:w-auto gap-2 border border-black/[0.08] bg-white text-[#1C1C1E] hover:bg-black/[0.03] active:scale-[0.98] font-semibold sm:font-medium h-12 sm:h-9.5 px-3.5 sm:px-3 text-[13px] sm:text-xs rounded-2xl sm:rounded-xl shadow-xs transition-all justify-center whitespace-nowrap shrink-0",
+        className
+      )}
     >
-      <RefreshCw className={`h-3.5 w-3.5 text-[#007AFF] shrink-0 ${isRefreshing ? "animate-spin" : ""}`} />
+      <RefreshCw className={cn("h-4 w-4 sm:h-3.5 sm:w-3.5 text-[#007AFF] shrink-0", isRefreshing && "animate-spin")} />
       <span className="truncate">{isRefreshing ? "Memperbarui..." : "Refresh Pasar"}</span>
     </Button>
   );
