@@ -11,6 +11,8 @@ import {
   Loader2,
   Save,
   KeyRound,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { Button } from "@/presentation/components/ui/button";
 import { useToast } from "@/presentation/components/ui/toast";
@@ -32,6 +34,8 @@ export function ProfileForm({ initialUser }: ProfileFormProps) {
   const [currency, setCurrency] = useState(initialUser.reportingCurrency || "IDR");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [avatarPreview, setAvatarPreview] = useState<string | null>(initialUser.avatarUrl || null);
   const [avatarDataUrl, setAvatarDataUrl] = useState<string | undefined>(undefined);
@@ -259,13 +263,28 @@ export function ProfileForm({ initialUser }: ProfileFormProps) {
               <label className="text-xs font-bold text-[#1E293B] block">
                 Kata Sandi Baru (Opsional)
               </label>
-              <input
-                type="password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="Minimal 6 karakter"
-                className="w-full h-10 px-3 rounded-xl border border-[#E4E8EF] text-sm text-[#1E293B] focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 bg-white"
-              />
+              <div className="relative">
+                <input
+                  type={showNewPassword ? "text" : "password"}
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Minimal 6 karakter"
+                  className="w-full h-10 pl-3 pr-10 rounded-xl border border-[#E4E8EF] text-sm text-[#1E293B] focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 bg-white"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword((prev) => !prev)}
+                  tabIndex={-1}
+                  aria-label={showNewPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-[#94A3B8] hover:text-[#1E293B] focus:outline-hidden transition-colors"
+                >
+                  {showNewPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
             </div>
 
             {/* Konfirmasi Password */}
@@ -273,13 +292,28 @@ export function ProfileForm({ initialUser }: ProfileFormProps) {
               <label className="text-xs font-bold text-[#1E293B] block">
                 Konfirmasi Kata Sandi Baru
               </label>
-              <input
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Ulangi kata sandi baru"
-                className="w-full h-10 px-3 rounded-xl border border-[#E4E8EF] text-sm text-[#1E293B] focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 bg-white"
-              />
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Ulangi kata sandi baru"
+                  className="w-full h-10 pl-3 pr-10 rounded-xl border border-[#E4E8EF] text-sm text-[#1E293B] focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 bg-white"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword((prev) => !prev)}
+                  tabIndex={-1}
+                  aria-label={showConfirmPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-[#94A3B8] hover:text-[#1E293B] focus:outline-hidden transition-colors"
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
             </div>
           </div>
           <p className="text-[11px] text-[#94A3B8]">

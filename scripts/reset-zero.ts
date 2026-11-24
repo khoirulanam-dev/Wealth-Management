@@ -93,3 +93,4 @@ resetToZero()
     console.error("❌ Gagal mereset database:", err);
     process.exit(1);
   });
+

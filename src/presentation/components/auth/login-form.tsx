@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Mail, Lock, ArrowRight, AlertCircle, Loader2 } from "lucide-react";
+import { Mail, Lock, ArrowRight, AlertCircle, Loader2, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/presentation/components/ui/button";
 import { Input } from "@/presentation/components/ui/input";
 import { loginAction } from "@/app/actions/auth-actions";
@@ -9,6 +9,7 @@ import { loginAction } from "@/app/actions/auth-actions";
 export function LoginForm() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -68,12 +69,25 @@ export function LoginForm() {
           <Input
             id="password"
             name="password"
-            type="password"
+            type={showPassword ? "text" : "password"}
             placeholder="••••••••••••"
             required
             disabled={isLoading}
-            className="pl-10 h-11 rounded-lg border-[#E4E8EF] bg-white text-sm focus-visible:ring-blue-600 focus-visible:border-blue-600"
+            className="pl-10 pr-10 h-11 rounded-lg border-[#E4E8EF] bg-white text-sm focus-visible:ring-blue-600 focus-visible:border-blue-600"
           />
+          <button
+            type="button"
+            onClick={() => setShowPassword((prev) => !prev)}
+            tabIndex={-1}
+            aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
+            className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-[#94A3B8] hover:text-[#1E293B] focus:outline-hidden transition-colors"
+          >
+            {showPassword ? (
+              <EyeOff className="h-4 w-4" />
+            ) : (
+              <Eye className="h-4 w-4" />
+            )}
+          </button>
         </div>
       </div>
 
