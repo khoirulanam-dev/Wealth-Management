@@ -20,3 +20,4 @@ export async function sendFinancialChatMessageAction(history: ChatMessage[], mes
     return { success: false, error: errMsg };
   }
 }
+

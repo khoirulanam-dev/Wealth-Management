@@ -110,38 +110,80 @@ Pilih topik cepat di bawah atau tanyakan apa saja seputar portofolio Anda!`,
       timestamp: timeStr,
     };
 
+    const aiMessageId = `ai_${Date.now()}`;
+    const initialAiMsg: ChatMessage = {
+      id: aiMessageId,
+      role: "model",
+      text: "",
+      timestamp: timeStr,
+    };
+
     const newHistory = [...messages, userMsg];
-    setMessages(newHistory);
+    setMessages([...newHistory, initialAiMsg]);
     setInputMessage("");
     setIsLoading(true);
 
-    // Format history for server action
     const apiHistory = newHistory
       .filter((m) => m.id !== "welcome")
-      .slice(-8)
+      .slice(-6)
       .map((m) => ({
         role: m.role,
         text: m.text,
       }));
 
-    const res = await sendFinancialChatMessageAction(apiHistory, text);
+    try {
+      // 1. Ultra-fast streaming via server route
+      const response = await fetch("/api/ai/advisor-chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          history: apiHistory,
+          message: text,
+        }),
+      });
 
-    if (res.success && res.text) {
-      const modelMsg: ChatMessage = {
-        id: `ai_${Date.now()}`,
-        role: "model",
-        text: res.text,
-        timestamp: new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }),
-      };
-      setMessages((prev) => [...prev, modelMsg]);
-    } else {
-      const errorMsg: ChatMessage = {
-        id: `err_${Date.now()}`,
-        role: "model",
-        text: `⚠️ **Maaf:** ${res.error || "Gagal menghubungi AI Financial Advisor. Mohon coba sesaat lagi."}`,
-        timestamp: new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }),
-      };
-      setMessages((prev) => [...prev, errorMsg]);
+      if (!response.ok || !response.body) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let accumulated = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        accumulated += decoder.decode(value, { stream: true });
+        setMessages((prev) =>
+          prev.map((m) => (m.id === aiMessageId ? { ...m, text: accumulated } : m))
+        );
+      }
+
+      if (!accumulated) {
+        throw new Error("Respons kosong");
+      }
+    } catch {
+      // 2. Fallback to server action if stream is interrupted
+      try {
+        const res = await sendFinancialChatMessageAction(apiHistory, text);
+        if (res.success && res.text) {
+          setMessages((prev) =>
+            prev.map((m) => (m.id === aiMessageId ? { ...m, text: res.text } : m))
+          );
+        } else {
+          throw new Error(res.error || "Gagal menghubungi AI");
+        }
+      } catch (fallbackErr) {
+        const errMsg = fallbackErr instanceof Error ? fallbackErr.message : "Gagal memproses analisis";
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === aiMessageId
+              ? { ...m, text: `⚠️ **Maaf:** ${errMsg}. Silakan coba klik pertanyaan lagi.` }
+              : m
+          )
+        );
+      }
     }
 
     setIsLoading(false);

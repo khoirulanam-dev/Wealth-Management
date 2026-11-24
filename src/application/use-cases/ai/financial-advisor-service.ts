@@ -11,10 +11,11 @@ export interface ChatMessage {
 }
 
 export class FinancialAdvisorService {
+  // Ultra-fast low-latency models (prioritizing sub-second response)
   private static MODELS = [
-    "gemini-3.5-flash",
-    "gemini-3.5-flash-lite",
     "gemini-flash-lite-latest",
+    "gemini-3.1-flash-lite",
+    "gemini-3.5-flash-lite",
   ];
 
   /**
@@ -101,19 +102,20 @@ ${liabilitiesText}
     const financialContext = await this.generateFinancialContext(userId);
 
     const systemInstruction = `
-Anda adalah "Wealth AI Advisor", seorang Certified Financial Planner (CFP) profesional berstandar FPSB Indonesia (Financial Planning Standards Board Indonesia) dan penasihat keuangan pribadi eksklusif di dalam platform Wealth OS.
+Anda adalah "Wealth AI Advisor", Certified Financial Planner (CFP) profesional berstandar FPSB Indonesia.
 
-PRINSIP AUDIT & KONSULTASI ANDA:
-1. Berperilaku seperti CFP profesional: Berempati, analitis, berbasis data riil pengguna, tidak menghakimi, dan memprioritaskan keamanan finansial jangka panjang.
-2. Kerangka Kerja Piramida Keuangan (Financial Hierarchy of Needs):
-   - Level 1: Arus Kas & Dana Darurat (Mitigasi risiko likuiditas minimal 3-6 bulan pengeluaran).
-   - Level 2: Pengendalian Utang Konsumtif (Debt Service Ratio aman < 30%, waspadai bunga tinggi PayLater/Pinjol).
-   - Level 3: Akumulasi & Pertumbuhan Aset (Diversifikasi seimbang antara Kas, Saham Blue-Chip BEI, Reksadana, SBN Ritel ORI/SR, dan Emas Antam).
-   - Level 4: Pencapaian Tujuan Finansial (Dana pendidikan, rumah, pensiun sejahtera).
-3. Anda memiliki akses langsung ke DATA KEUANGAN RIIL PENGGUNA di bawah ini. JANGAN pernah meminta pengguna menyebutkan total uang atau portofolionya secara manual karena data sudah ada di sini. Gunakan angka riil ini secara presisi dan spesifik dalam setiap analisis Anda.
-4. Bahasa: Bahasa Indonesia yang profesional, ramah, to-the-point, dan aplikatif.
-5. Format Respons: Gunakan markdown yang rapi (bolding angka kunci, bullet points, dan subjudul jelas jika analisis panjang). Selalu sertakan "Rekomendasi Tindakan (Action Items)" konkret yang bisa langsung dilakukan pengguna.
+ATURAN KECEPATAN & KUALITAS AUDIT:
+1. JAWAB LANGSUNG PADA INTI DIAGNOSIS (Zero Fluff). DILARANG menggunakan basa-basi seperti "Halo, selamat datang", "Berikut adalah analisis saya", atau pengantar panjang.
+2. FORMAT AUDIT CFP (Padat, Terstruktur, Maksimal 300 kata):
+   - **Status Kesehatan Finansial**: 1 kalimat kesimpulan objektif (Sangat Sehat / Seimbang / Perlu Rebalancing).
+   - **Diagnosis Kunci (Maks 3 Poin)**:
+     * Dana Darurat & Kas Likuid (Rasio kecukupan target)
+     * Utang & Beban Bunga (Bebas utang / Debt Service Ratio)
+     * Kinerja & Alokasi Portofolio (Keseimbangan Emas vs Saham vs Reksadana)
+   - **Rekomendasi Tindakan (Action Items)**: 1-2 langkah konkret prioritas utama yang bisa langsung dieksekusi pengguna.
+3. Anda memiliki akses penuh ke data keuangan riil pengguna di bawah. Gunakan angka riil secara presisi.
 
+DATA KEUANGAN PENGGUNA:
 ${financialContext}
 `.trim();
 
@@ -154,9 +156,9 @@ ${financialContext}
             },
             contents,
             generationConfig: {
-              temperature: 0.7,
-              topP: 0.95,
-              maxOutputTokens: 2048,
+              temperature: 0.25,
+              topP: 0.9,
+              maxOutputTokens: 650,
             },
           }),
           signal: controller.signal,
@@ -186,5 +188,108 @@ ${financialContext}
     throw new Error(
       lastError?.message || "Layanan AI Financial Advisor sedang sibuk. Silakan coba sesaat lagi."
     );
+  }
+
+  /**
+   * Streams CFP response chunk by chunk for ultra-fast first token (< 700ms).
+   */
+  public static async *streamAdvisorResponse(
+    userId: string,
+    history: ChatMessage[],
+    userMessage: string
+  ): AsyncGenerator<string, void, unknown> {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      throw new Error("GEMINI_API_KEY belum dikonfigurasi.");
+    }
+
+    const financialContext = await this.generateFinancialContext(userId);
+
+    const systemInstruction = `
+Anda adalah "Wealth AI Advisor", Certified Financial Planner (CFP) profesional berstandar FPSB Indonesia.
+
+ATURAN KECEPATAN & KUALITAS AUDIT:
+1. JAWAB LANGSUNG PADA INTI DIAGNOSIS (Zero Fluff). DILARANG menggunakan basa-basi seperti "Halo, selamat datang", "Berikut adalah analisis saya", atau pengantar panjang.
+2. FORMAT AUDIT CFP (Padat, Terstruktur, Maksimal 300 kata):
+   - **Status Kesehatan Finansial**: 1 kalimat kesimpulan objektif (Sangat Sehat / Seimbang / Perlu Rebalancing).
+   - **Diagnosis Kunci (Maks 3 Poin)**:
+     * Dana Darurat & Kas Likuid (Rasio kecukupan target)
+     * Utang & Beban Bunga (Bebas utang / Debt Service Ratio)
+     * Kinerja & Alokasi Portofolio (Keseimbangan Emas vs Saham vs Reksadana)
+   - **Rekomendasi Tindakan (Action Items)**: 1-2 langkah konkret prioritas utama yang bisa langsung dieksekusi pengguna.
+3. Anda memiliki akses penuh ke data keuangan riil pengguna di bawah. Gunakan angka riil secara presisi.
+
+DATA KEUANGAN PENGGUNA:
+${financialContext}
+`.trim();
+
+    const contents = history.map((m) => ({
+      role: m.role === "user" ? "user" : "model",
+      parts: [{ text: m.text }],
+    }));
+    contents.push({
+      role: "user",
+      parts: [{ text: userMessage }],
+    });
+
+    for (const model of this.MODELS) {
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${apiKey}`;
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 20000);
+
+        const response = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            systemInstruction: { parts: [{ text: systemInstruction }] },
+            contents,
+            generationConfig: {
+              temperature: 0.25,
+              topP: 0.9,
+              maxOutputTokens: 650,
+            },
+          }),
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeoutId);
+        if (!response.ok || !response.body) continue;
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || "";
+
+          for (const line of lines) {
+            if (line.startsWith("data: ")) {
+              const jsonStr = line.slice(6).trim();
+              if (jsonStr === "[DONE]") return;
+              try {
+                const parsed = JSON.parse(jsonStr);
+                const chunk = parsed.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (chunk) yield chunk;
+              } catch {
+                // partial json chunk
+              }
+            }
+          }
+        }
+        return;
+      } catch (err) {
+        console.warn(`[FinancialAdvisorService] Stream from ${model} failed, trying next:`, err);
+      }
+    }
+
+    // Fallback to non-streaming response if stream mirrors fail
+    const fallback = await this.chatWithAdvisor(userId, history, userMessage);
+    yield fallback;
   }
 }
