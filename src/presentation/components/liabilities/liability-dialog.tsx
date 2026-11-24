@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Plus, CreditCard, AlertCircle, Loader2, X } from "lucide-react";
 import { Button } from "@/presentation/components/ui/button";
 import { Input } from "@/presentation/components/ui/input";
+import { FormattedNumberInput } from "@/presentation/components/ui/formatted-number-input";
 import {
   Select,
   SelectContent,
@@ -208,19 +209,17 @@ export function LiabilityDialog({ onLiabilityCreated }: { onLiabilityCreated?: (
                   <label className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
                     Total Pokok Pinjaman (Rp)
                   </label>
-                  <Input
-                    type="number"
-                    step="any"
+                  <FormattedNumberInput
                     name="originalAmount"
                     value={originalAmount}
-                    onChange={(e) => {
-                      setOriginalAmount(e.target.value);
+                    onValueChange={(val) => {
+                      setOriginalAmount(val);
                       if (!outstandingBalance) {
-                        setOutstandingBalance(e.target.value);
+                        setOutstandingBalance(val);
                       }
                     }}
                     required
-                    placeholder="Contoh: 12000000"
+                    placeholder="Contoh: 12.000.000"
                     className="h-10 text-sm font-mono"
                   />
                 </div>
@@ -229,12 +228,10 @@ export function LiabilityDialog({ onLiabilityCreated }: { onLiabilityCreated?: (
                   <label className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
                     Sisa Pokok Saat Ini (Rp)
                   </label>
-                  <Input
-                    type="number"
-                    step="any"
+                  <FormattedNumberInput
                     name="outstandingBalance"
                     value={outstandingBalance}
-                    onChange={(e) => setOutstandingBalance(e.target.value)}
+                    onValueChange={setOutstandingBalance}
                     placeholder="Sama dengan total jika baru"
                     className="h-10 text-sm font-mono"
                   />
@@ -249,13 +246,11 @@ export function LiabilityDialog({ onLiabilityCreated }: { onLiabilityCreated?: (
                   <label className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
                     Cicilan per Bulan (Rp) (Opsional)
                   </label>
-                  <Input
-                    type="number"
-                    step="any"
+                  <FormattedNumberInput
                     name="installmentAmount"
                     value={installmentAmount}
-                    onChange={(e) => setInstallmentAmount(e.target.value)}
-                    placeholder="Contoh: 1250000"
+                    onValueChange={setInstallmentAmount}
+                    placeholder="Contoh: 1.250.000"
                     className="h-10 text-sm font-mono"
                   />
                 </div>

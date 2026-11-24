@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Edit3, AlertCircle, Loader2, X, ShieldAlert } from "lucide-react";
 import { Button } from "@/presentation/components/ui/button";
 import { Input } from "@/presentation/components/ui/input";
+import { FormattedNumberInput } from "@/presentation/components/ui/formatted-number-input";
 import { useToast } from "@/presentation/components/ui/toast";
 import { recordManualValuationAction } from "@/app/actions/portfolio-actions";
 import { formatCurrency } from "@/lib/decimal";
@@ -140,14 +141,12 @@ export function ManualValuationDialog({
                   <label className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
                     Harga Baru ({currency})
                   </label>
-                  <Input
-                    type="number"
-                    step="any"
+                  <FormattedNumberInput
                     name="price"
                     value={price}
-                    onChange={(e) => setPrice(e.target.value)}
+                    onValueChange={setPrice}
                     required
-                    placeholder="Contoh: 10250"
+                    placeholder="Contoh: 10.250"
                     className="h-10 text-sm font-mono"
                   />
                 </div>

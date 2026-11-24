@@ -187,6 +187,21 @@ export async function voidTransactionAction(transactionId: string) {
   }
 }
 
+export async function deleteTransactionAction(transactionId: string) {
+  const session = await requireAuth();
+  try {
+    await TransactionsService.deleteTransaction(session.userId, transactionId);
+    revalidatePath("/investments");
+    revalidatePath("/transactions");
+    revalidatePath("/overview");
+    await touchUserSync(session.userId);
+    return { success: true };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Gagal menghapus transaksi";
+    return { success: false, error: message };
+  }
+}
+
 export async function updateAccountAction(accountId: string, formData: FormData) {
   const session = await requireAuth();
   const name = formData.get("name") as string;

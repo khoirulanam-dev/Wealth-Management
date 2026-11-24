@@ -94,3 +94,38 @@ export async function deleteLiabilityAction(formData: FormData) {
   }
 }
 
+export async function updateLiabilityAction(formData: FormData) {
+  const session = await requireAuth();
+  const liabilityId = formData.get("liabilityId") as string;
+  const name = formData.get("name") as string;
+  const type = formData.get("type") as string;
+  const creditor = formData.get("creditor") as string;
+  const originalAmount = formData.get("originalAmount") as string;
+  const outstandingBalance = formData.get("outstandingBalance") as string;
+  const installmentAmount = formData.get("installmentAmount") as string;
+  const dueDate = formData.get("dueDate") as string;
+  const note = formData.get("note") as string;
+  const status = formData.get("status") as string;
+
+  try {
+    await LiabilityService.updateLiability(session.userId, liabilityId, {
+      name,
+      type,
+      creditor,
+      originalAmount: originalAmount || undefined,
+      outstandingBalance: outstandingBalance || undefined,
+      installmentAmount: installmentAmount || null,
+      dueDate: dueDate || null,
+      note: note || null,
+      status: status || undefined,
+    });
+    revalidatePath("/liabilities");
+    revalidatePath("/overview");
+    await touchUserSync(session.userId);
+    return { success: true };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Gagal memperbarui liabilitas";
+    return { success: false, error: message };
+  }
+}
+

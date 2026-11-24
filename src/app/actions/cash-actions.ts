@@ -115,3 +115,60 @@ export async function reconcileCashAccountAction(formData: FormData) {
   }
 }
 
+export async function updateCashAccountAction(formData: FormData) {
+  const session = await requireAuth();
+  const cashAccountId = formData.get("cashAccountId") as string;
+  const name = formData.get("name") as string;
+  const institution = formData.get("institution") as string;
+  const accountType = formData.get("accountType") as string;
+  const isEmergencyFund = formData.get("isEmergencyFund") === "true";
+  const emergencyFundTarget = formData.get("emergencyFundTarget") as string;
+  const notes = formData.get("notes") as string;
+
+  try {
+    const result = await CashService.updateCashAccount(session.userId, cashAccountId, {
+      name,
+      institution,
+      accountType,
+      isEmergencyFund,
+      emergencyFundTarget: emergencyFundTarget || null,
+      notes,
+    });
+    revalidatePath("/cash");
+    revalidatePath("/overview");
+    await touchUserSync(session.userId);
+    return { ...result };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Gagal memperbarui rekening kas";
+    return { success: false, error: message };
+  }
+}
+
+export async function deleteCashAccountAction(cashAccountId: string) {
+  const session = await requireAuth();
+  try {
+    const result = await CashService.deleteCashAccount(session.userId, cashAccountId);
+    revalidatePath("/cash");
+    revalidatePath("/overview");
+    await touchUserSync(session.userId);
+    return { ...result };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Gagal menghapus rekening kas";
+    return { success: false, error: message };
+  }
+}
+
+export async function deleteCashMovementAction(movementId: string) {
+  const session = await requireAuth();
+  try {
+    const result = await CashService.deleteCashMovement(session.userId, movementId);
+    revalidatePath("/cash");
+    revalidatePath("/overview");
+    await touchUserSync(session.userId);
+    return { ...result };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Gagal menghapus mutasi kas";
+    return { success: false, error: message };
+  }
+}
+

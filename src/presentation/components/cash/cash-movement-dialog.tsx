@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ArrowDownLeft, ArrowUpRight, AlertCircle, Loader2, X } from "lucide-react";
 import { Button } from "@/presentation/components/ui/button";
 import { Input } from "@/presentation/components/ui/input";
+import { FormattedNumberInput } from "@/presentation/components/ui/formatted-number-input";
 import {
   Select,
   SelectContent,
@@ -195,14 +196,11 @@ export function CashMovementDialog({
                   <label className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
                     Nominal (Rp)
                   </label>
-                  <Input
-                    type="number"
-                    step="any"
-                    min="1"
+                  <FormattedNumberInput
                     required
                     value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    placeholder="1000000"
+                    onValueChange={setAmount}
+                    placeholder="1.000.000"
                     className="h-10 text-sm font-mono"
                   />
                 </div>

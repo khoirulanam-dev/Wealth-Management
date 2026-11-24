@@ -234,6 +234,66 @@ export class LiabilityService {
   }
 
   /**
+   * Update an existing liability record.
+   */
+  static async updateLiability(
+    userId: string,
+    liabilityId: string,
+    dto: {
+      name?: string;
+      type?: string;
+      creditor?: string;
+      originalAmount?: string | number;
+      outstandingBalance?: string | number;
+      installmentAmount?: string | number | null;
+      dueDate?: string | Date | null;
+      note?: string | null;
+      status?: string;
+    }
+  ) {
+    const [existing] = await db
+      .select()
+      .from(liabilities)
+      .where(and(eq(liabilities.id, liabilityId), eq(liabilities.userId, userId)))
+      .limit(1);
+
+    if (!existing) throw new Error("Liabilitas tidak ditemukan");
+
+    const updatePayload: Record<string, unknown> = {
+      updatedAt: new Date(),
+    };
+
+    if (dto.name) updatePayload.name = dto.name.trim();
+    if (dto.type) updatePayload.type = dto.type;
+    if (dto.creditor) updatePayload.creditor = dto.creditor.trim();
+    if (dto.originalAmount !== undefined) {
+      updatePayload.originalAmount = new Decimal(dto.originalAmount).toFixed(2);
+    }
+    if (dto.outstandingBalance !== undefined) {
+      const outDec = new Decimal(dto.outstandingBalance);
+      updatePayload.outstandingBalance = outDec.toFixed(2);
+      updatePayload.status = outDec.isZero() ? "settled" : "active";
+    }
+    if (dto.installmentAmount !== undefined) {
+      updatePayload.installmentAmount = dto.installmentAmount
+        ? new Decimal(dto.installmentAmount).toFixed(2)
+        : null;
+    }
+    if (dto.dueDate !== undefined) {
+      updatePayload.dueDate = dto.dueDate ? new Date(dto.dueDate) : null;
+    }
+    if (dto.note !== undefined) {
+      updatePayload.note = dto.note?.trim() || null;
+    }
+    if (dto.status) {
+      updatePayload.status = dto.status;
+    }
+
+    await db.update(liabilities).set(updatePayload).where(eq(liabilities.id, liabilityId));
+    return { success: true };
+  }
+
+  /**
    * Delete a liability record and cascaded relations.
    */
   static async deleteLiability(userId: string, liabilityId: string) {

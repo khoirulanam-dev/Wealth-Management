@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Plus, Wallet, AlertCircle, Loader2, X } from "lucide-react";
 import { Button } from "@/presentation/components/ui/button";
 import { Input } from "@/presentation/components/ui/input";
+import { FormattedNumberInput } from "@/presentation/components/ui/formatted-number-input";
 import {
   Select,
   SelectContent,
@@ -136,10 +137,8 @@ export function CashAccountDialog({ onAccountCreated }: { onAccountCreated?: () 
                   <label className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
                     Saldo Awal (Rp)
                   </label>
-                  <Input
+                  <FormattedNumberInput
                     name="openingBalance"
-                    type="number"
-                    step="any"
                     required
                     defaultValue="0"
                     placeholder="0"
@@ -180,11 +179,9 @@ export function CashAccountDialog({ onAccountCreated }: { onAccountCreated?: () 
                     <label className="text-xs font-semibold text-[#64748B] block mb-1">
                       Target Dana Darurat untuk Rekening Ini (Rp)
                     </label>
-                    <Input
+                    <FormattedNumberInput
                       name="emergencyFundTarget"
-                      type="number"
-                      step="any"
-                      placeholder="Contoh: 30000000"
+                      placeholder="Contoh: 30.000.000"
                       className="h-9 text-xs font-mono bg-white"
                     />
                   </div>

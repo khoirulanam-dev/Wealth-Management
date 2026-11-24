@@ -11,6 +11,7 @@ import { formatCurrency, formatDate } from "@/lib/decimal";
 import { deleteLiabilityAction } from "@/app/actions/liability-actions";
 import { useToast } from "@/presentation/components/ui/toast";
 import { LiabilityPaymentDialog } from "./liability-payment-dialog";
+import { EditLiabilityDialog } from "./edit-liability-dialog";
 import { Decimal } from "decimal.js";
 import { AssetLogo } from "@/presentation/components/ui/asset-logo";
 
@@ -221,6 +222,7 @@ export function LiabilitiesTable({
                         onPaymentRecorded={onDataChanged}
                       />
                     )}
+                    <EditLiabilityDialog liability={item} onUpdated={onDataChanged} />
                     <button
                       type="button"
                       onClick={() => handleDelete(item.id, item.name)}

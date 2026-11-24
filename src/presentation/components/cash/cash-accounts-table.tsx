@@ -1,10 +1,14 @@
 "use client";
 
-import { Wallet, ShieldAlert } from "lucide-react";
+import { Wallet, ShieldAlert, Trash2 } from "lucide-react";
 import { formatCurrency } from "@/lib/decimal";
 import { CashMovementDialog } from "./cash-movement-dialog";
 import { ReconcileDialog } from "./reconcile-dialog";
+import { EditCashAccountDialog } from "./edit-cash-account-dialog";
 import { AssetLogo } from "@/presentation/components/ui/asset-logo";
+import { deleteCashAccountAction } from "@/app/actions/cash-actions";
+import { useToast } from "@/presentation/components/ui/toast";
+import { useState } from "react";
 
 export interface CashAccountItem {
   id: string;
@@ -26,6 +30,21 @@ interface CashAccountsTableProps {
 }
 
 export function CashAccountsTable({ accounts, currency = "IDR" }: CashAccountsTableProps) {
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  async function handleDeleteAccount(id: string, name: string) {
+    if (!confirm(`Hapus rekening "${name}" beserta seluruh riwayat mutasinya?`)) return;
+    setDeletingId(id);
+    const result = await deleteCashAccountAction(id);
+    if (result.success) {
+      toast.success(`Rekening ${name} berhasil dihapus`);
+    } else {
+      toast.error(result.error || "Gagal menghapus rekening");
+    }
+    setDeletingId(null);
+  }
+
   if (accounts.length === 0) {
     return (
       <div className="rounded-2xl border border-[#E4E8EF] bg-white p-12 text-center shadow-card">
@@ -126,6 +145,16 @@ export function CashAccountsTable({ accounts, currency = "IDR" }: CashAccountsTa
                           </button>
                         }
                       />
+                      <span className="text-[#CBD5E1]">·</span>
+                      <EditCashAccountDialog account={acc} />
+                      <button
+                        disabled={deletingId === acc.id}
+                        onClick={() => handleDeleteAccount(acc.id, acc.name)}
+                        className="rounded p-1 text-[#94A3B8] hover:bg-red-50 hover:text-red-600 transition-colors disabled:opacity-50"
+                        title="Hapus Rekening"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
                     </div>
                   </td>
                 </tr>

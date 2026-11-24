@@ -89,3 +89,41 @@ export async function deleteIncomeAction(formData: FormData) {
   }
 }
 
+export async function updateIncomeAction(formData: FormData) {
+  const session = await requireAuth();
+  const incomeId = formData.get("incomeId") as string;
+  const type = formData.get("type") as string;
+  const status = formData.get("status") as string;
+  const instrumentId = formData.get("instrumentId") as string;
+  const accountId = formData.get("accountId") as string;
+  const cashAccountId = formData.get("cashAccountId") as string;
+  const expectedAmount = formData.get("expectedAmount") as string;
+  const actualAmount = formData.get("actualAmount") as string;
+  const eventDate = formData.get("eventDate") as string;
+  const receivedDate = formData.get("receivedDate") as string;
+  const notes = formData.get("notes") as string;
+
+  try {
+    await IncomeService.updateIncome(session.userId, incomeId, {
+      type,
+      status,
+      instrumentId: instrumentId && instrumentId !== "none" ? instrumentId : null,
+      accountId: accountId && accountId !== "none" ? accountId : null,
+      cashAccountId: cashAccountId && cashAccountId !== "none" ? cashAccountId : null,
+      expectedAmount: expectedAmount || undefined,
+      actualAmount: actualAmount || null,
+      eventDate: eventDate || null,
+      receivedDate: receivedDate || null,
+      notes: notes || null,
+    });
+    revalidatePath("/income");
+    revalidatePath("/cash");
+    revalidatePath("/overview");
+    await touchUserSync(session.userId);
+    return { success: true };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Gagal memperbarui catatan pendapatan";
+    return { success: false, error: message };
+  }
+}
+

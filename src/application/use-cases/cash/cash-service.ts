@@ -366,6 +366,132 @@ export class CashService {
   }
 
   /**
+   * Update an existing cash account's metadata.
+   */
+  static async updateCashAccount(
+    userId: string,
+    cashAccountId: string,
+    dto: {
+      name?: string;
+      institution?: string;
+      accountType?: string;
+      isEmergencyFund?: boolean;
+      emergencyFundTarget?: string | number | null;
+      notes?: string;
+    }
+  ) {
+    const [acc] = await db
+      .select()
+      .from(cashAccounts)
+      .where(and(eq(cashAccounts.id, cashAccountId), eq(cashAccounts.userId, userId)))
+      .limit(1);
+
+    if (!acc) throw new Error("Rekening kas tidak ditemukan");
+
+    const isEmergency = dto.isEmergencyFund !== undefined ? !!dto.isEmergencyFund : acc.isEmergencyFund;
+    const target =
+      dto.emergencyFundTarget !== undefined
+        ? dto.emergencyFundTarget
+          ? new Decimal(dto.emergencyFundTarget).toFixed(2)
+          : null
+        : acc.emergencyFundTarget;
+
+    await db
+      .update(cashAccounts)
+      .set({
+        isEmergencyFund: isEmergency,
+        emergencyFundTarget: target,
+        updatedAt: new Date(),
+      })
+      .where(eq(cashAccounts.id, cashAccountId));
+
+    const finUpdate: Record<string, unknown> = { updatedAt: new Date() };
+    if (dto.name) finUpdate.name = dto.name.trim();
+    if (dto.institution) finUpdate.institution = dto.institution.trim();
+    if (dto.accountType) finUpdate.accountType = dto.accountType;
+    if (dto.notes !== undefined) finUpdate.notes = dto.notes?.trim() || null;
+
+    await db
+      .update(financialAccounts)
+      .set(finUpdate)
+      .where(eq(financialAccounts.id, acc.financialAccountId));
+
+    return { success: true };
+  }
+
+  /**
+   * Delete cash account and associated movements.
+   */
+  static async deleteCashAccount(userId: string, cashAccountId: string) {
+    const [acc] = await db
+      .select()
+      .from(cashAccounts)
+      .where(and(eq(cashAccounts.id, cashAccountId), eq(cashAccounts.userId, userId)))
+      .limit(1);
+
+    if (!acc) throw new Error("Rekening kas tidak ditemukan");
+
+    await db.delete(cashMovements).where(eq(cashMovements.cashAccountId, cashAccountId));
+    await db.delete(cashAccounts).where(eq(cashAccounts.id, cashAccountId));
+    await db.delete(financialAccounts).where(eq(financialAccounts.id, acc.financialAccountId));
+
+    return { success: true };
+  }
+
+  /**
+   * Delete cash movement with balance reversal.
+   */
+  static async deleteCashMovement(userId: string, movementId: string) {
+    const [mov] = await db
+      .select()
+      .from(cashMovements)
+      .where(and(eq(cashMovements.id, movementId), eq(cashMovements.userId, userId)))
+      .limit(1);
+
+    if (!mov) throw new Error("Mutasi kas tidak ditemukan");
+
+    const [acc] = await db
+      .select()
+      .from(cashAccounts)
+      .where(and(eq(cashAccounts.id, mov.cashAccountId), eq(cashAccounts.userId, userId)))
+      .limit(1);
+
+    if (acc) {
+      const curBal = new Decimal(acc.currentBalance || "0");
+      const movAmt = new Decimal(mov.amount || "0");
+      let newBal = curBal;
+
+      if (mov.type === "deposit" || mov.type === "opening_balance") {
+        newBal = curBal.minus(movAmt);
+      } else if (mov.type === "withdrawal") {
+        newBal = curBal.plus(movAmt);
+      } else if (mov.type === "transfer_in") {
+        newBal = curBal.minus(movAmt);
+      } else if (mov.type === "transfer_out") {
+        newBal = curBal.plus(movAmt);
+      }
+
+      await db
+        .update(cashAccounts)
+        .set({
+          currentBalance: newBal.toFixed(2),
+          updatedAt: new Date(),
+        })
+        .where(eq(cashAccounts.id, acc.id));
+    }
+
+    if (mov.transferGroupId) {
+      await db
+        .delete(cashMovements)
+        .where(eq(cashMovements.transferGroupId, mov.transferGroupId));
+    } else {
+      await db.delete(cashMovements).where(eq(cashMovements.id, movementId));
+    }
+
+    return { success: true };
+  }
+
+  /**
    * Aggregate total cash balance, emergency fund metrics, and coverage.
    */
   static async getCashSummary(userId: string) {

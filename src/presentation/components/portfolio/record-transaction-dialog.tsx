@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/presentation/components/ui/button";
 import { Input } from "@/presentation/components/ui/input";
+import { FormattedNumberInput } from "@/presentation/components/ui/formatted-number-input";
 import {
   Select,
   SelectContent,
@@ -584,13 +585,10 @@ export function RecordTransactionDialog({
 
                     {isMutualFund && mfInputMode === "nominal" ? (
                       <div className="space-y-1">
-                        <Input
-                          type="number"
-                          step="any"
-                          min="1000"
-                          placeholder="Ketik Nominal Pembelian (misal: 1000000)"
+                        <FormattedNumberInput
+                          placeholder="Ketik Nominal Pembelian (misal: 1.000.000)"
                           value={mfNominal}
-                          onChange={(e) => handleMfNominalChange(e.target.value)}
+                          onValueChange={handleMfNominalChange}
                           className="h-10 text-sm font-mono"
                         />
                         {quantity && (
@@ -647,23 +645,21 @@ export function RecordTransactionDialog({
                         : "Harga per Koin (Rp)"}
                     </label>
                   </div>
-                  <Input
-                    type="number"
-                    step="any"
-                    min="0.01"
+                  <FormattedNumberInput
+                    allowDecimals={true}
                     placeholder={
                       isStock
-                        ? "Contoh: 9500"
+                        ? "Contoh: 9.500"
                         : isMutualFund
-                        ? "Contoh: 2154.68"
+                        ? "Contoh: 2.154,68"
                         : isGold
-                        ? "Contoh: 1450000"
+                        ? "Contoh: 1.450.000"
                         : isBond
-                        ? "Contoh: 1000000"
-                        : "Contoh: 1450000000"
+                        ? "Contoh: 1.000.000"
+                        : "Contoh: 1.450.000.000"
                     }
                     value={unitPrice}
-                    onChange={(e) => handleUnitPriceChange(e.target.value)}
+                    onValueChange={handleUnitPriceChange}
                     required
                     className="h-10 text-sm font-mono"
                   />

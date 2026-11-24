@@ -4,6 +4,7 @@ import { useState } from "react";
 import { CheckCircle2, AlertCircle, Loader2, X, Wallet } from "lucide-react";
 import { Button } from "@/presentation/components/ui/button";
 import { Input } from "@/presentation/components/ui/input";
+import { FormattedNumberInput } from "@/presentation/components/ui/formatted-number-input";
 import {
   Select,
   SelectContent,
@@ -186,14 +187,12 @@ export function LiabilityPaymentDialog({
                 <label className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
                   Nominal Pembayaran (Rp)
                 </label>
-                <Input
-                  type="number"
-                  step="any"
+                <FormattedNumberInput
                   name="amount"
                   value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
+                  onValueChange={setAmount}
                   required
-                  placeholder="Contoh: 1250000"
+                  placeholder="Contoh: 1.250.000"
                   className="h-10 text-sm font-mono"
                 />
                 {paymentDec.gt(0) && (

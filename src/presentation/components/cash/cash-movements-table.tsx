@@ -1,7 +1,10 @@
 "use client";
 
-import { ArrowDownLeft, ArrowUpRight, ArrowRightLeft, SlidersHorizontal, History } from "lucide-react";
+import { useState } from "react";
+import { ArrowDownLeft, ArrowUpRight, ArrowRightLeft, SlidersHorizontal, History, Trash2, Loader2 } from "lucide-react";
 import { formatCurrency } from "@/lib/decimal";
+import { deleteCashMovementAction } from "@/app/actions/cash-actions";
+import { useToast } from "@/presentation/components/ui/toast";
 
 export interface CashMovementItem {
   id: string;
@@ -23,6 +26,21 @@ interface CashMovementsTableProps {
 }
 
 export function CashMovementsTable({ movements }: CashMovementsTableProps) {
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  async function handleDelete(id: string) {
+    if (!confirm("Hapus catatan mutasi kas ini? Saldo rekening akan disesuaikan otomatis.")) return;
+    setDeletingId(id);
+    const result = await deleteCashMovementAction(id);
+    if (result.success) {
+      toast.success("Catatan mutasi berhasil dihapus");
+    } else {
+      toast.error(result.error || "Gagal menghapus mutasi");
+    }
+    setDeletingId(null);
+  }
+
   if (movements.length === 0) {
     return (
       <div className="rounded-2xl border border-[#E4E8EF] bg-white p-12 text-center shadow-card">
@@ -96,6 +114,7 @@ export function CashMovementsTable({ movements }: CashMovementsTableProps) {
               <th className="py-3 px-4">Jenis Transaksi</th>
               <th className="py-3 px-4">Keterangan / Alasan</th>
               <th className="py-3 px-4 text-right">Nominal</th>
+              <th className="py-3 px-4 text-center">Aksi</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[#E4E8EF] text-[#1E293B]">
@@ -156,6 +175,22 @@ export function CashMovementsTable({ movements }: CashMovementsTableProps) {
                   >
                     {isPositive ? "+" : isNegative ? "-" : ""}
                     {formatCurrency(mov.amount, mov.currency || "IDR")}
+                  </td>
+
+                  {/* Actions */}
+                  <td className="py-3 px-4 text-center whitespace-nowrap">
+                    <button
+                      disabled={deletingId === mov.id}
+                      onClick={() => handleDelete(mov.id)}
+                      className="rounded p-1 text-[#94A3B8] hover:bg-red-50 hover:text-red-600 transition-colors disabled:opacity-50"
+                      title="Hapus Mutasi Kas"
+                    >
+                      {deletingId === mov.id ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-3.5 w-3.5" />
+                      )}
+                    </button>
                   </td>
                 </tr>
               );

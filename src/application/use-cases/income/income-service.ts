@@ -217,6 +217,62 @@ export class IncomeService {
   }
 
   /**
+   * Update an income record.
+   */
+  public static async updateIncome(
+    userId: string,
+    incomeId: string,
+    dto: {
+      instrumentId?: string | null;
+      accountId?: string | null;
+      cashAccountId?: string | null;
+      type?: string;
+      expectedAmount?: string | number;
+      actualAmount?: string | number | null;
+      status?: string;
+      eventDate?: string | Date | null;
+      receivedDate?: string | Date | null;
+      notes?: string | null;
+    }
+  ) {
+    const [existing] = await db
+      .select()
+      .from(investmentIncome)
+      .where(and(eq(investmentIncome.id, incomeId), eq(investmentIncome.userId, userId)))
+      .limit(1);
+
+    if (!existing) throw new Error("Catatan pendapatan tidak ditemukan");
+
+    const updatePayload: Record<string, unknown> = {
+      updatedAt: new Date(),
+    };
+
+    if (dto.instrumentId !== undefined) updatePayload.instrumentId = dto.instrumentId;
+    if (dto.accountId !== undefined) updatePayload.accountId = dto.accountId;
+    if (dto.cashAccountId !== undefined) updatePayload.cashAccountId = dto.cashAccountId;
+    if (dto.type) updatePayload.type = dto.type;
+    if (dto.expectedAmount !== undefined) {
+      updatePayload.expectedAmount = new Decimal(dto.expectedAmount).toFixed(2);
+    }
+    if (dto.actualAmount !== undefined) {
+      updatePayload.actualAmount = dto.actualAmount ? new Decimal(dto.actualAmount).toFixed(2) : null;
+    }
+    if (dto.status) updatePayload.status = dto.status;
+    if (dto.eventDate !== undefined) {
+      updatePayload.eventDate = dto.eventDate ? new Date(dto.eventDate) : null;
+    }
+    if (dto.receivedDate !== undefined) {
+      updatePayload.receivedDate = dto.receivedDate ? new Date(dto.receivedDate) : null;
+    }
+    if (dto.notes !== undefined) {
+      updatePayload.notes = dto.notes?.trim() || null;
+    }
+
+    await db.update(investmentIncome).set(updatePayload).where(eq(investmentIncome.id, incomeId));
+    return { success: true };
+  }
+
+  /**
    * Delete an income record.
    */
   public static async deleteIncome(userId: string, incomeId: string) {

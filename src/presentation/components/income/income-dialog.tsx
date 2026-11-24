@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Plus, PiggyBank, AlertCircle, Loader2, X, Wallet } from "lucide-react";
 import { Button } from "@/presentation/components/ui/button";
 import { Input } from "@/presentation/components/ui/input";
+import { FormattedNumberInput } from "@/presentation/components/ui/formatted-number-input";
 import {
   Select,
   SelectContent,
@@ -239,14 +240,12 @@ export function IncomeDialog({
                   <label className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
                     {status === "received" ? "Nominal Riil Diterima (Rp)" : "Estimasi Nominal (Rp)"}
                   </label>
-                  <Input
-                    type="number"
-                    step="any"
+                  <FormattedNumberInput
                     name="amount"
                     value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
+                    onValueChange={setAmount}
                     required
-                    placeholder="Contoh: 1500000"
+                    placeholder="Contoh: 1.500.000"
                     className="h-10 text-sm font-mono"
                   />
                 </div>

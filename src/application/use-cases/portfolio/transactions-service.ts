@@ -300,6 +300,33 @@ export class TransactionsService {
   }
 
   /**
+   * Delete a transaction completely and rebuild position.
+   */
+  static async deleteTransaction(userId: string, transactionId: string) {
+    const [tx] = await db
+      .select()
+      .from(investmentTransactions)
+      .where(
+        and(
+          eq(investmentTransactions.id, transactionId),
+          eq(investmentTransactions.userId, userId)
+        )
+      )
+      .limit(1);
+
+    if (!tx) {
+      throw new Error("Transaksi tidak ditemukan");
+    }
+
+    await db
+      .delete(investmentTransactions)
+      .where(eq(investmentTransactions.id, transactionId));
+
+    // Rebuild position after deletion
+    await this.rebuildPosition(userId, tx.instrumentId, tx.accountId);
+  }
+
+  /**
    * List transactions with rich joined metadata.
    */
   static async listTransactions(userId: string) {

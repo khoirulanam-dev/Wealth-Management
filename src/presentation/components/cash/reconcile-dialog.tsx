@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Scale, AlertCircle, Loader2, X } from "lucide-react";
 import { Button } from "@/presentation/components/ui/button";
 import { Input } from "@/presentation/components/ui/input";
+import { FormattedNumberInput } from "@/presentation/components/ui/formatted-number-input";
 import {
   Select,
   SelectContent,
@@ -190,12 +191,10 @@ export function ReconcileDialog({
                   <label className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
                     Saldo Fisik Asli (Rp)
                   </label>
-                  <Input
-                    type="number"
-                    step="any"
+                  <FormattedNumberInput
                     required
                     value={observedBalance}
-                    onChange={(e) => setObservedBalance(e.target.value)}
+                    onValueChange={setObservedBalance}
                     placeholder={appBalance.toString()}
                     className="h-10 text-sm font-mono"
                   />

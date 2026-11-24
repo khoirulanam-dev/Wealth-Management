@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowDownRight, ArrowUpRight, Ban, Loader2 } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, Ban, Loader2, Trash2 } from "lucide-react";
 import { formatCurrency, formatNumber } from "@/lib/decimal";
 import { useToast } from "@/presentation/components/ui/toast";
-import { voidTransactionAction } from "@/app/actions/portfolio-actions";
+import { voidTransactionAction, deleteTransactionAction } from "@/app/actions/portfolio-actions";
 import { AssetLogo } from "@/presentation/components/ui/asset-logo";
 
 export interface TransactionItem {
@@ -34,6 +34,7 @@ interface TransactionsTableProps {
 
 export function TransactionsTable({ transactions }: TransactionsTableProps) {
   const [voidingId, setVoidingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [confirmId, setConfirmId] = useState<string | null>(null);
   const { toast } = useToast();
 
@@ -47,6 +48,18 @@ export function TransactionsTable({ transactions }: TransactionsTableProps) {
     }
     setVoidingId(null);
     setConfirmId(null);
+  }
+
+  async function handleDelete(id: string) {
+    if (!confirm("Hapus transaksi ini secara permanen dari buku besar? Portofolio akan dihitung ulang secara otomatis.")) return;
+    setDeletingId(id);
+    const result = await deleteTransactionAction(id);
+    if (result.success) {
+      toast.success("Transaksi berhasil dihapus secara permanen");
+    } else {
+      toast.error(result.error || "Gagal menghapus transaksi");
+    }
+    setDeletingId(null);
   }
 
   if (transactions.length === 0) {
@@ -169,39 +182,53 @@ export function TransactionsTable({ transactions }: TransactionsTableProps) {
                     )}
                   </td>
 
-                  {/* Void Action */}
+                  {/* Actions */}
                   <td className="py-3.5 px-4 text-center">
-                    {!isVoided && (
-                      confirmId === tx.id ? (
-                        <div className="flex items-center justify-center gap-1.5 animate-in fade-in duration-100">
+                    <div className="flex items-center justify-center gap-1.5">
+                      {!isVoided && (
+                        confirmId === tx.id ? (
+                          <div className="flex items-center justify-center gap-1.5 animate-in fade-in duration-100">
+                            <button
+                              disabled={voidingId === tx.id}
+                              onClick={() => handleVoid(tx.id)}
+                              className="rounded bg-red-600 px-2 py-1 text-xs font-bold text-white hover:bg-red-700"
+                            >
+                              {voidingId === tx.id ? (
+                                <Loader2 className="h-3 w-3 animate-spin" />
+                              ) : (
+                                "Ya, Void"
+                              )}
+                            </button>
+                            <button
+                              onClick={() => setConfirmId(null)}
+                              className="rounded bg-slate-200 px-2 py-1 text-xs text-slate-700 hover:bg-slate-300"
+                            >
+                              Batal
+                            </button>
+                          </div>
+                        ) : (
                           <button
-                            disabled={voidingId === tx.id}
-                            onClick={() => handleVoid(tx.id)}
-                            className="rounded bg-red-600 px-2 py-1 text-xs font-bold text-white hover:bg-red-700"
+                            onClick={() => setConfirmId(tx.id)}
+                            title="Batalkan Transaksi (Void)"
+                            className="rounded p-1 text-[#94A3B8] hover:bg-amber-50 hover:text-amber-600 transition-colors"
                           >
-                            {voidingId === tx.id ? (
-                              <Loader2 className="h-3 w-3 animate-spin" />
-                            ) : (
-                              "Ya, Void"
-                            )}
+                            <Ban className="h-3.5 w-3.5" />
                           </button>
-                          <button
-                            onClick={() => setConfirmId(null)}
-                            className="rounded bg-slate-200 px-2 py-1 text-xs text-slate-700 hover:bg-slate-300"
-                          >
-                            Batal
-                          </button>
-                        </div>
-                      ) : (
-                        <button
-                          onClick={() => setConfirmId(tx.id)}
-                          title="Batalkan Transaksi (Void)"
-                          className="rounded p-1 text-[#94A3B8] hover:bg-red-50 hover:text-red-600 transition-colors"
-                        >
-                          <Ban className="h-3.5 w-3.5" />
-                        </button>
-                      )
-                    )}
+                        )
+                      )}
+                      <button
+                        disabled={deletingId === tx.id}
+                        onClick={() => handleDelete(tx.id)}
+                        className="rounded p-1 text-[#94A3B8] hover:bg-red-50 hover:text-red-600 transition-colors disabled:opacity-50"
+                        title="Hapus Transaksi Permanen"
+                      >
+                        {deletingId === tx.id ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-3.5 w-3.5" />
+                        )}
+                      </button>
+                    </div>
                   </td>
                 </tr>
               );

@@ -36,3 +36,4 @@ export async function GET() {
     return NextResponse.json({ version: Date.now() }, { status: 500 });
   }
 }
+

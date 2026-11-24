@@ -11,6 +11,7 @@ import { formatCurrency, formatDate } from "@/lib/decimal";
 import { deleteIncomeAction } from "@/app/actions/income-actions";
 import { useToast } from "@/presentation/components/ui/toast";
 import { MarkReceivedDialog } from "./mark-received-dialog";
+import { EditIncomeDialog } from "./edit-income-dialog";
 import { IncomeItemDetail } from "@/application/use-cases/income/income-service";
 import { AssetLogo } from "@/presentation/components/ui/asset-logo";
 
@@ -171,6 +172,7 @@ export function IncomeTable({ items, cashAccounts, onDataChanged }: IncomeTableP
                         onReceived={onDataChanged}
                       />
                     )}
+                    <EditIncomeDialog item={item} onUpdated={onDataChanged} />
                     <button
                       type="button"
                       onClick={() =>
