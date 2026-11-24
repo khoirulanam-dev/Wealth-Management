@@ -128,3 +128,4 @@ export class CurrencyService {
     return `1 ${cur} = Rp ${Math.round(rate).toLocaleString("id-ID")}`;
   }
 }
+

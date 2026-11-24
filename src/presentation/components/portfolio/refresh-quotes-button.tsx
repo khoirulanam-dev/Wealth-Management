@@ -93,19 +93,16 @@ export function RefreshQuotesButton({ className = "" }: { className?: string }) 
   });
 
   return (
-    <div className={`flex items-center ${className}`}>
-      {/* Manual Refresh Button */}
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => doSync(true)}
-        disabled={isRefreshing}
-        title={`Terakhir update: ${formattedTime}. Klik untuk refresh sekarang.`}
-        className="w-full sm:w-auto gap-2 border-black/[0.08] bg-white text-[#1C1C1E] hover:bg-black/[0.03] active:scale-[0.98] font-medium h-9 text-xs rounded-xl shadow-2xs transition-all whitespace-nowrap shrink-0"
-      >
-        <RefreshCw className={`h-3.5 w-3.5 text-[#007AFF] ${isRefreshing ? "animate-spin" : ""}`} />
-        <span>{isRefreshing ? "Memperbarui..." : "Refresh Pasar"}</span>
-      </Button>
-    </div>
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={() => doSync(true)}
+      disabled={isRefreshing}
+      title={`Terakhir update: ${formattedTime}. Klik untuk refresh sekarang.`}
+      className={`w-full sm:w-auto gap-1.5 border border-black/[0.08] bg-white text-[#1C1C1E] hover:bg-black/[0.03] active:scale-[0.98] font-medium h-10.5 sm:h-9.5 px-3 text-xs rounded-xl shadow-2xs transition-all justify-center whitespace-nowrap shrink-0 ${className}`}
+    >
+      <RefreshCw className={`h-3.5 w-3.5 text-[#007AFF] shrink-0 ${isRefreshing ? "animate-spin" : ""}`} />
+      <span className="truncate">{isRefreshing ? "Memperbarui..." : "Refresh Pasar"}</span>
+    </Button>
   );
 }

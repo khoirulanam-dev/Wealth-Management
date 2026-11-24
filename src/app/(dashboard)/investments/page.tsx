@@ -14,7 +14,7 @@ import { InstrumentDialog } from "@/presentation/components/portfolio/instrument
 import { RecordTransactionDialog } from "@/presentation/components/portfolio/record-transaction-dialog";
 import { RefreshQuotesButton } from "@/presentation/components/portfolio/refresh-quotes-button";
 import { Button } from "@/presentation/components/ui/button";
-import { TrendingUp, TrendingDown, Layers, PieChart, Building2, LineChart } from "lucide-react";
+import { TrendingUp, TrendingDown, Layers, PieChart, Building2, LineChart, Plus } from "lucide-react";
 
 export default async function InvestmentsPage() {
   const session = await requireAuth();
@@ -50,20 +50,36 @@ export default async function InvestmentsPage() {
             Pencatatan kepemilikan saham, reksa dana, emas, dan obligasi dengan weighted-average cost.
           </p>
         </div>
-        {/* Responsive Toolbar Buttons */}
-        <div className="w-full xl:w-auto flex flex-col sm:flex-row sm:items-center sm:flex-wrap gap-2 shrink-0">
-          {/* Secondary Buttons Grid on Mobile (order-1), Inline on Desktop/Tablet (order-1) */}
-          <div className="grid grid-cols-3 sm:flex sm:items-center gap-2 order-1 shrink-0">
-            <RefreshQuotesButton />
+        {/* Responsive Toolbar Buttons: Catat Transaksi AT THE TOP on mobile, 3 secondary buttons below, single inline row on tablet & desktop */}
+        <div className="w-full xl:w-auto flex flex-col sm:flex-row sm:items-center sm:flex-wrap gap-2.5 sm:gap-2 shrink-0">
+          {/* Primary Action Button: AT THE TOP on Mobile (order-1), First inline on Tablet/Desktop (order-1) */}
+          <div className="order-1 w-full sm:w-auto shrink-0">
+            <RecordTransactionDialog
+              accounts={accounts}
+              instruments={instruments}
+              triggerButton={
+                <Button
+                  className="w-full sm:w-auto h-11 sm:h-9.5 px-4 gap-2 bg-[#007AFF] hover:bg-[#0066D6] active:scale-[0.98] text-white font-semibold text-sm sm:text-xs rounded-2xl sm:rounded-xl shadow-xs shadow-[#007AFF]/25 transition-all justify-center whitespace-nowrap shrink-0"
+                >
+                  <Plus className="h-4.5 w-4.5 sm:h-4 sm:w-4 stroke-[2.5]" />
+                  <span>Catat Transaksi</span>
+                </Button>
+              }
+            />
+          </div>
+
+          {/* Secondary Buttons Grid on Mobile (order-2), Inline on Desktop/Tablet (order-2) */}
+          <div className="grid grid-cols-3 sm:flex sm:items-center gap-2 order-2 w-full sm:w-auto shrink-0">
+            <RefreshQuotesButton className="w-full h-10.5 sm:h-9.5" />
             <AccountDialog
               triggerButton={
                 <Button
                   variant="outline"
                   size="sm"
-                  className="w-full sm:w-auto gap-1.5 h-9.5 sm:h-9 border-black/[0.08] bg-white text-xs font-medium text-[#1C1C1E] hover:bg-black/[0.03] active:scale-[0.98] rounded-xl shadow-2xs transition-all justify-center whitespace-nowrap shrink-0"
+                  className="w-full sm:w-auto gap-1.5 h-10.5 sm:h-9.5 px-2.5 sm:px-3 border border-black/[0.08] bg-white text-xs font-medium text-[#1C1C1E] hover:bg-black/[0.03] active:scale-[0.98] rounded-xl shadow-2xs transition-all justify-center whitespace-nowrap shrink-0"
                 >
-                  <Building2 className="h-3.5 w-3.5 text-[#007AFF]" />
-                  <span>Akun</span>
+                  <Building2 className="h-4 w-4 sm:h-3.5 sm:w-3.5 text-[#007AFF]" />
+                  <span className="truncate">+ Akun</span>
                 </Button>
               }
             />
@@ -72,20 +88,12 @@ export default async function InvestmentsPage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="w-full sm:w-auto gap-1.5 h-9.5 sm:h-9 border-black/[0.08] bg-white text-xs font-medium text-[#1C1C1E] hover:bg-black/[0.03] active:scale-[0.98] rounded-xl shadow-2xs transition-all justify-center whitespace-nowrap shrink-0"
+                  className="w-full sm:w-auto gap-1.5 h-10.5 sm:h-9.5 px-2.5 sm:px-3 border border-black/[0.08] bg-white text-xs font-medium text-[#1C1C1E] hover:bg-black/[0.03] active:scale-[0.98] rounded-xl shadow-2xs transition-all justify-center whitespace-nowrap shrink-0"
                 >
-                  <LineChart className="h-3.5 w-3.5 text-[#AF52DE]" />
-                  <span>Instrumen</span>
+                  <LineChart className="h-4 w-4 sm:h-3.5 sm:w-3.5 text-[#AF52DE]" />
+                  <span className="truncate">+ Instrumen</span>
                 </Button>
               }
-            />
-          </div>
-
-          {/* Primary Action Button: Full-width at bottom on mobile (order-2), inline on tablet/desktop (order-2) */}
-          <div className="order-2 w-full sm:w-auto shrink-0">
-            <RecordTransactionDialog
-              accounts={accounts}
-              instruments={instruments}
             />
           </div>
         </div>
