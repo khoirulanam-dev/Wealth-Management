@@ -3,6 +3,7 @@
 import { requireAuth } from "@/lib/auth";
 import { ImportExportService, ImportType } from "@/application/use-cases/import-export/import-export-service";
 import { revalidatePath } from "next/cache";
+import { touchUserSync } from "@/lib/sync";
 
 export async function getTemplateAction(type: ImportType) {
   await requireAuth();
@@ -53,6 +54,7 @@ export async function executeImportAction(type: ImportType, rowsJson: string) {
     revalidatePath("/income");
     revalidatePath("/analytics");
     revalidatePath("/transactions");
+    await touchUserSync(session.userId);
 
     return { success: true, ...result };
   } catch (err: unknown) {

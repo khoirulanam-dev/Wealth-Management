@@ -3,6 +3,7 @@
 import { requireAuth } from "@/lib/auth";
 import { CashService } from "@/application/use-cases/cash/cash-service";
 import { revalidatePath } from "next/cache";
+import { touchUserSync } from "@/lib/sync";
 
 export async function createCashAccountAction(formData: FormData) {
   const session = await requireAuth();
@@ -30,6 +31,7 @@ export async function createCashAccountAction(formData: FormData) {
     });
     revalidatePath("/cash");
     revalidatePath("/overview");
+    await touchUserSync(session.userId);
     return { success: true, ...result };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Gagal membuat rekening kas";
@@ -55,6 +57,7 @@ export async function recordCashMovementAction(formData: FormData) {
     });
     revalidatePath("/cash");
     revalidatePath("/overview");
+    await touchUserSync(session.userId);
     return { success: true, ...result };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Gagal mencatat mutasi kas";
@@ -80,6 +83,7 @@ export async function recordInternalTransferAction(formData: FormData) {
     });
     revalidatePath("/cash");
     revalidatePath("/overview");
+    await touchUserSync(session.userId);
     return { success: true, ...result };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Gagal melakukan transfer internal";
@@ -103,6 +107,7 @@ export async function reconcileCashAccountAction(formData: FormData) {
     });
     revalidatePath("/cash");
     revalidatePath("/overview");
+    await touchUserSync(session.userId);
     return { success: true, ...result };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Gagal melakukan rekonsiliasi saldo";

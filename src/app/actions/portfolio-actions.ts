@@ -7,6 +7,7 @@ import { TransactionsService } from "@/application/use-cases/portfolio/transacti
 import { MarketDataSyncService } from "@/application/use-cases/portfolio/market-data-sync-service";
 import { MarketDataService } from "@/infrastructure/services/market-data-service";
 import { revalidatePath } from "next/cache";
+import { touchUserSync } from "@/lib/sync";
 
 export async function createAccountAction(formData: FormData) {
   const session = await requireAuth();
@@ -27,6 +28,7 @@ export async function createAccountAction(formData: FormData) {
     revalidatePath("/investments");
     revalidatePath("/transactions");
     revalidatePath("/overview");
+    await touchUserSync(session.userId);
     return { success: true, account };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Gagal membuat akun finansial";
@@ -62,6 +64,7 @@ export async function createInstrumentAction(formData: FormData) {
     revalidatePath("/investments");
     revalidatePath("/transactions");
     revalidatePath("/market-data");
+    await touchUserSync(session.userId);
     return { success: true, instrument };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Gagal menambahkan instrumen";
@@ -161,6 +164,7 @@ export async function recordTransactionAction(formData: FormData) {
     revalidatePath("/transactions");
     revalidatePath("/overview");
     revalidatePath("/market-data");
+    await touchUserSync(session.userId);
     return { success: true, transaction: tx };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Gagal mencatat transaksi";
@@ -175,6 +179,7 @@ export async function voidTransactionAction(transactionId: string) {
     revalidatePath("/investments");
     revalidatePath("/transactions");
     revalidatePath("/overview");
+    await touchUserSync(session.userId);
     return { success: true };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Gagal membatalkan transaksi";
@@ -201,6 +206,7 @@ export async function updateAccountAction(accountId: string, formData: FormData)
     revalidatePath("/investments");
     revalidatePath("/transactions");
     revalidatePath("/overview");
+    await touchUserSync(session.userId);
     return { success: true };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Gagal memperbarui akun";
@@ -215,6 +221,7 @@ export async function deleteAccountAction(accountId: string) {
     revalidatePath("/investments");
     revalidatePath("/transactions");
     revalidatePath("/overview");
+    await touchUserSync(session.userId);
     return { success: true };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Gagal menghapus akun";
@@ -240,6 +247,7 @@ export async function updateInstrumentAction(instrumentId: string, formData: For
     });
     revalidatePath("/investments");
     revalidatePath("/transactions");
+    await touchUserSync(session.userId);
     return { success: true };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Gagal memperbarui instrumen";
@@ -253,6 +261,7 @@ export async function deleteInstrumentAction(instrumentId: string) {
     await InstrumentsService.deleteInstrument(session.userId, instrumentId);
     revalidatePath("/investments");
     revalidatePath("/transactions");
+    await touchUserSync(session.userId);
     return { success: true };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Gagal menghapus instrumen";
@@ -268,6 +277,7 @@ export async function refreshMarketQuotesAction() {
     revalidatePath("/transactions");
     revalidatePath("/overview");
     revalidatePath("/market-data");
+    await touchUserSync(session.userId);
     return {
       success: true,
       updatedCount: result.updatedCount,

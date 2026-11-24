@@ -4,6 +4,7 @@ import { Header } from "./header";
 import { MobileNav } from "./mobile-nav";
 import { ToastProvider } from "@/presentation/components/ui/toast";
 import { FinancialAdvisorChat } from "@/presentation/components/chat/financial-advisor-chat";
+import { RealtimeSync } from "@/presentation/components/system/realtime-sync";
 import { SessionUser } from "@/lib/auth";
 
 interface AppShellProps {
@@ -16,6 +17,7 @@ interface AppShellProps {
 export function AppShell({ children, title, currency, user }: AppShellProps) {
   return (
     <ToastProvider>
+      <RealtimeSync />
       <div className="flex min-h-screen bg-[#F2F2F7]">
         <Sidebar user={user} />
         <div className="flex flex-1 flex-col overflow-hidden min-w-0">

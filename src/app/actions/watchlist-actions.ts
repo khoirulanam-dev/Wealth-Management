@@ -3,6 +3,7 @@
 import { requireAuth } from "@/lib/auth";
 import { WatchlistService } from "@/application/use-cases/portfolio/watchlist-service";
 import { revalidatePath } from "next/cache";
+import { touchUserSync } from "@/lib/sync";
 
 export async function addToWatchlistAction(formData: FormData) {
   const session = await requireAuth();
@@ -25,6 +26,7 @@ export async function addToWatchlistAction(formData: FormData) {
     });
 
     revalidatePath("/watchlist");
+    await touchUserSync(session.userId);
     return { success: true, ...result };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Gagal menambahkan ke daftar pantauan";
@@ -39,6 +41,7 @@ export async function removeFromWatchlistAction(formData: FormData) {
   try {
     await WatchlistService.removeFromWatchlist(session.userId, watchlistItemId);
     revalidatePath("/watchlist");
+    await touchUserSync(session.userId);
     return { success: true };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Gagal menghapus dari daftar pantauan";
@@ -52,6 +55,7 @@ export async function refreshWatchlistQuotesAction() {
   try {
     const result = await WatchlistService.refreshWatchlistQuotes(session.userId);
     revalidatePath("/watchlist");
+    await touchUserSync(session.userId);
     return { success: true, ...result };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Gagal memperbarui kuotasi pantauan";

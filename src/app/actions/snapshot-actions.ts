@@ -3,6 +3,7 @@
 import { requireAuth } from "@/lib/auth";
 import { SnapshotService } from "@/application/use-cases/analytics/snapshot-service";
 import { revalidatePath } from "next/cache";
+import { touchUserSync } from "@/lib/sync";
 
 export async function captureSnapshotAction() {
   const session = await requireAuth();
@@ -11,6 +12,7 @@ export async function captureSnapshotAction() {
     const snapshot = await SnapshotService.captureSnapshot(session.userId);
     revalidatePath("/overview");
     revalidatePath("/analytics");
+    await touchUserSync(session.userId);
     return { success: true, data: snapshot };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Gagal mengambil snapshot harian";

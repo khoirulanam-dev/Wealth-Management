@@ -3,6 +3,7 @@
 import { requireAuth } from "@/lib/auth";
 import { LiabilityService } from "@/application/use-cases/liabilities/liability-service";
 import { revalidatePath } from "next/cache";
+import { touchUserSync } from "@/lib/sync";
 
 export async function createLiabilityAction(formData: FormData) {
   const session = await requireAuth();
@@ -38,6 +39,7 @@ export async function createLiabilityAction(formData: FormData) {
 
     revalidatePath("/liabilities");
     revalidatePath("/overview");
+    await touchUserSync(session.userId);
     return { success: true, ...result };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Gagal menyimpan liabilitas";
@@ -68,6 +70,7 @@ export async function recordLiabilityPaymentAction(formData: FormData) {
     revalidatePath("/liabilities");
     revalidatePath("/cash");
     revalidatePath("/overview");
+    await touchUserSync(session.userId);
     return { success: true, ...result };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Gagal mencatat pembayaran liabilitas";
@@ -83,6 +86,7 @@ export async function deleteLiabilityAction(formData: FormData) {
     await LiabilityService.deleteLiability(session.userId, liabilityId);
     revalidatePath("/liabilities");
     revalidatePath("/overview");
+    await touchUserSync(session.userId);
     return { success: true };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Gagal menghapus liabilitas";
