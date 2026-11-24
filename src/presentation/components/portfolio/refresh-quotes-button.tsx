@@ -93,28 +93,7 @@ export function RefreshQuotesButton({ className = "" }: { className?: string }) 
   });
 
   return (
-    <div className={`flex items-center gap-1.5 ${className}`}>
-      {/* Auto-Sync 30s Toggle Pill */}
-      <button
-        type="button"
-        onClick={() => setAutoSyncEnabled(!autoSyncEnabled)}
-        title={autoSyncEnabled ? "Auto-update tiap 30 detik aktif. Klik untuk jeda." : "Auto-update dijeda. Klik untuk mengaktifkan."}
-        className={`flex items-center gap-1.5 h-9 px-2.5 rounded-lg border text-xs font-mono transition-all select-none ${
-          autoSyncEnabled
-            ? "border-emerald-200 bg-emerald-50/60 text-emerald-700 hover:bg-emerald-100/60"
-            : "border-slate-200 bg-slate-50 text-[#64748B] hover:bg-slate-100"
-        }`}
-      >
-        <span
-          className={`h-2 w-2 rounded-full ${
-            autoSyncEnabled ? "bg-emerald-500 animate-pulse" : "bg-slate-400"
-          }`}
-        />
-        <span className="hidden sm:inline font-semibold">
-          {autoSyncEnabled ? "Auto 30s" : "Auto Paused"}
-        </span>
-      </button>
-
+    <div className={`flex items-center ${className}`}>
       {/* Manual Refresh Button */}
       <Button
         variant="outline"
@@ -122,9 +101,9 @@ export function RefreshQuotesButton({ className = "" }: { className?: string }) 
         onClick={() => doSync(true)}
         disabled={isRefreshing}
         title={`Terakhir update: ${formattedTime}. Klik untuk refresh sekarang.`}
-        className="gap-2 border-[#E4E8EF] text-[#1E293B] hover:bg-slate-50 font-medium h-9 text-xs"
+        className="w-full sm:w-auto gap-2 border-black/[0.08] bg-white text-[#1C1C1E] hover:bg-black/[0.03] active:scale-[0.98] font-medium h-9 text-xs rounded-xl shadow-2xs transition-all whitespace-nowrap shrink-0"
       >
-        <RefreshCw className={`h-3.5 w-3.5 text-blue-600 ${isRefreshing ? "animate-spin" : ""}`} />
+        <RefreshCw className={`h-3.5 w-3.5 text-[#007AFF] ${isRefreshing ? "animate-spin" : ""}`} />
         <span>{isRefreshing ? "Memperbarui..." : "Refresh Pasar"}</span>
       </Button>
     </div>

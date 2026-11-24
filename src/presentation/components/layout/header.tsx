@@ -19,9 +19,9 @@ export function Header({ title = "Ringkasan Portofolio", currency = "IDR", user 
   return (
     <header className="h-14 sm:h-[60px] flex items-center justify-between border-b border-black/[0.06] bg-white/80 px-4 sm:px-6 backdrop-blur-xl sticky top-0 z-30 transition-all">
       {/* Left: Brand Badge on Mobile & Tablet + Breadcrumb / Title */}
-      <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 pr-2">
+      <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0 pr-2">
         {/* Mobile & Tablet Brand Icon (when sidebar is hidden < lg) */}
-        <div className="flex h-7.5 w-7.5 lg:hidden items-center justify-center rounded-xl bg-[#007AFF] text-white shadow-xs font-black text-xs shrink-0">
+        <div className="flex h-9 w-9 sm:h-10 sm:w-10 lg:hidden items-center justify-center rounded-xl sm:rounded-2xl bg-[#007AFF] text-white shadow-xs font-black text-sm sm:text-base tracking-tight shrink-0">
           W
         </div>
 
@@ -31,7 +31,7 @@ export function Header({ title = "Ringkasan Portofolio", currency = "IDR", user 
           <span>/</span>
         </div>
 
-        <h1 className="text-sm font-bold text-[#1C1C1E] truncate">
+        <h1 className="text-sm sm:text-base font-bold text-[#1C1C1E] truncate">
           {title}
         </h1>
       </div>

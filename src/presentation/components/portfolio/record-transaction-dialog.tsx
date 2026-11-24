@@ -250,22 +250,22 @@ export function RecordTransactionDialog({
   return (
     <>
       {triggerButton ? (
-        <div onClick={() => setIsOpen(true)} className="inline-block cursor-pointer">
+        <div onClick={() => setIsOpen(true)} className="cursor-pointer w-full sm:w-auto">
           {triggerButton}
         </div>
       ) : (
         <Button
           onClick={() => setIsOpen(true)}
-          className="gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-sm h-9 text-xs"
+          className="w-full sm:w-auto gap-1.5 bg-[#007AFF] hover:bg-[#0066D6] active:scale-[0.97] text-white font-semibold shadow-xs h-10 sm:h-9 text-xs rounded-xl transition-all justify-center whitespace-nowrap"
         >
-          <Plus className="h-4 w-4" />
+          <Plus className="h-4 w-4 stroke-[2.5]" />
           Catat Transaksi
         </Button>
       )}
 
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 overflow-y-auto">
-          <div className="relative w-full max-w-2xl sm:max-w-3xl rounded-2xl border border-[#E4E8EF] bg-white p-6 sm:p-7 shadow-xl animate-in fade-in zoom-in-95 duration-150 my-8">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/25 backdrop-blur-md p-4 overflow-y-auto">
+          <div className="relative w-full max-w-2xl sm:max-w-3xl rounded-[24px] border border-black/[0.08] bg-white p-6 sm:p-7 shadow-2xl animate-in fade-in zoom-in-95 duration-150 my-8">
             {/* Header */}
             <div className="flex items-center justify-between pb-4 border-b border-[#E4E8EF]">
               <div className="flex items-center gap-2.5">

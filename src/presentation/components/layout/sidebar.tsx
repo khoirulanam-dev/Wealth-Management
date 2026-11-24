@@ -77,7 +77,7 @@ export function Sidebar({ user }: SidebarProps) {
   const userInitial = displayName.charAt(0).toUpperCase();
 
   return (
-    <aside className="hidden lg:flex w-[252px] flex-col border-r border-black/[0.06] bg-[#FBFBFD]/95 backdrop-blur-2xl sticky top-0 h-screen overflow-y-auto">
+    <aside className="hidden lg:flex w-[260px] flex-col border-r border-black/[0.06] bg-[#FBFBFD]/95 backdrop-blur-2xl sticky top-0 h-screen overflow-y-auto">
       {/* macOS Window Traffic Lights Controls */}
       <div className="flex items-center gap-2 px-5 pt-4 pb-1">
         <span className="h-3 w-3 rounded-full bg-[#FF5F56] border border-[#E0443E]/50 shadow-2xs hover:opacity-85 transition-opacity" />
@@ -87,12 +87,12 @@ export function Sidebar({ user }: SidebarProps) {
 
       {/* Brand Header */}
       <div className="flex items-center gap-3 px-5 py-3 border-b border-black/[0.04]">
-        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#007AFF] text-white shadow-xs font-black text-sm tracking-tighter">
+        <div className="flex h-8.5 w-8.5 items-center justify-center rounded-xl bg-[#007AFF] text-white shadow-xs font-black text-sm tracking-tight">
           W
         </div>
         <div className="flex flex-col">
-          <span className="text-sm font-bold tracking-tight text-[#1C1C1E]">WEALTH OS</span>
-          <span className="text-[10px] font-mono text-[#8E8E93] tracking-wider uppercase">Wealth Management</span>
+          <span className="text-[14px] font-bold tracking-tight text-[#1C1C1E]">WEALTH OS</span>
+          <span className="text-[10.5px] font-mono text-[#8E8E93] tracking-wider uppercase">Wealth Management</span>
         </div>
       </div>
 
@@ -100,7 +100,7 @@ export function Sidebar({ user }: SidebarProps) {
       <div className="flex-1 px-3 py-3 space-y-4">
         {navSections.map((section) => (
           <div key={section.title} className="space-y-1">
-            <div className="px-3 text-[11px] font-mono font-semibold uppercase tracking-wider text-[#8E8E93]">
+            <div className="px-3 text-[11.5px] font-mono font-semibold uppercase tracking-wider text-[#8E8E93]">
               {section.title}
             </div>
             <nav className="space-y-0.5 pt-0.5">
@@ -113,13 +113,13 @@ export function Sidebar({ user }: SidebarProps) {
                     key={item.name}
                     href={item.href}
                     className={cn(
-                      "flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium transition-all active:scale-[0.98]",
+                      "flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13.5px] font-medium transition-all active:scale-[0.98]",
                       isActive
                         ? "text-[#007AFF] bg-[#007AFF]/10 font-semibold shadow-2xs"
                         : "text-[#636366] hover:text-[#1C1C1E] hover:bg-black/[0.03]"
                     )}
                   >
-                    <Icon className={cn("h-4 w-4 shrink-0 transition-colors", isActive ? "text-[#007AFF]" : "text-[#8E8E93]")} />
+                    <Icon className={cn("h-[18px] w-[18px] shrink-0 transition-colors", isActive ? "text-[#007AFF]" : "text-[#8E8E93]")} />
                     <span className="truncate">{item.name}</span>
                   </Link>
                 );
@@ -138,13 +138,13 @@ export function Sidebar({ user }: SidebarProps) {
                 <Image
                   src={user.avatarUrl}
                   alt={displayName}
-                  width={32}
-                  height={32}
+                  width={36}
+                  height={36}
                   unoptimized
-                  className="h-8 w-8 rounded-full object-cover ring-1 ring-black/10"
+                  className="h-9 w-9 rounded-full object-cover ring-1 ring-black/10"
                 />
               ) : (
-                <div className="h-8 w-8 rounded-full bg-gradient-to-br from-[#007AFF] to-[#5856D6] text-white flex items-center justify-center font-bold text-xs shadow-xs">
+                <div className="h-9 w-9 rounded-full bg-gradient-to-br from-[#007AFF] to-[#5856D6] text-white flex items-center justify-center font-bold text-xs shadow-xs">
                   {userInitial}
                 </div>
               )}
@@ -152,10 +152,10 @@ export function Sidebar({ user }: SidebarProps) {
               <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-[#34C759] ring-2 ring-white" />
             </div>
             <div className="flex flex-col min-w-0 flex-1">
-              <span className="text-xs font-bold text-[#1C1C1E] truncate group-hover:text-[#007AFF] transition-colors">
+              <span className="text-[13.5px] font-bold text-[#1C1C1E] truncate group-hover:text-[#007AFF] transition-colors">
                 {displayName}
               </span>
-              <span className="text-[10px] text-[#8E8E93] truncate">
+              <span className="text-[11px] text-[#8E8E93] truncate">
                 {user?.email || "Private Vault"}
               </span>
             </div>
@@ -164,9 +164,9 @@ export function Sidebar({ user }: SidebarProps) {
             <button
               type="submit"
               title="Keluar dari akun"
-              className="h-7 w-7 rounded-lg flex items-center justify-center text-[#8E8E93] hover:text-[#FF3B30] hover:bg-[#FF3B30]/10 transition-colors active:scale-90"
+              className="h-7.5 w-7.5 rounded-lg flex items-center justify-center text-[#8E8E93] hover:text-[#FF3B30] hover:bg-[#FF3B30]/10 transition-colors active:scale-90"
             >
-              <LogOut className="h-3.5 w-3.5" />
+              <LogOut className="h-4 w-4" />
             </button>
           </form>
         </div>

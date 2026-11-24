@@ -92,3 +92,26 @@
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 0, 0, 0.25);
 }
+
+/* Remap arbitrary legacy colors to authentic Apple Design System tokens */
+[class*="text-[#1E293B]"] {
+  color: #1C1C1E !important;
+}
+[class*="text-[#64748B]"] {
+  color: #636366 !important;
+}
+[class*="text-[#94A3B8]"] {
+  color: #8E8E93 !important;
+}
+[class*="border-[#E4E8EF]"] {
+  border-color: rgba(0, 0, 0, 0.07) !important;
+}
+[class*="border-[#EEF1F5]"] {
+  border-color: rgba(0, 0, 0, 0.04) !important;
+}
+[class*="bg-[#F8FAFC]"] {
+  background-color: rgba(0, 0, 0, 0.02) !important;
+}
+[class*="bg-[#F1F5F9]"] {
+  background-color: rgba(0, 0, 0, 0.035) !important;
+}

@@ -134,26 +134,10 @@ export default async function OverviewPage() {
             Konsolidasi menyeluruh posisi aset finansial, portofolio investasi, saldo kas likuid, dan jadwal liabilitas.
           </p>
         </div>
-        {/* Action Buttons Toolbar: High-polish 2-row layout on mobile, single horizontal row on tablet & desktop */}
-        <div className="w-full xl:w-auto flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 shrink-0">
-          {/* Primary Action Button: Top on mobile (order-1), first inline on tablet/desktop (order-1) */}
-          <div className="order-1 w-full sm:w-auto shrink-0">
-            <RecordTransactionDialog
-              accounts={accounts}
-              instruments={instruments}
-              triggerButton={
-                <Button
-                  className="w-full sm:w-auto h-9 px-3.5 gap-1.5 bg-[#007AFF] hover:bg-[#0066D6] active:scale-[0.97] text-white font-semibold text-xs rounded-xl shadow-xs shadow-[#007AFF]/25 transition-all justify-center whitespace-nowrap shrink-0"
-                >
-                  <Plus className="h-4 w-4 stroke-[2.5]" />
-                  Catat Transaksi
-                </Button>
-              }
-            />
-          </div>
-
-          {/* Symmetrical 2x2 Utility Grid on Mobile, Flex Inline on Desktop/Tablet */}
-          <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 order-2 shrink-0">
+        {/* Action Buttons Toolbar: High-polish 2x2 grid + full-width CTA on mobile, single horizontal row on tablet & desktop */}
+        <div className="w-full xl:w-auto flex flex-col sm:flex-row sm:items-center sm:flex-wrap gap-2 shrink-0">
+          {/* Symmetrical 2x2 Utility Grid on Mobile (order-1), Inline on Tablet/Desktop (order-1) */}
+          <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 order-1 shrink-0">
             <SharePortfolioDialog
               netWorth={dispNetWorth.toFixed(2)}
               totalInvestments={dispTotalInvestments.toFixed(2)}
@@ -173,7 +157,7 @@ export default async function OverviewPage() {
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="w-full sm:w-auto h-9 gap-1.5 px-3 text-xs font-medium text-[#1C1C1E] bg-white border-black/[0.08] hover:bg-black/[0.03] rounded-xl justify-center shadow-2xs active:scale-[0.97] transition-all whitespace-nowrap shrink-0"
+                  className="w-full sm:w-auto h-9.5 sm:h-9 gap-1.5 px-3 text-xs font-medium text-[#1C1C1E] bg-white border-black/[0.08] hover:bg-black/[0.03] rounded-xl justify-center shadow-2xs active:scale-[0.97] transition-all whitespace-nowrap shrink-0"
                 >
                   <Share2 className="h-3.5 w-3.5 text-[#007AFF]" />
                   <span className="truncate">Bagikan Portofolio</span>
@@ -181,7 +165,7 @@ export default async function OverviewPage() {
               }
             />
 
-            <CaptureSnapshotButton className="w-full sm:w-auto h-9 gap-1.5 px-3 text-xs font-medium text-[#1C1C1E] bg-white border-black/[0.08] hover:bg-black/[0.03] rounded-xl justify-center shadow-2xs active:scale-[0.97] transition-all whitespace-nowrap shrink-0" />
+            <CaptureSnapshotButton className="w-full sm:w-auto h-9.5 sm:h-9 gap-1.5 px-3 text-xs font-medium text-[#1C1C1E] bg-white border-black/[0.08] hover:bg-black/[0.03] rounded-xl justify-center shadow-2xs active:scale-[0.97] transition-all whitespace-nowrap shrink-0" />
 
             <ExportDialog
               triggerButton={
@@ -189,7 +173,7 @@ export default async function OverviewPage() {
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="w-full sm:w-auto h-9 gap-1.5 px-3 text-xs font-medium text-[#1C1C1E] bg-white border-black/[0.08] hover:bg-black/[0.03] rounded-xl justify-center shadow-2xs active:scale-[0.97] transition-all whitespace-nowrap shrink-0"
+                  className="w-full sm:w-auto h-9.5 sm:h-9 gap-1.5 px-3 text-xs font-medium text-[#1C1C1E] bg-white border-black/[0.08] hover:bg-black/[0.03] rounded-xl justify-center shadow-2xs active:scale-[0.97] transition-all whitespace-nowrap shrink-0"
                 >
                   <Download className="h-3.5 w-3.5 text-[#8E8E93]" />
                   <span className="truncate">Ekspor Data</span>
@@ -203,10 +187,26 @@ export default async function OverviewPage() {
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="w-full sm:w-auto h-9 gap-1.5 px-3 text-xs font-medium text-[#1C1C1E] bg-white border-black/[0.08] hover:bg-black/[0.03] rounded-xl justify-center shadow-2xs active:scale-[0.97] transition-all whitespace-nowrap shrink-0"
+                  className="w-full sm:w-auto h-9.5 sm:h-9 gap-1.5 px-3 text-xs font-medium text-[#1C1C1E] bg-white border-black/[0.08] hover:bg-black/[0.03] rounded-xl justify-center shadow-2xs active:scale-[0.97] transition-all whitespace-nowrap shrink-0"
                 >
                   <Upload className="h-3.5 w-3.5 text-[#007AFF]" />
                   <span className="truncate">Impor Data</span>
+                </Button>
+              }
+            />
+          </div>
+
+          {/* Primary Action Button: Full-width at bottom on mobile (order-2), inline on tablet/desktop (order-2) */}
+          <div className="order-2 w-full sm:w-auto shrink-0">
+            <RecordTransactionDialog
+              accounts={accounts}
+              instruments={instruments}
+              triggerButton={
+                <Button
+                  className="w-full sm:w-auto h-10 sm:h-9 px-3.5 gap-1.5 bg-[#007AFF] hover:bg-[#0066D6] active:scale-[0.97] text-white font-semibold text-xs sm:text-xs rounded-xl shadow-xs shadow-[#007AFF]/25 transition-all justify-center whitespace-nowrap shrink-0"
+                >
+                  <Plus className="h-4 w-4 stroke-[2.5]" />
+                  Catat Transaksi
                 </Button>
               }
             />

@@ -175,23 +175,23 @@ export function ShareAllocationDialog({
       )}
 
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="relative w-full max-w-xl max-h-[92vh] flex flex-col rounded-3xl bg-white shadow-2xl border border-slate-200 overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/25 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="relative w-full max-w-xl max-h-[92vh] flex flex-col rounded-[24px] bg-white shadow-2xl border border-black/[0.08] overflow-hidden">
             {/* Modal Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[#EEF1F5] shrink-0 bg-[#F8FAFC]">
+            <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-black/[0.06] shrink-0 bg-white">
               <div>
-                <h3 className="text-base font-bold text-[#1E293B] flex items-center gap-2">
-                  <Share2 className="h-4 w-4 text-blue-600" />
+                <h3 className="text-base font-bold text-[#1C1C1E] flex items-center gap-2">
+                  <Share2 className="h-4 w-4 text-[#007AFF]" />
                   Bagikan Alokasi Portofolio
                 </h3>
-                <p className="text-xs text-[#64748B]">
+                <p className="text-xs text-[#8E8E93]">
                   Ekspor visual komposisi aset dengan opsi privasi nominal dan watermark anti-manipulasi.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
-                className="h-8 w-8 rounded-full flex items-center justify-center text-[#94A3B8] hover:text-[#1E293B] hover:bg-slate-200/60 transition-colors"
+                className="h-8 w-8 rounded-full flex items-center justify-center text-[#8E8E93] hover:text-[#1C1C1E] bg-black/[0.04] hover:bg-black/[0.08] transition-colors"
               >
                 <X className="h-4 w-4" />
               </button>

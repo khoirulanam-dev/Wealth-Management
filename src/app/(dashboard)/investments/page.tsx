@@ -50,37 +50,44 @@ export default async function InvestmentsPage() {
             Pencatatan kepemilikan saham, reksa dana, emas, dan obligasi dengan weighted-average cost.
           </p>
         </div>
-        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap shrink-0">
-          <RefreshQuotesButton />
-          <div className="h-6 w-px bg-[#E4E8EF] hidden sm:block mx-1" />
-          <AccountDialog
-            triggerButton={
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-1.5 h-9 border-[#E4E8EF] bg-white text-xs font-semibold text-[#1E293B] hover:bg-[#F8FAFC] shadow-sm"
-              >
-                <Building2 className="h-3.5 w-3.5 text-blue-600" />
-                <span className="hidden xl:inline">Tambah</span> Akun
-              </Button>
-            }
-          />
-          <InstrumentDialog
-            triggerButton={
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-1.5 h-9 border-[#E4E8EF] bg-white text-xs font-semibold text-[#1E293B] hover:bg-[#F8FAFC] shadow-sm"
-              >
-                <LineChart className="h-3.5 w-3.5 text-indigo-600" />
-                <span className="hidden xl:inline">Tambah</span> Instrumen
-              </Button>
-            }
-          />
-          <RecordTransactionDialog
-            accounts={accounts}
-            instruments={instruments}
-          />
+        {/* Responsive Toolbar Buttons */}
+        <div className="w-full xl:w-auto flex flex-col sm:flex-row sm:items-center sm:flex-wrap gap-2 shrink-0">
+          {/* Secondary Buttons Grid on Mobile (order-1), Inline on Desktop/Tablet (order-1) */}
+          <div className="grid grid-cols-3 sm:flex sm:items-center gap-2 order-1 shrink-0">
+            <RefreshQuotesButton />
+            <AccountDialog
+              triggerButton={
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full sm:w-auto gap-1.5 h-9.5 sm:h-9 border-black/[0.08] bg-white text-xs font-medium text-[#1C1C1E] hover:bg-black/[0.03] active:scale-[0.98] rounded-xl shadow-2xs transition-all justify-center whitespace-nowrap shrink-0"
+                >
+                  <Building2 className="h-3.5 w-3.5 text-[#007AFF]" />
+                  <span>Akun</span>
+                </Button>
+              }
+            />
+            <InstrumentDialog
+              triggerButton={
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full sm:w-auto gap-1.5 h-9.5 sm:h-9 border-black/[0.08] bg-white text-xs font-medium text-[#1C1C1E] hover:bg-black/[0.03] active:scale-[0.98] rounded-xl shadow-2xs transition-all justify-center whitespace-nowrap shrink-0"
+                >
+                  <LineChart className="h-3.5 w-3.5 text-[#AF52DE]" />
+                  <span>Instrumen</span>
+                </Button>
+              }
+            />
+          </div>
+
+          {/* Primary Action Button: Full-width at bottom on mobile (order-2), inline on tablet/desktop (order-2) */}
+          <div className="order-2 w-full sm:w-auto shrink-0">
+            <RecordTransactionDialog
+              accounts={accounts}
+              instruments={instruments}
+            />
+          </div>
         </div>
       </div>
 

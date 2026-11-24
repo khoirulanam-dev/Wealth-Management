@@ -18,64 +18,64 @@ const config: Config = {
     },
     extend: {
       colors: {
-        // Adminator 2026 Palette
-        body: "#F0F4F8",
+        // Apple iOS & macOS Design System Palette
+        body: "#F2F2F7", // iOS System Grouped Background
         card: {
           DEFAULT: "#FFFFFF",
-          foreground: "#1E293B",
+          foreground: "#1C1C1E",
         },
         sidebar: {
-          DEFAULT: "#FFFFFF",
-          foreground: "#1E293B",
+          DEFAULT: "rgba(251, 251, 253, 0.95)",
+          foreground: "#1C1C1E",
         },
         border: {
-          DEFAULT: "#E4E8EF",
-          soft: "#EEF1F5",
+          DEFAULT: "rgba(0, 0, 0, 0.08)",
+          soft: "rgba(0, 0, 0, 0.04)",
         },
-        input: "#E4E8EF",
-        ring: "#2563EB",
-        background: "#F0F4F8",
-        foreground: "#1E293B",
+        input: "rgba(0, 0, 0, 0.08)",
+        ring: "#007AFF",
+        background: "#F2F2F7",
+        foreground: "#1C1C1E",
         primary: {
-          DEFAULT: "#2563EB",
-          light: "#3B82F6",
-          dark: "#1D4ED8",
-          soft: "#EFF6FF",
+          DEFAULT: "#007AFF", // Apple System Blue
+          light: "#47A3FF",
+          dark: "#0062CC",
+          soft: "#EBF5FF",
           foreground: "#FFFFFF",
         },
         secondary: {
-          DEFAULT: "#F1F5F9",
-          foreground: "#1E293B",
+          DEFAULT: "rgba(0, 0, 0, 0.04)",
+          foreground: "#1C1C1E",
         },
         muted: {
-          DEFAULT: "#F1F5F9",
-          foreground: "#64748B",
-          light: "#94A3B8",
+          DEFAULT: "rgba(0, 0, 0, 0.04)",
+          foreground: "#8E8E93", // Apple Secondary Label
+          light: "#AEAEB2", // Apple Tertiary Label
         },
         accent: {
-          DEFAULT: "#EFF6FF",
-          foreground: "#2563EB",
+          DEFAULT: "#EBF5FF",
+          foreground: "#007AFF",
         },
         destructive: {
-          DEFAULT: "#EF4444",
-          soft: "#FEF2F2",
+          DEFAULT: "#FF3B30", // Apple System Red
+          soft: "#FFEBEA",
           foreground: "#FFFFFF",
         },
         success: {
-          DEFAULT: "#10B981",
-          soft: "#ECFDF5",
+          DEFAULT: "#34C759", // Apple System Green
+          soft: "#EAF9EE",
         },
         warning: {
-          DEFAULT: "#F59E0B",
-          soft: "#FFFBEB",
+          DEFAULT: "#FF9500", // Apple System Orange
+          soft: "#FFF5E5",
         },
         purple: {
-          DEFAULT: "#8B5CF6",
-          soft: "#F5F3FF",
+          DEFAULT: "#AF52DE", // Apple System Purple
+          soft: "#F7EDFC",
         },
         info: {
-          DEFAULT: "#0EA5E9",
-          soft: "#F0F9FF",
+          DEFAULT: "#32ADE6", // Apple System Cyan
+          soft: "#EDF8FD",
         },
       },
       borderRadius: {
