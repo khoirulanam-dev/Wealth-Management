@@ -9,6 +9,10 @@ import {
   Calendar,
   Layers,
   ChevronRight,
+  Plus,
+  Share2,
+  Download,
+  Upload,
 } from "lucide-react";
 import { formatCurrency } from "@/lib/decimal";
 import { requireAuth } from "@/lib/auth";
@@ -22,6 +26,7 @@ import { WatchlistService } from "@/application/use-cases/portfolio/watchlist-se
 import { IncomeService } from "@/application/use-cases/income/income-service";
 import { SnapshotService } from "@/application/use-cases/analytics/snapshot-service";
 import { Decimal } from "decimal.js";
+import { Button } from "@/presentation/components/ui/button";
 import { RecordTransactionDialog } from "@/presentation/components/portfolio/record-transaction-dialog";
 import { NetWorthChart } from "@/presentation/components/analytics/net-worth-chart";
 import { AssetAllocationDonut } from "@/presentation/components/analytics/asset-allocation-donut";
@@ -74,29 +79,81 @@ export default async function OverviewPage() {
             Konsolidasi menyeluruh posisi aset finansial, portofolio investasi, saldo kas likuid, dan jadwal liabilitas.
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
-          <SharePortfolioDialog
-            netWorth={netWorth}
-            totalInvestments={summary.totalMarketValue}
-            totalCash={cashSummary.totalCashBalance}
-            totalLiabilities={liabilitySummary.totalOutstanding}
-            overallReturnPercent={Number(summary.totalUnrealizedPLPercentage) || 0}
-            allocations={analytics.assetAllocation.map((a) => ({
-              category: a.name,
-              value: a.value,
-              percentage: a.percentage,
-              color: a.color,
-            }))}
-            userName={capitalUserName}
-            currency={session.reportingCurrency || "IDR"}
-          />
-          <ExportDialog />
-          <ImportDialog />
-          <CaptureSnapshotButton />
+        {/* Action Buttons Toolbar: High-polish 2-row layout on mobile, horizontal on tablet/desktop */}
+        <div className="w-full xl:w-auto flex flex-col gap-2 shrink-0">
+          {/* Main Primary Action on Mobile */}
           <RecordTransactionDialog
             accounts={accounts}
             instruments={instruments}
+            triggerButton={
+              <Button
+                className="w-full sm:w-auto h-10 px-4 gap-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold text-xs rounded-xl shadow-xs shadow-blue-500/25 transition-all justify-center"
+              >
+                <Plus className="h-4 w-4 stroke-[2.5]" />
+                Catat Transaksi
+              </Button>
+            }
           />
+
+          {/* Symmetrical 2x2 Utility Grid on Mobile, Flex Inline on Desktop/Tablet */}
+          <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2">
+            <SharePortfolioDialog
+              netWorth={netWorth}
+              totalInvestments={summary.totalMarketValue}
+              totalCash={cashSummary.totalCashBalance}
+              totalLiabilities={liabilitySummary.totalOutstanding}
+              overallReturnPercent={Number(summary.totalUnrealizedPLPercentage) || 0}
+              allocations={analytics.assetAllocation.map((a) => ({
+                category: a.name,
+                value: a.value,
+                percentage: a.percentage,
+                color: a.color,
+              }))}
+              userName={capitalUserName}
+              currency={session.reportingCurrency || "IDR"}
+              triggerButton={
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="w-full sm:w-auto h-9 gap-1.5 px-3 text-xs font-medium text-slate-700 bg-white border-slate-200 hover:bg-slate-50 rounded-xl justify-center shadow-2xs"
+                >
+                  <Share2 className="h-3.5 w-3.5 text-blue-600" />
+                  <span className="truncate">Bagikan Portofolio</span>
+                </Button>
+              }
+            />
+
+            <CaptureSnapshotButton className="w-full sm:w-auto h-9 gap-1.5 px-3 text-xs font-medium text-slate-700 bg-white border-slate-200 hover:bg-slate-50 rounded-xl justify-center shadow-2xs" />
+
+            <ExportDialog
+              triggerButton={
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="w-full sm:w-auto h-9 gap-1.5 px-3 text-xs font-medium text-slate-700 bg-white border-slate-200 hover:bg-slate-50 rounded-xl justify-center shadow-2xs"
+                >
+                  <Download className="h-3.5 w-3.5 text-slate-500" />
+                  <span className="truncate">Ekspor Data</span>
+                </Button>
+              }
+            />
+
+            <ImportDialog
+              triggerButton={
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="w-full sm:w-auto h-9 gap-1.5 px-3 text-xs font-medium text-slate-700 bg-white border-slate-200 hover:bg-slate-50 rounded-xl justify-center shadow-2xs"
+                >
+                  <Upload className="h-3.5 w-3.5 text-blue-600" />
+                  <span className="truncate">Impor Data</span>
+                </Button>
+              }
+            />
+          </div>
         </div>
       </section>
 

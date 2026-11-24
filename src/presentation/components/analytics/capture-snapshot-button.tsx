@@ -5,8 +5,13 @@ import { Camera, Loader2 } from "lucide-react";
 import { Button } from "@/presentation/components/ui/button";
 import { useToast } from "@/presentation/components/ui/toast";
 import { captureSnapshotAction } from "@/app/actions/snapshot-actions";
+import { cn } from "@/lib/utils";
 
-export function CaptureSnapshotButton() {
+interface CaptureSnapshotButtonProps {
+  className?: string;
+}
+
+export function CaptureSnapshotButton({ className }: CaptureSnapshotButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -28,7 +33,7 @@ export function CaptureSnapshotButton() {
       size="sm"
       onClick={handleCapture}
       disabled={isLoading}
-      className="gap-2 h-9 border-[#E4E8EF] bg-white text-[#1E293B] hover:bg-[#F8FAFC]"
+      className={cn("gap-2 h-9 border-[#E4E8EF] bg-white text-[#1E293B] hover:bg-[#F8FAFC]", className)}
       title="Ambil snapshot posisi keuangan saat ini"
     >
       {isLoading ? (
