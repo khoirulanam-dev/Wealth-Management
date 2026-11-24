@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
@@ -18,9 +19,15 @@ import {
   X,
   LogOut,
   ChevronRight,
+  User as UserIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logoutAction } from "@/app/actions/auth-actions";
+import { SessionUser } from "@/lib/auth";
+
+interface MobileNavProps {
+  user?: SessionUser | null;
+}
 
 const menuDrawerItems = [
   {
@@ -61,9 +68,12 @@ const menuDrawerItems = [
   },
 ];
 
-export function MobileNav() {
+export function MobileNav({ user }: MobileNavProps) {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const displayName = user?.name || (user?.email ? user.email.split("@")[0] : "Investor");
+  const userInitial = displayName.charAt(0).toUpperCase();
 
   // Check route statuses
   const isOverviewActive = pathname === "/overview";
@@ -80,32 +90,56 @@ export function MobileNav() {
       {/* Slide-Up Menu Drawer & Backdrop */}
       {isMenuOpen && (
         <>
-          {/* Frosted Backdrop */}
+          {/* Frosted Soft Backdrop */}
           <div
             onClick={() => setIsMenuOpen(false)}
-            className="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-xs transition-opacity lg:hidden animate-in fade-in duration-200"
+            className="fixed inset-0 z-40 bg-slate-900/35 backdrop-blur-[2px] transition-all lg:hidden animate-in fade-in-0 duration-200"
           />
 
-          {/* Slide-Up Card Drawer */}
-          <div className="fixed bottom-26 inset-x-3 max-w-md mx-auto z-50 rounded-3xl bg-white/98 backdrop-blur-2xl border border-slate-200/90 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.25)] p-5 lg:hidden animate-in slide-in-from-bottom-4 duration-200">
+          {/* Clean Bright Solid Card Drawer */}
+          <div className="fixed bottom-[84px] inset-x-3 max-w-md mx-auto z-50 rounded-[28px] bg-white border border-slate-200/90 shadow-[0_25px_60px_-15px_rgba(15,23,42,0.22)] p-4 sm:p-5 lg:hidden animate-in fade-in-0 slide-in-from-bottom-5 duration-250 ease-out">
             {/* Top Sheet Handle */}
-            <div className="w-10 h-1 rounded-full bg-slate-300 mx-auto mb-3" />
+            <div className="w-10 h-1 rounded-full bg-slate-200 mx-auto mb-3" />
 
-            <div className="flex items-center justify-between pb-3 border-b border-[#EEF1F5]">
-              <div>
-                <h3 className="text-sm font-bold text-[#1E293B]">Menu &amp; Fitur Lengkap</h3>
-                <p className="text-[11px] text-[#64748B]">Akses cepat instrumen pasar dan sistem</p>
+            {/* Profile Bar in Drawer Header */}
+            <div className="flex items-center justify-between pb-3 mb-1 border-b border-slate-100">
+              <div className="flex items-center gap-2.5 min-w-0">
+                {user?.avatarUrl ? (
+                  <Image
+                    src={user.avatarUrl}
+                    alt={displayName}
+                    width={36}
+                    height={36}
+                    unoptimized
+                    className="h-9 w-9 rounded-full object-cover ring-2 ring-slate-100 shrink-0"
+                  />
+                ) : (
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-white font-bold text-xs shadow-xs shrink-0">
+                    {user ? userInitial : <UserIcon className="h-4 w-4" />}
+                  </div>
+                )}
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs sm:text-sm font-bold text-slate-900 truncate block">{displayName}</span>
+                    <span className="px-1.5 py-0.5 rounded-full bg-blue-50 text-[10px] font-semibold text-blue-600 border border-blue-100">
+                      Akun
+                    </span>
+                  </div>
+                  <span className="text-[11px] text-slate-500 truncate block">{user?.email || "Menu & Navigasi Lengkap"}</span>
+                </div>
               </div>
               <button
                 type="button"
                 onClick={() => setIsMenuOpen(false)}
-                className="h-8 w-8 rounded-full flex items-center justify-center text-[#94A3B8] hover:text-[#1E293B] hover:bg-slate-100 transition-colors"
+                aria-label="Tutup Menu"
+                className="h-8 w-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors shrink-0"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
 
-            <div className="divide-y divide-[#EEF1F5] my-2 max-h-[50vh] overflow-y-auto">
+            {/* Menu Items List */}
+            <div className="space-y-1 my-2 max-h-[50vh] overflow-y-auto pr-0.5">
               {menuDrawerItems.map((item) => {
                 const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
                 const Icon = item.icon;
@@ -115,40 +149,44 @@ export function MobileNav() {
                     href={item.href}
                     onClick={() => setIsMenuOpen(false)}
                     className={cn(
-                      "flex items-center justify-between p-2.5 rounded-2xl transition-colors",
+                      "flex items-center justify-between px-3 py-2.5 rounded-2xl transition-all",
                       isActive
-                        ? "bg-blue-50 text-blue-600 font-semibold"
-                        : "text-[#1E293B] hover:bg-slate-50"
+                        ? "bg-blue-50 border border-blue-200/80 text-blue-700 font-semibold shadow-xs"
+                        : "text-slate-800 hover:bg-slate-50 active:bg-slate-100/80 border border-transparent"
                     )}
                   >
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
                       <div
                         className={cn(
-                          "flex h-9 w-9 items-center justify-center rounded-xl shrink-0 shadow-xs",
+                          "flex h-9 w-9 items-center justify-center rounded-xl shrink-0 transition-colors",
                           isActive
-                            ? "bg-blue-600 text-white shadow-blue-600/30"
-                            : "bg-slate-100 text-[#64748B]"
+                            ? "bg-blue-600 text-white shadow-xs"
+                            : "bg-blue-50 text-blue-600 border border-blue-100/60"
                         )}
                       >
                         <Icon className="h-4.5 w-4.5" />
                       </div>
-                      <div>
-                        <span className="text-xs font-semibold block">{item.name}</span>
-                        <span className="text-[11px] text-[#94A3B8] block">{item.description}</span>
+                      <div className="min-w-0">
+                        <span className={cn("text-xs font-semibold block truncate", isActive ? "text-blue-700" : "text-slate-800")}>
+                          {item.name}
+                        </span>
+                        <span className={cn("text-[11px] block truncate", isActive ? "text-blue-500" : "text-slate-500")}>
+                          {item.description}
+                        </span>
                       </div>
                     </div>
-                    <ChevronRight className="h-4 w-4 text-[#94A3B8]" />
+                    <ChevronRight className={cn("h-4 w-4 shrink-0 transition-transform", isActive ? "text-blue-600 translate-x-0.5" : "text-slate-400")} />
                   </Link>
                 );
               })}
             </div>
 
             {/* Logout shortcut in Drawer */}
-            <div className="pt-2 border-t border-[#EEF1F5]">
+            <div className="pt-2 border-t border-slate-100">
               <form action={logoutAction}>
                 <button
                   type="submit"
-                  className="w-full flex items-center justify-center gap-2 py-2.5 text-xs font-medium text-rose-600 hover:bg-rose-50 rounded-2xl transition-colors"
+                  className="w-full flex items-center justify-center gap-2 py-2.5 text-xs font-medium text-rose-600 hover:text-rose-700 bg-rose-50/70 hover:bg-rose-100 active:bg-rose-200/80 rounded-xl transition-colors"
                 >
                   <LogOut className="h-3.5 w-3.5" />
                   <span>Keluar dari Akun (Logout)</span>

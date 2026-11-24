@@ -436,9 +436,6 @@ Pilih topik cepat di bawah atau tanyakan apa saja seputar portofolio Anda!`,
             </form>
             <div className="flex items-center justify-between pt-2 px-1 text-[10px] text-[#94A3B8]">
               <span>Didukung Gemini AI · Persona CFP Standar FPSB</span>
-              <span className="flex items-center gap-1">
-                <CheckCircle2 className="h-3 w-3 text-emerald-500" /> Data Privat
-              </span>
             </div>
           </div>
         </div>

@@ -26,7 +26,7 @@ export function AppShell({ children, title, currency, user }: AppShellProps) {
             </div>
           </main>
         </div>
-        <MobileNav />
+        <MobileNav user={user} />
         <FinancialAdvisorChat user={user} />
       </div>
     </ToastProvider>

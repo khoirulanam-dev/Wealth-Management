@@ -54,17 +54,17 @@ export function Header({ title = "Ringkasan Portofolio", currency = "IDR", user 
             <Image
               src={user.avatarUrl}
               alt={displayName}
-              width={20}
-              height={20}
+              width={24}
+              height={24}
               unoptimized
-              className="h-5 w-5 rounded-full object-cover"
+              className="h-6 w-6 rounded-full object-cover ring-1 ring-slate-200"
             />
           ) : (
-            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-white text-[10px] font-bold">
-              {user ? userInitial : <User className="h-3 w-3" />}
+            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-white text-[11px] font-bold shadow-xs">
+              {user ? userInitial : <User className="h-3.5 w-3.5" />}
             </div>
           )}
-          <span className="text-xs font-semibold hidden sm:inline truncate max-w-[120px]">
+          <span className="text-xs font-semibold hidden sm:inline truncate max-w-[140px]">
             {displayName}
           </span>
         </Link>
