@@ -155,3 +155,4 @@ export function searchLocalRegistry(query: string): StaticInstrument[] {
     return false;
   }).slice(0, 10);
 }
+

@@ -3,6 +3,7 @@ import { Sidebar } from "./sidebar";
 import { Header } from "./header";
 import { MobileNav } from "./mobile-nav";
 import { ToastProvider } from "@/presentation/components/ui/toast";
+import { FinancialAdvisorChat } from "@/presentation/components/chat/financial-advisor-chat";
 import { SessionUser } from "@/lib/auth";
 
 interface AppShellProps {
@@ -26,6 +27,7 @@ export function AppShell({ children, title, currency, user }: AppShellProps) {
           </main>
         </div>
         <MobileNav />
+        <FinancialAdvisorChat user={user} />
       </div>
     </ToastProvider>
   );
