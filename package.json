@@ -13,6 +13,8 @@
     "db:push": "drizzle-kit push",
     "db:seed": "tsx src/infrastructure/db/seed.ts",
     "db:seed:student": "tsx scripts/seed-student-portfolio.ts",
+    "db:seed:zero": "tsx scripts/reset-zero.ts",
+    "db:reset": "tsx scripts/reset-zero.ts",
     "db:backup": "tsx scripts/backup.ts",
     "db:restore": "tsx scripts/restore.ts",
     "db:studio": "drizzle-kit studio",
