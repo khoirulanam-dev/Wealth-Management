@@ -8,6 +8,7 @@ import { EditCashAccountDialog } from "./edit-cash-account-dialog";
 import { AssetLogo } from "@/presentation/components/ui/asset-logo";
 import { deleteCashAccountAction } from "@/app/actions/cash-actions";
 import { useToast } from "@/presentation/components/ui/toast";
+import { ConfirmDialog } from "@/presentation/components/ui/confirm-dialog";
 import { useState } from "react";
 
 export interface CashAccountItem {
@@ -30,19 +31,21 @@ interface CashAccountsTableProps {
 }
 
 export function CashAccountsTable({ accounts, currency = "IDR" }: CashAccountsTableProps) {
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { toast } = useToast();
 
-  async function handleDeleteAccount(id: string, name: string) {
-    if (!confirm(`Hapus rekening "${name}" beserta seluruh riwayat mutasinya?`)) return;
-    setDeletingId(id);
-    const result = await deleteCashAccountAction(id);
+  async function confirmDeleteAccount() {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    const result = await deleteCashAccountAction(deleteTarget.id);
     if (result.success) {
-      toast.success(`Rekening ${name} berhasil dihapus`);
+      toast.success(`Rekening ${deleteTarget.name} berhasil dihapus`);
+      setDeleteTarget(null);
     } else {
       toast.error(result.error || "Gagal menghapus rekening");
     }
-    setDeletingId(null);
+    setIsDeleting(false);
   }
 
   if (accounts.length === 0) {
@@ -148,9 +151,8 @@ export function CashAccountsTable({ accounts, currency = "IDR" }: CashAccountsTa
                       <span className="text-[#CBD5E1]">·</span>
                       <EditCashAccountDialog account={acc} />
                       <button
-                        disabled={deletingId === acc.id}
-                        onClick={() => handleDeleteAccount(acc.id, acc.name)}
-                        className="rounded p-1 text-[#94A3B8] hover:bg-red-50 hover:text-red-600 transition-colors disabled:opacity-50"
+                        onClick={() => setDeleteTarget({ id: acc.id, name: acc.name })}
+                        className="rounded p-1 text-[#94A3B8] hover:bg-red-50 hover:text-red-600 transition-colors"
                         title="Hapus Rekening"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
@@ -163,6 +165,24 @@ export function CashAccountsTable({ accounts, currency = "IDR" }: CashAccountsTa
           </tbody>
         </table>
       </div>
+
+      <ConfirmDialog
+        isOpen={!!deleteTarget}
+        isLoading={isDeleting}
+        onClose={() => !isDeleting && setDeleteTarget(null)}
+        onConfirm={confirmDeleteAccount}
+        title="Hapus Rekening Kas?"
+        description={
+          deleteTarget ? (
+            <>
+              Apakah Anda yakin ingin menghapus rekening{" "}
+              <strong className="text-[#1E293B]">{deleteTarget.name}</strong> beserta seluruh
+              riwayat mutasinya? Tindakan ini tidak dapat dibatalkan.
+            </>
+          ) : null
+        }
+        confirmText="Hapus Rekening"
+      />
     </div>
   );
 }

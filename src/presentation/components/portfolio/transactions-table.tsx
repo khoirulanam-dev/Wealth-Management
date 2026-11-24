@@ -6,6 +6,7 @@ import { formatCurrency, formatNumber } from "@/lib/decimal";
 import { useToast } from "@/presentation/components/ui/toast";
 import { voidTransactionAction, deleteTransactionAction } from "@/app/actions/portfolio-actions";
 import { AssetLogo } from "@/presentation/components/ui/asset-logo";
+import { ConfirmDialog } from "@/presentation/components/ui/confirm-dialog";
 
 export interface TransactionItem {
   id: string;
@@ -34,7 +35,8 @@ interface TransactionsTableProps {
 
 export function TransactionsTable({ transactions }: TransactionsTableProps) {
   const [voidingId, setVoidingId] = useState<string | null>(null);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteTx, setDeleteTx] = useState<{ id: string; name: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [confirmId, setConfirmId] = useState<string | null>(null);
   const { toast } = useToast();
 
@@ -50,16 +52,17 @@ export function TransactionsTable({ transactions }: TransactionsTableProps) {
     setConfirmId(null);
   }
 
-  async function handleDelete(id: string) {
-    if (!confirm("Hapus transaksi ini secara permanen dari buku besar? Portofolio akan dihitung ulang secara otomatis.")) return;
-    setDeletingId(id);
-    const result = await deleteTransactionAction(id);
+  async function confirmDeleteTx() {
+    if (!deleteTx) return;
+    setIsDeleting(true);
+    const result = await deleteTransactionAction(deleteTx.id);
     if (result.success) {
       toast.success("Transaksi berhasil dihapus secara permanen");
+      setDeleteTx(null);
     } else {
       toast.error(result.error || "Gagal menghapus transaksi");
     }
-    setDeletingId(null);
+    setIsDeleting(false);
   }
 
   if (transactions.length === 0) {
@@ -217,16 +220,16 @@ export function TransactionsTable({ transactions }: TransactionsTableProps) {
                         )
                       )}
                       <button
-                        disabled={deletingId === tx.id}
-                        onClick={() => handleDelete(tx.id)}
-                        className="rounded p-1 text-[#94A3B8] hover:bg-red-50 hover:text-red-600 transition-colors disabled:opacity-50"
+                        onClick={() =>
+                          setDeleteTx({
+                            id: tx.id,
+                            name: `${tx.type.toUpperCase()} ${tx.instrumentSymbol || tx.instrumentName}`,
+                          })
+                        }
+                        className="rounded p-1 text-[#94A3B8] hover:bg-red-50 hover:text-red-600 transition-colors"
                         title="Hapus Transaksi Permanen"
                       >
-                        {deletingId === tx.id ? (
-                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                        ) : (
-                          <Trash2 className="h-3.5 w-3.5" />
-                        )}
+                        <Trash2 className="h-3.5 w-3.5" />
                       </button>
                     </div>
                   </td>
@@ -236,6 +239,23 @@ export function TransactionsTable({ transactions }: TransactionsTableProps) {
           </tbody>
         </table>
       </div>
+
+      <ConfirmDialog
+        isOpen={!!deleteTx}
+        isLoading={isDeleting}
+        onClose={() => !isDeleting && setDeleteTx(null)}
+        onConfirm={confirmDeleteTx}
+        title="Hapus Transaksi Permanen?"
+        description={
+          deleteTx ? (
+            <>
+              Apakah Anda yakin ingin menghapus transaksi{" "}
+              <strong className="text-[#1E293B]">{deleteTx.name}</strong> secara permanen dari buku besar? Portofolio aset akan dihitung ulang secara otomatis.
+            </>
+          ) : null
+        }
+        confirmText="Hapus Transaksi"
+      />
     </div>
   );
 }

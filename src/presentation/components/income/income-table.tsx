@@ -12,6 +12,7 @@ import { deleteIncomeAction } from "@/app/actions/income-actions";
 import { useToast } from "@/presentation/components/ui/toast";
 import { MarkReceivedDialog } from "./mark-received-dialog";
 import { EditIncomeDialog } from "./edit-income-dialog";
+import { ConfirmDialog } from "@/presentation/components/ui/confirm-dialog";
 import { IncomeItemDetail } from "@/application/use-cases/income/income-service";
 import { AssetLogo } from "@/presentation/components/ui/asset-logo";
 
@@ -29,24 +30,25 @@ interface IncomeTableProps {
 }
 
 export function IncomeTable({ items, cashAccounts, onDataChanged }: IncomeTableProps) {
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { toast } = useToast();
 
-  async function handleDelete(id: string, name: string) {
-    if (!confirm(`Hapus catatan pendapatan "${name}"?`)) return;
-
-    setDeletingId(id);
+  async function confirmDeleteIncome() {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
     const formData = new FormData();
-    formData.set("incomeId", id);
+    formData.set("incomeId", deleteTarget.id);
 
     const result = await deleteIncomeAction(formData);
     if (result.success) {
       toast.success("Catatan pendapatan berhasil dihapus");
+      setDeleteTarget(null);
       if (onDataChanged) onDataChanged();
     } else {
       toast.error(result.error || "Gagal menghapus");
     }
-    setDeletingId(null);
+    setIsDeleting(false);
   }
 
   function getTypeLabel(type: string) {
@@ -176,12 +178,11 @@ export function IncomeTable({ items, cashAccounts, onDataChanged }: IncomeTableP
                     <button
                       type="button"
                       onClick={() =>
-                        handleDelete(
-                          item.id,
-                          item.instrumentSymbol || item.instrumentName || "Pendapatan"
-                        )
+                        setDeleteTarget({
+                          id: item.id,
+                          name: item.instrumentSymbol || item.instrumentName || "Pendapatan",
+                        })
                       }
-                      disabled={deletingId === item.id}
                       className="rounded p-1 text-[#94A3B8] hover:bg-red-50 hover:text-red-600 transition-colors"
                       title="Hapus Catatan"
                     >
@@ -194,6 +195,23 @@ export function IncomeTable({ items, cashAccounts, onDataChanged }: IncomeTableP
           })}
         </tbody>
       </table>
+
+      <ConfirmDialog
+        isOpen={!!deleteTarget}
+        isLoading={isDeleting}
+        onClose={() => !isDeleting && setDeleteTarget(null)}
+        onConfirm={confirmDeleteIncome}
+        title="Hapus Catatan Pendapatan?"
+        description={
+          deleteTarget ? (
+            <>
+              Apakah Anda yakin ingin menghapus catatan pendapatan untuk{" "}
+              <strong className="text-[#1E293B]">{deleteTarget.name}</strong>? Tindakan ini tidak dapat dibatalkan.
+            </>
+          ) : null
+        }
+        confirmText="Hapus Pendapatan"
+      />
     </div>
   );
 }

@@ -12,6 +12,7 @@ import { deleteLiabilityAction } from "@/app/actions/liability-actions";
 import { useToast } from "@/presentation/components/ui/toast";
 import { LiabilityPaymentDialog } from "./liability-payment-dialog";
 import { EditLiabilityDialog } from "./edit-liability-dialog";
+import { ConfirmDialog } from "@/presentation/components/ui/confirm-dialog";
 import { Decimal } from "decimal.js";
 import { AssetLogo } from "@/presentation/components/ui/asset-logo";
 
@@ -53,25 +54,25 @@ export function LiabilitiesTable({
   cashAccounts,
   onDataChanged,
 }: LiabilitiesTableProps) {
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { toast } = useToast();
 
-  async function handleDelete(id: string, name: string) {
-    if (!confirm(`Hapus catatan liabilitas "${name}"?`)) return;
-
-    setDeletingId(id);
+  async function confirmDeleteLiability() {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
     const formData = new FormData();
-    formData.set("liabilityId", id);
+    formData.set("liabilityId", deleteTarget.id);
 
     const result = await deleteLiabilityAction(formData);
     if (result.success) {
       toast.success("Liabilitas berhasil dihapus");
-      setDeletingId(null);
+      setDeleteTarget(null);
       if (onDataChanged) onDataChanged();
     } else {
       toast.error(result.error || "Gagal menghapus liabilitas");
-      setDeletingId(null);
     }
+    setIsDeleting(false);
   }
 
   function getTypeLabel(type: string) {
@@ -225,8 +226,7 @@ export function LiabilitiesTable({
                     <EditLiabilityDialog liability={item} onUpdated={onDataChanged} />
                     <button
                       type="button"
-                      onClick={() => handleDelete(item.id, item.name)}
-                      disabled={deletingId === item.id}
+                      onClick={() => setDeleteTarget({ id: item.id, name: item.name })}
                       className="rounded p-1 text-[#94A3B8] hover:bg-red-50 hover:text-red-600 transition-colors"
                       title="Hapus Liabilitas"
                     >
@@ -239,6 +239,23 @@ export function LiabilitiesTable({
           })}
         </tbody>
       </table>
+
+      <ConfirmDialog
+        isOpen={!!deleteTarget}
+        isLoading={isDeleting}
+        onClose={() => !isDeleting && setDeleteTarget(null)}
+        onConfirm={confirmDeleteLiability}
+        title="Hapus Liabilitas?"
+        description={
+          deleteTarget ? (
+            <>
+              Apakah Anda yakin ingin menghapus catatan kewajiban{" "}
+              <strong className="text-[#1E293B]">{deleteTarget.name}</strong>? Seluruh riwayat pembayaran terkait juga akan dihapus.
+            </>
+          ) : null
+        }
+        confirmText="Hapus Liabilitas"
+      />
     </div>
   );
 }

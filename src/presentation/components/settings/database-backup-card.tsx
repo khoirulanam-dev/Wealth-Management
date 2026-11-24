@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Database, CheckCircle2, Trash2, RotateCcw, Plus, Loader2 } from "lucide-react";
 import { Button } from "@/presentation/components/ui/button";
 import { useToast } from "@/presentation/components/ui/toast";
+import { ConfirmDialog } from "@/presentation/components/ui/confirm-dialog";
 import { createDatabaseBackupAction, restoreDatabaseBackupAction, deleteDatabaseBackupAction } from "@/app/actions/backup-actions";
 
 export interface DatabaseBackupItem {
@@ -24,6 +25,8 @@ export function DatabaseBackupCard({ initialBackups }: DatabaseBackupCardProps) 
   const [isCreating, setIsCreating] = useState(false);
   const [restoringId, setRestoringId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [restoreTarget, setRestoreTarget] = useState<{ id: string; name: string } | null>(null);
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const { toast } = useToast();
 
   async function handleCreateBackup() {
@@ -53,16 +56,14 @@ export function DatabaseBackupCard({ initialBackups }: DatabaseBackupCardProps) 
     }
   }
 
-  async function handleRestore(backupId: string, name: string) {
-    if (!window.confirm(`Apakah Anda yakin ingin memulihkan data dari cadangan "${name}"? Tindakan ini akan memperbarui status database saat ini.`)) {
-      return;
-    }
-
-    setRestoringId(backupId);
+  async function confirmRestore() {
+    if (!restoreTarget) return;
+    setRestoringId(restoreTarget.id);
     try {
-      const res = await restoreDatabaseBackupAction(backupId);
+      const res = await restoreDatabaseBackupAction(restoreTarget.id);
       if (res.success) {
-        toast.success(`Berhasil memulihkan cadangan "${name}"!`);
+        toast.success(`Berhasil memulihkan cadangan "${restoreTarget.name}"!`);
+        setRestoreTarget(null);
       } else {
         toast.error(res.error || "Gagal memulihkan cadangan");
       }
@@ -73,15 +74,15 @@ export function DatabaseBackupCard({ initialBackups }: DatabaseBackupCardProps) 
     }
   }
 
-  async function handleDelete(backupId: string) {
-    if (!window.confirm("Hapus catatan cadangan ini dari database?")) return;
-
-    setDeletingId(backupId);
+  async function confirmDelete() {
+    if (!deleteTargetId) return;
+    setDeletingId(deleteTargetId);
     try {
-      const res = await deleteDatabaseBackupAction(backupId);
+      const res = await deleteDatabaseBackupAction(deleteTargetId);
       if (res.success) {
         toast.success("Catatan cadangan berhasil dihapus");
-        setBackups((prev) => prev.filter((b) => b.id !== backupId));
+        setBackups((prev) => prev.filter((b) => b.id !== deleteTargetId));
+        setDeleteTargetId(null);
       } else {
         toast.error(res.error || "Gagal menghapus cadangan");
       }
@@ -178,7 +179,7 @@ export function DatabaseBackupCard({ initialBackups }: DatabaseBackupCardProps) 
                     variant="outline"
                     size="sm"
                     disabled={restoringId === item.id || deletingId === item.id}
-                    onClick={() => handleRestore(item.id, item.name)}
+                    onClick={() => setRestoreTarget({ id: item.id, name: item.name })}
                     className="h-8 gap-1.5 border-[#E4E8EF] bg-white text-xs font-medium text-[#1E293B] hover:bg-slate-50"
                   >
                     {restoringId === item.id ? (
@@ -193,7 +194,7 @@ export function DatabaseBackupCard({ initialBackups }: DatabaseBackupCardProps) 
                     variant="ghost"
                     size="sm"
                     disabled={restoringId === item.id || deletingId === item.id}
-                    onClick={() => handleDelete(item.id)}
+                    onClick={() => setDeleteTargetId(item.id)}
                     className="h-8 w-8 p-0 text-slate-400 hover:text-rose-600 hover:bg-rose-50"
                     title="Hapus cadangan"
                   >
@@ -209,6 +210,34 @@ export function DatabaseBackupCard({ initialBackups }: DatabaseBackupCardProps) 
           })
         )}
       </div>
+
+      <ConfirmDialog
+        isOpen={!!restoreTarget}
+        isLoading={!!restoringId}
+        onClose={() => !restoringId && setRestoreTarget(null)}
+        onConfirm={confirmRestore}
+        variant="warning"
+        title="Pulihkan Cadangan Database?"
+        description={
+          restoreTarget ? (
+            <>
+              Apakah Anda yakin ingin memulihkan data dari cadangan{" "}
+              <strong className="text-[#1E293B]">{restoreTarget.name}</strong>? Status database saat ini akan disesuaikan dengan data cadangan tersebut.
+            </>
+          ) : null
+        }
+        confirmText="Pulihkan Database"
+      />
+
+      <ConfirmDialog
+        isOpen={!!deleteTargetId}
+        isLoading={!!deletingId}
+        onClose={() => !deletingId && setDeleteTargetId(null)}
+        onConfirm={confirmDelete}
+        title="Hapus Cadangan Database?"
+        description="Apakah Anda yakin ingin menghapus catatan cadangan ini dari database? File cadangan ini tidak dapat dipulihkan kembali."
+        confirmText="Hapus Cadangan"
+      />
     </div>
   );
 }

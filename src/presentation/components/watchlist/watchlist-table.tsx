@@ -15,6 +15,7 @@ import { syncSingleInstrumentAction } from "@/app/actions/portfolio-actions";
 import { useToast } from "@/presentation/components/ui/toast";
 import { ManualValuationDialog } from "@/presentation/components/portfolio/manual-valuation-dialog";
 import { ValuationHistoryDialog } from "@/presentation/components/portfolio/valuation-history-dialog";
+import { ConfirmDialog } from "@/presentation/components/ui/confirm-dialog";
 import { WatchlistItemDetail } from "@/application/use-cases/portfolio/watchlist-service";
 import { AssetLogo } from "@/presentation/components/ui/asset-logo";
 
@@ -25,7 +26,8 @@ interface WatchlistTableProps {
 
 export function WatchlistTable({ items, onDataChanged }: WatchlistTableProps) {
   const [syncingId, setSyncingId] = useState<string | null>(null);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { toast } = useToast();
 
   async function handleRefreshSingle(instrumentId: string, symbol: string | null) {
@@ -40,21 +42,21 @@ export function WatchlistTable({ items, onDataChanged }: WatchlistTableProps) {
     setSyncingId(null);
   }
 
-  async function handleDelete(id: string, name: string) {
-    if (!confirm(`Hapus "${name}" dari daftar pantauan?`)) return;
-
-    setDeletingId(id);
+  async function confirmDeleteWatchlist() {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
     const formData = new FormData();
-    formData.set("watchlistItemId", id);
+    formData.set("watchlistItemId", deleteTarget.id);
 
     const result = await removeFromWatchlistAction(formData);
     if (result.success) {
-      toast.success(`"${name}" dihapus dari daftar pantauan`);
+      toast.success(`"${deleteTarget.name}" dihapus dari daftar pantauan`);
+      setDeleteTarget(null);
       if (onDataChanged) onDataChanged();
     } else {
       toast.error(result.error || "Gagal menghapus");
     }
-    setDeletingId(null);
+    setIsDeleting(false);
   }
 
   function getAssetLabel(type: string) {
@@ -199,8 +201,7 @@ export function WatchlistTable({ items, onDataChanged }: WatchlistTableProps) {
 
                   <button
                     type="button"
-                    onClick={() => handleDelete(item.id, item.symbol || item.name)}
-                    disabled={deletingId === item.id}
+                    onClick={() => setDeleteTarget({ id: item.id, name: item.symbol || item.name })}
                     className="rounded p-1 text-[#94A3B8] hover:bg-red-50 hover:text-red-600 transition-colors"
                     title="Hapus dari Watchlist"
                   >
@@ -212,6 +213,22 @@ export function WatchlistTable({ items, onDataChanged }: WatchlistTableProps) {
           ))}
         </tbody>
       </table>
+
+      <ConfirmDialog
+        isOpen={!!deleteTarget}
+        isLoading={isDeleting}
+        onClose={() => !isDeleting && setDeleteTarget(null)}
+        onConfirm={confirmDeleteWatchlist}
+        title="Hapus dari Daftar Pantauan?"
+        description={
+          deleteTarget ? (
+            <>
+              Apakah Anda yakin ingin menghapus <strong className="text-[#1E293B]">{deleteTarget.name}</strong> dari daftar pantauan harga pasar Anda?
+            </>
+          ) : null
+        }
+        confirmText="Hapus dari Pantauan"
+      />
     </div>
   );
 }

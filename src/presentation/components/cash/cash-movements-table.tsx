@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowDownLeft, ArrowUpRight, ArrowRightLeft, SlidersHorizontal, History, Trash2, Loader2 } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, ArrowRightLeft, SlidersHorizontal, History, Trash2 } from "lucide-react";
 import { formatCurrency } from "@/lib/decimal";
 import { deleteCashMovementAction } from "@/app/actions/cash-actions";
 import { useToast } from "@/presentation/components/ui/toast";
+import { ConfirmDialog } from "@/presentation/components/ui/confirm-dialog";
 
 export interface CashMovementItem {
   id: string;
@@ -26,19 +27,21 @@ interface CashMovementsTableProps {
 }
 
 export function CashMovementsTable({ movements }: CashMovementsTableProps) {
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteMovementId, setDeleteMovementId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { toast } = useToast();
 
-  async function handleDelete(id: string) {
-    if (!confirm("Hapus catatan mutasi kas ini? Saldo rekening akan disesuaikan otomatis.")) return;
-    setDeletingId(id);
-    const result = await deleteCashMovementAction(id);
+  async function confirmDeleteMovement() {
+    if (!deleteMovementId) return;
+    setIsDeleting(true);
+    const result = await deleteCashMovementAction(deleteMovementId);
     if (result.success) {
       toast.success("Catatan mutasi berhasil dihapus");
+      setDeleteMovementId(null);
     } else {
       toast.error(result.error || "Gagal menghapus mutasi");
     }
-    setDeletingId(null);
+    setIsDeleting(false);
   }
 
   if (movements.length === 0) {
@@ -180,16 +183,11 @@ export function CashMovementsTable({ movements }: CashMovementsTableProps) {
                   {/* Actions */}
                   <td className="py-3 px-4 text-center whitespace-nowrap">
                     <button
-                      disabled={deletingId === mov.id}
-                      onClick={() => handleDelete(mov.id)}
-                      className="rounded p-1 text-[#94A3B8] hover:bg-red-50 hover:text-red-600 transition-colors disabled:opacity-50"
+                      onClick={() => setDeleteMovementId(mov.id)}
+                      className="rounded p-1 text-[#94A3B8] hover:bg-red-50 hover:text-red-600 transition-colors"
                       title="Hapus Mutasi Kas"
                     >
-                      {deletingId === mov.id ? (
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                      ) : (
-                        <Trash2 className="h-3.5 w-3.5" />
-                      )}
+                      <Trash2 className="h-3.5 w-3.5" />
                     </button>
                   </td>
                 </tr>
@@ -198,6 +196,16 @@ export function CashMovementsTable({ movements }: CashMovementsTableProps) {
           </tbody>
         </table>
       </div>
+
+      <ConfirmDialog
+        isOpen={!!deleteMovementId}
+        isLoading={isDeleting}
+        onClose={() => !isDeleting && setDeleteMovementId(null)}
+        onConfirm={confirmDeleteMovement}
+        title="Hapus Catatan Mutasi Kas?"
+        description="Apakah Anda yakin ingin menghapus catatan mutasi kas ini? Saldo rekening terkait akan disesuaikan kembali secara otomatis."
+        confirmText="Hapus Mutasi"
+      />
     </div>
   );
 }
