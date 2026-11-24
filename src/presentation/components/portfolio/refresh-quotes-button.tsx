@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 
 export function RefreshQuotesButton({ className = "" }: { className?: string }) {
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [autoSyncEnabled, setAutoSyncEnabled] = useState(true);
+  const [autoSyncEnabled] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [lastSyncedTime, setLastSyncedTime] = useState<Date>(() => new Date());
   const { toast } = useToast();

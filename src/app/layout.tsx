@@ -5,13 +5,14 @@ import { PwaInstallPrompt } from "@/presentation/components/pwa/pwa-install-prom
 import "./globals.css";
 
 export const viewport: Viewport = {
-  themeColor: "#2563EB",
+  themeColor: "#007AFF",
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://wealth-management-teal-three.vercel.app"),
   title: "WEALTH OS — Personal Wealth & Investment Management",
   description: "Sistem Manajemen Portofolio & Keuangan Pribadi Privat",
   applicationName: "Wealth OS",

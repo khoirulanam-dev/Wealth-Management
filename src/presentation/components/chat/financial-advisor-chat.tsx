@@ -9,7 +9,6 @@ import {
   Bot,
   User,
   ChevronDown,
-  CheckCircle2,
 } from "lucide-react";
 import { Button } from "@/presentation/components/ui/button";
 import { sendFinancialChatMessageAction } from "@/app/actions/ai-actions";
