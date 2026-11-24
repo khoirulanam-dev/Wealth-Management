@@ -13,6 +13,7 @@ import {
   Share2,
   Download,
   Upload,
+  RefreshCw,
 } from "lucide-react";
 import { formatCurrency } from "@/lib/decimal";
 import { requireAuth } from "@/lib/auth";
@@ -25,6 +26,7 @@ import { LiabilityService } from "@/application/use-cases/liabilities/liability-
 import { WatchlistService } from "@/application/use-cases/portfolio/watchlist-service";
 import { IncomeService } from "@/application/use-cases/income/income-service";
 import { SnapshotService } from "@/application/use-cases/analytics/snapshot-service";
+import { CurrencyService } from "@/application/use-cases/system/currency-service";
 import { Decimal } from "decimal.js";
 import { Button } from "@/presentation/components/ui/button";
 import { RecordTransactionDialog } from "@/presentation/components/portfolio/record-transaction-dialog";
@@ -63,17 +65,70 @@ export default async function OverviewPage() {
     .minus(liabilitySummary.totalOutstanding)
     .toFixed(2);
 
+  const targetCurrency = session.reportingCurrency || "IDR";
+
+  // Convert financial metrics into reporting currency using real-time live FX rates
+  const [
+    dispNetWorth,
+    dispTotalInvestments,
+    dispTotalCash,
+    dispTotalLiabilities,
+    dispIncomeYtd,
+    dispEmergencyFund,
+    fxBadge,
+  ] = await Promise.all([
+    CurrencyService.convert(netWorth, targetCurrency, "IDR"),
+    CurrencyService.convert(summary.totalMarketValue, targetCurrency, "IDR"),
+    CurrencyService.convert(cashSummary.totalCashBalance, targetCurrency, "IDR"),
+    CurrencyService.convert(liabilitySummary.totalOutstanding, targetCurrency, "IDR"),
+    CurrencyService.convert(incomeSummary.totalRealizedYTD, targetCurrency, "IDR"),
+    CurrencyService.convert(cashSummary.emergencyFundCurrent, targetCurrency, "IDR"),
+    CurrencyService.getExchangeRateBadge(targetCurrency),
+  ]);
+
+  const dispAllocations = await Promise.all(
+    analytics.assetAllocation.map(async (a) => {
+      const convVal = await CurrencyService.convert(a.value, targetCurrency, "IDR");
+      return {
+        name: a.name,
+        assetType: a.assetType,
+        value: convVal.toString(),
+        percentage: a.percentage,
+        color: a.color,
+      };
+    })
+  );
+
+  const dispSnapshots = await Promise.all(
+    snapshots.map(async (s) => ({
+      ...s,
+      reportingCurrency: targetCurrency,
+      netWorth: Number((await CurrencyService.convert(s.netWorth, targetCurrency, "IDR")).toFixed(2)),
+      totalInvestments: Number((await CurrencyService.convert(s.totalInvestments, targetCurrency, "IDR")).toFixed(2)),
+      totalCash: Number((await CurrencyService.convert(s.totalCash, targetCurrency, "IDR")).toFixed(2)),
+      totalLiabilities: Number((await CurrencyService.convert(s.totalLiabilities, targetCurrency, "IDR")).toFixed(2)),
+    }))
+  );
+
   return (
     <div className="space-y-6">
       {/* Adminator Hero Section */}
       <section className="flex flex-col xl:flex-row xl:items-end justify-between gap-4 pb-2">
         <div className="space-y-1">
-          <span className="text-xs font-mono font-medium uppercase tracking-wider text-[#94A3B8] flex items-center gap-1.5">
-            <Calendar className="h-3.5 w-3.5 text-blue-600" />
-            Jumat · 20 November 2026
-          </span>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-mono font-medium uppercase tracking-wider text-[#94A3B8] flex items-center gap-1.5">
+              <Calendar className="h-3.5 w-3.5 text-[#007AFF]" />
+              Jumat · 20 November 2026
+            </span>
+            {fxBadge && (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#007AFF]/10 text-[#007AFF] text-[11px] font-medium border border-[#007AFF]/20">
+                <RefreshCw className="h-3 w-3 animate-spin duration-3000" />
+                <span>Kurs Real-Time: {fxBadge}</span>
+              </span>
+            )}
+          </div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#1E293B]">
-            Selamat datang kembali, <span className="text-blue-600">{capitalUserName}</span>
+            Selamat datang kembali, <span className="text-[#007AFF]">{capitalUserName}</span>
           </h1>
           <p className="text-sm text-[#64748B] max-w-2xl leading-relaxed">
             Konsolidasi menyeluruh posisi aset finansial, portofolio investasi, saldo kas likuid, dan jadwal liabilitas.
@@ -81,28 +136,44 @@ export default async function OverviewPage() {
         </div>
         {/* Action Buttons Toolbar: High-polish 2-row layout on mobile, single horizontal row on tablet & desktop */}
         <div className="w-full xl:w-auto flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 shrink-0">
+          {/* Primary Action Button: Top on mobile (order-1), first inline on tablet/desktop (order-1) */}
+          <div className="order-1 w-full sm:w-auto shrink-0">
+            <RecordTransactionDialog
+              accounts={accounts}
+              instruments={instruments}
+              triggerButton={
+                <Button
+                  className="w-full sm:w-auto h-9 px-3.5 gap-1.5 bg-[#007AFF] hover:bg-[#0066D6] active:scale-[0.97] text-white font-semibold text-xs rounded-xl shadow-xs shadow-[#007AFF]/25 transition-all justify-center whitespace-nowrap shrink-0"
+                >
+                  <Plus className="h-4 w-4 stroke-[2.5]" />
+                  Catat Transaksi
+                </Button>
+              }
+            />
+          </div>
+
           {/* Symmetrical 2x2 Utility Grid on Mobile, Flex Inline on Desktop/Tablet */}
-          <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 order-2 sm:order-1">
+          <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 order-2 shrink-0">
             <SharePortfolioDialog
-              netWorth={netWorth}
-              totalInvestments={summary.totalMarketValue}
-              totalCash={cashSummary.totalCashBalance}
-              totalLiabilities={liabilitySummary.totalOutstanding}
+              netWorth={dispNetWorth.toFixed(2)}
+              totalInvestments={dispTotalInvestments.toFixed(2)}
+              totalCash={dispTotalCash.toFixed(2)}
+              totalLiabilities={dispTotalLiabilities.toFixed(2)}
               overallReturnPercent={Number(summary.totalUnrealizedPLPercentage) || 0}
-              allocations={analytics.assetAllocation.map((a) => ({
+              allocations={dispAllocations.map((a) => ({
                 category: a.name,
-                value: a.value,
+                value: parseFloat(a.value),
                 percentage: a.percentage,
                 color: a.color,
               }))}
               userName={capitalUserName}
-              currency={session.reportingCurrency || "IDR"}
+              currency={targetCurrency}
               triggerButton={
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="w-full sm:w-auto h-9 gap-1.5 px-3 text-xs font-medium text-[#1C1C1E] bg-white border-black/[0.08] hover:bg-black/[0.03] rounded-xl justify-center shadow-2xs active:scale-[0.97] transition-all"
+                  className="w-full sm:w-auto h-9 gap-1.5 px-3 text-xs font-medium text-[#1C1C1E] bg-white border-black/[0.08] hover:bg-black/[0.03] rounded-xl justify-center shadow-2xs active:scale-[0.97] transition-all whitespace-nowrap shrink-0"
                 >
                   <Share2 className="h-3.5 w-3.5 text-[#007AFF]" />
                   <span className="truncate">Bagikan Portofolio</span>
@@ -110,7 +181,7 @@ export default async function OverviewPage() {
               }
             />
 
-            <CaptureSnapshotButton className="w-full sm:w-auto h-9 gap-1.5 px-3 text-xs font-medium text-[#1C1C1E] bg-white border-black/[0.08] hover:bg-black/[0.03] rounded-xl justify-center shadow-2xs active:scale-[0.97] transition-all" />
+            <CaptureSnapshotButton className="w-full sm:w-auto h-9 gap-1.5 px-3 text-xs font-medium text-[#1C1C1E] bg-white border-black/[0.08] hover:bg-black/[0.03] rounded-xl justify-center shadow-2xs active:scale-[0.97] transition-all whitespace-nowrap shrink-0" />
 
             <ExportDialog
               triggerButton={
@@ -118,7 +189,7 @@ export default async function OverviewPage() {
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="w-full sm:w-auto h-9 gap-1.5 px-3 text-xs font-medium text-[#1C1C1E] bg-white border-black/[0.08] hover:bg-black/[0.03] rounded-xl justify-center shadow-2xs active:scale-[0.97] transition-all"
+                  className="w-full sm:w-auto h-9 gap-1.5 px-3 text-xs font-medium text-[#1C1C1E] bg-white border-black/[0.08] hover:bg-black/[0.03] rounded-xl justify-center shadow-2xs active:scale-[0.97] transition-all whitespace-nowrap shrink-0"
                 >
                   <Download className="h-3.5 w-3.5 text-[#8E8E93]" />
                   <span className="truncate">Ekspor Data</span>
@@ -132,26 +203,10 @@ export default async function OverviewPage() {
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="w-full sm:w-auto h-9 gap-1.5 px-3 text-xs font-medium text-[#1C1C1E] bg-white border-black/[0.08] hover:bg-black/[0.03] rounded-xl justify-center shadow-2xs active:scale-[0.97] transition-all"
+                  className="w-full sm:w-auto h-9 gap-1.5 px-3 text-xs font-medium text-[#1C1C1E] bg-white border-black/[0.08] hover:bg-black/[0.03] rounded-xl justify-center shadow-2xs active:scale-[0.97] transition-all whitespace-nowrap shrink-0"
                 >
                   <Upload className="h-3.5 w-3.5 text-[#007AFF]" />
                   <span className="truncate">Impor Data</span>
-                </Button>
-              }
-            />
-          </div>
-
-          {/* Primary Action Button: Top on mobile (order-1), inline on tablet/desktop (order-2) */}
-          <div className="order-1 sm:order-2 w-full sm:w-auto">
-            <RecordTransactionDialog
-              accounts={accounts}
-              instruments={instruments}
-              triggerButton={
-                <Button
-                  className="w-full sm:w-auto h-9 px-3.5 gap-1.5 bg-[#007AFF] hover:bg-[#0066D6] active:scale-[0.97] text-white font-semibold text-xs rounded-xl shadow-xs shadow-[#007AFF]/25 transition-all justify-center"
-                >
-                  <Plus className="h-4 w-4 stroke-[2.5]" />
-                  Catat Transaksi
                 </Button>
               }
             />
@@ -175,7 +230,7 @@ export default async function OverviewPage() {
           </div>
           <div>
             <div className="text-3xl font-bold tracking-tight tabular-nums text-[#1E293B]">
-              {formatCurrency(netWorth, "IDR")}
+              {formatCurrency(dispNetWorth, targetCurrency)}
             </div>
           </div>
           <div className="pt-3 border-t border-dashed border-[#EEF1F5] text-xs text-[#94A3B8] flex items-center justify-between">
@@ -197,7 +252,7 @@ export default async function OverviewPage() {
           </div>
           <div>
             <div className="text-3xl font-bold tracking-tight tabular-nums text-[#1E293B]">
-              {formatCurrency(summary.totalMarketValue, "IDR")}
+              {formatCurrency(dispTotalInvestments, targetCurrency)}
             </div>
           </div>
           <div className="pt-3 border-t border-dashed border-[#EEF1F5] text-xs text-[#94A3B8] flex items-center justify-between">
@@ -221,7 +276,7 @@ export default async function OverviewPage() {
           </div>
           <div>
             <div className="text-3xl font-bold tracking-tight tabular-nums text-[#1E293B]">
-              {formatCurrency(cashSummary.totalCashBalance, "IDR")}
+              {formatCurrency(dispTotalCash, targetCurrency)}
             </div>
           </div>
           <div className="pt-3 border-t border-dashed border-[#EEF1F5] text-xs text-[#94A3B8] flex items-center justify-between">
@@ -246,7 +301,7 @@ export default async function OverviewPage() {
           </div>
           <div>
             <div className="text-3xl font-bold tracking-tight tabular-nums text-rose-600">
-              {formatCurrency(liabilitySummary.totalOutstanding, "IDR")}
+              {formatCurrency(dispTotalLiabilities, targetCurrency)}
             </div>
           </div>
           <div className="pt-3 border-t border-dashed border-[#EEF1F5] text-xs text-[#94A3B8] flex items-center justify-between">
@@ -280,7 +335,7 @@ export default async function OverviewPage() {
             </Link>
           </div>
 
-          <NetWorthChart initialData={snapshots} currency="IDR" />
+          <NetWorthChart initialData={dispSnapshots} currency={targetCurrency} />
         </div>
 
         {/* Side Panel: Asset Allocation (4 Columns) */}
@@ -293,13 +348,13 @@ export default async function OverviewPage() {
               <h2 className="text-base font-bold text-[#1E293B]">Alokasi Portofolio</h2>
             </div>
             <ShareAllocationDialog
-              data={analytics.assetAllocation}
+              data={dispAllocations}
               userName={capitalUserName}
-              currency="IDR"
+              currency={targetCurrency}
             />
           </div>
 
-          <AssetAllocationDonut data={analytics.assetAllocation} currency="IDR" />
+          <AssetAllocationDonut data={dispAllocations} currency={targetCurrency} />
         </div>
       </section>
 
@@ -312,7 +367,7 @@ export default async function OverviewPage() {
           <div className="space-y-1">
             <span className="text-xs font-semibold text-[#64748B]">Dividen &amp; Bunga Diterima</span>
             <div className="text-2xl font-bold tabular-nums text-emerald-600 font-mono">
-              {formatCurrency(incomeSummary.totalRealizedYTD, "IDR")}
+              {formatCurrency(dispIncomeYtd, targetCurrency)}
             </div>
             <p className="text-xs text-[#94A3B8]">Realisasi pendapatan tahun {new Date().getFullYear()} &rarr;</p>
           </div>
@@ -323,7 +378,7 @@ export default async function OverviewPage() {
           <div className="space-y-1">
             <span className="text-xs font-semibold text-[#64748B]">Dana Darurat Terkumpul</span>
             <div className="text-2xl font-bold tabular-nums text-[#1E293B]">
-              {formatCurrency(cashSummary.emergencyFundCurrent, "IDR")}
+              {formatCurrency(dispEmergencyFund, targetCurrency)}
             </div>
             <p className="text-xs text-[#94A3B8]">
               {parseFloat(cashSummary.emergencyFundCoverage) > 0

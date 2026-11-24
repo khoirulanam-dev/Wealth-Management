@@ -6,6 +6,7 @@ interface EmergencyFundCardProps {
   targetAmount: string | number;
   coveragePercent: string | number;
   accountCount: number;
+  currency?: string;
 }
 
 export function EmergencyFundCard({
@@ -13,6 +14,7 @@ export function EmergencyFundCard({
   targetAmount,
   coveragePercent,
   accountCount,
+  currency = "IDR",
 }: EmergencyFundCardProps) {
   const currentNum = parseFloat(String(currentAmount)) || 0;
   const targetNum = parseFloat(String(targetAmount)) || 0;
@@ -69,7 +71,7 @@ export function EmergencyFundCard({
             Saldo Dana Darurat Saat Ini
           </span>
           <div className="text-2xl font-bold tracking-tight text-emerald-600 font-mono">
-            {formatCurrency(currentNum, "IDR")}
+            {formatCurrency(currentNum, currency)}
           </div>
           <span className="text-xs text-[#94A3B8] mt-1 block">
             Tersimpan di {accountCount} rekening berlabel dana darurat
@@ -81,11 +83,11 @@ export function EmergencyFundCard({
             Target Kebutuhan Ideal
           </span>
           <div className="text-2xl font-bold tracking-tight text-[#1E293B] font-mono">
-            {isTargetSet ? formatCurrency(targetNum, "IDR") : "Rp 0"}
+            {isTargetSet ? formatCurrency(targetNum, currency) : formatCurrency(0, currency)}
           </div>
           <span className="text-xs text-[#94A3B8] mt-1 block">
             {isTargetSet
-              ? `Kekurangan: ${formatCurrency(Math.max(0, targetNum - currentNum), "IDR")}`
+              ? `Kekurangan: ${formatCurrency(Math.max(0, targetNum - currentNum), currency)}`
               : "Dapat ditentukan saat menambah atau mengedit rekening"}
           </span>
         </div>

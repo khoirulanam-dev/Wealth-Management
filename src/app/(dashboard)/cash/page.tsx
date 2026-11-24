@@ -1,5 +1,6 @@
 import { requireAuth } from "@/lib/auth";
 import { CashService } from "@/application/use-cases/cash/cash-service";
+import { CurrencyService } from "@/application/use-cases/system/currency-service";
 import { formatCurrency } from "@/lib/decimal";
 import { Wallet, ShieldAlert, ArrowRightLeft, ArrowDownUp } from "lucide-react";
 import { CashAccountDialog } from "@/presentation/components/cash/cash-account-dialog";
@@ -10,12 +11,26 @@ import { EmergencyFundCard } from "@/presentation/components/cash/emergency-fund
 
 export default async function CashPage() {
   const session = await requireAuth();
+  const targetCurrency = session.reportingCurrency || "IDR";
 
   const [accounts, movements, summary] = await Promise.all([
     CashService.listCashAccounts(session.userId),
     CashService.listMovements(session.userId, 50),
     CashService.getCashSummary(session.userId),
   ]);
+
+  const [dispTotalCash, dispEmergencyFund, dispEmergencyTarget] = await Promise.all([
+    CurrencyService.convert(summary.totalCashBalance, targetCurrency, "IDR"),
+    CurrencyService.convert(summary.emergencyFundCurrent, targetCurrency, "IDR"),
+    CurrencyService.convert(summary.emergencyFundTarget, targetCurrency, "IDR"),
+  ]);
+
+  const dispAccounts = await Promise.all(
+    accounts.map(async (a) => ({
+      ...a,
+      currentBalance: (await CurrencyService.convert(a.currentBalance, targetCurrency, "IDR")).toFixed(2),
+    }))
+  );
 
   const accountTransferOptions = accounts.map((a) => ({
     id: a.id,
@@ -55,7 +70,7 @@ export default async function CashPage() {
           </div>
           <div>
             <div className="text-2xl font-bold tracking-tight text-[#1E293B] font-mono">
-              {formatCurrency(summary.totalCashBalance, "IDR")}
+              {formatCurrency(dispTotalCash, targetCurrency)}
             </div>
             <p className="text-xs text-[#64748B] mt-1">
               Dari {summary.accountCount} akun terdaftar
@@ -71,7 +86,7 @@ export default async function CashPage() {
           </div>
           <div>
             <div className="text-2xl font-bold tracking-tight text-emerald-600 font-mono">
-              {formatCurrency(summary.emergencyFundCurrent, "IDR")}
+              {formatCurrency(dispEmergencyFund, targetCurrency)}
             </div>
             <p className="text-xs text-[#64748B] mt-1">
               Tercapai {summary.emergencyFundCoverage}% dari target
@@ -114,10 +129,11 @@ export default async function CashPage() {
 
       {/* Emergency Fund Card */}
       <EmergencyFundCard
-        currentAmount={summary.emergencyFundCurrent}
-        targetAmount={summary.emergencyFundTarget}
+        currentAmount={dispEmergencyFund.toFixed(2)}
+        targetAmount={dispEmergencyTarget.toFixed(2)}
         coveragePercent={summary.emergencyFundCoverage}
         accountCount={accounts.filter((a) => a.isEmergencyFund).length}
+        currency={targetCurrency}
       />
 
       {/* Cash Accounts Table */}
@@ -130,7 +146,7 @@ export default async function CashPage() {
             </p>
           </div>
         </div>
-        <CashAccountsTable accounts={accounts} />
+        <CashAccountsTable accounts={dispAccounts} currency={targetCurrency} />
       </div>
 
       {/* Cash Movements Ledger Table */}

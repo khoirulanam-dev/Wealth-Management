@@ -3,6 +3,7 @@ import { IncomeService } from "@/application/use-cases/income/income-service";
 import { InstrumentsService } from "@/application/use-cases/portfolio/instruments-service";
 import { AccountsService } from "@/application/use-cases/portfolio/accounts-service";
 import { CashService } from "@/application/use-cases/cash/cash-service";
+import { CurrencyService } from "@/application/use-cases/system/currency-service";
 import { formatCurrency } from "@/lib/decimal";
 import { PiggyBank, CalendarClock, TrendingUp, Calendar, Layers } from "lucide-react";
 import { IncomeDialog } from "@/presentation/components/income/income-dialog";
@@ -10,6 +11,7 @@ import { IncomeTable } from "@/presentation/components/income/income-table";
 
 export default async function IncomePage() {
   const session = await requireAuth();
+  const targetCurrency = session.reportingCurrency || "IDR";
 
   const [incomeList, summary, instruments, accounts, cashAccounts] = await Promise.all([
     IncomeService.listIncome(session.userId),
@@ -17,6 +19,13 @@ export default async function IncomePage() {
     InstrumentsService.listInstruments(session.userId),
     AccountsService.listAccounts(session.userId),
     CashService.listCashAccounts(session.userId),
+  ]);
+
+  const [dispRealizedYtd, dispForecast, dispLifetime, dispMonthlyAvg] = await Promise.all([
+    CurrencyService.convert(summary.totalRealizedYTD, targetCurrency, "IDR"),
+    CurrencyService.convert(summary.totalForecastUpcoming, targetCurrency, "IDR"),
+    CurrencyService.convert(summary.totalRealizedLifetime, targetCurrency, "IDR"),
+    CurrencyService.convert(summary.monthlyAverageYTD, targetCurrency, "IDR"),
   ]);
 
   const instrumentOptions = instruments.map((i) => ({
@@ -73,7 +82,7 @@ export default async function IncomePage() {
           </div>
           <div>
             <div className="text-2xl font-bold tracking-tight text-emerald-600 font-mono">
-              {formatCurrency(summary.totalRealizedYTD, "IDR")}
+              {formatCurrency(dispRealizedYtd, targetCurrency)}
             </div>
             <p className="text-xs text-[#64748B] mt-1">
               Tahun berjalan ({new Date().getFullYear()})
@@ -91,7 +100,7 @@ export default async function IncomePage() {
           </div>
           <div>
             <div className="text-2xl font-bold tracking-tight text-[#1E293B] font-mono">
-              {formatCurrency(summary.totalForecastUpcoming, "IDR")}
+              {formatCurrency(dispForecast, targetCurrency)}
             </div>
             <p className="text-xs text-[#64748B] mt-1">
               Estimasi dividen &amp; kupon belum cair
@@ -109,7 +118,7 @@ export default async function IncomePage() {
           </div>
           <div>
             <div className="text-2xl font-bold tracking-tight text-[#1E293B] font-mono">
-              {formatCurrency(summary.totalRealizedLifetime, "IDR")}
+              {formatCurrency(dispLifetime, targetCurrency)}
             </div>
             <p className="text-xs text-[#64748B] mt-1">
               Total hasil investasi riil seluruh waktu
@@ -127,7 +136,7 @@ export default async function IncomePage() {
           </div>
           <div>
             <div className="text-2xl font-bold tracking-tight text-[#1E293B] font-mono">
-              {formatCurrency(summary.monthlyAverageYTD, "IDR")}
+              {formatCurrency(dispMonthlyAvg, targetCurrency)}
             </div>
             <p className="text-xs text-[#64748B] mt-1">
               Arus kas pasif bulanan berjalan

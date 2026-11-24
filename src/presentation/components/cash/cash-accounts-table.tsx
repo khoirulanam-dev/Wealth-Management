@@ -22,9 +22,10 @@ export interface CashAccountItem {
 
 interface CashAccountsTableProps {
   accounts: CashAccountItem[];
+  currency?: string;
 }
 
-export function CashAccountsTable({ accounts }: CashAccountsTableProps) {
+export function CashAccountsTable({ accounts, currency = "IDR" }: CashAccountsTableProps) {
   if (accounts.length === 0) {
     return (
       <div className="rounded-2xl border border-[#E4E8EF] bg-white p-12 text-center shadow-card">
@@ -101,7 +102,7 @@ export function CashAccountsTable({ accounts }: CashAccountsTableProps) {
 
                   {/* Balance */}
                   <td className="py-3.5 px-4 text-right font-mono font-bold text-sm text-[#1E293B]">
-                    {formatCurrency(balNum)}
+                    {formatCurrency(balNum, currency)}
                   </td>
 
                   {/* Actions */}

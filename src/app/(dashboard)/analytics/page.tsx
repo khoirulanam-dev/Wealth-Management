@@ -1,5 +1,6 @@
 import { requireAuth } from "@/lib/auth";
 import { SnapshotService } from "@/application/use-cases/analytics/snapshot-service";
+import { CurrencyService } from "@/application/use-cases/system/currency-service";
 import { NetWorthChart } from "@/presentation/components/analytics/net-worth-chart";
 import { AssetAllocationDonut } from "@/presentation/components/analytics/asset-allocation-donut";
 import { ContributionsVsGrowth } from "@/presentation/components/analytics/contributions-vs-growth";
@@ -22,13 +23,66 @@ export const dynamic = "force-dynamic";
 
 export default async function AnalyticsPage() {
   const session = await requireAuth();
+  const currency = session.reportingCurrency || "IDR";
 
   const [snapshots, analytics] = await Promise.all([
     SnapshotService.listSnapshots(session.userId),
     SnapshotService.getAnalytics(session.userId),
   ]);
 
-  const currency = session.reportingCurrency || "IDR";
+  const [
+    dispNetWorth,
+    dispTotalInvestments,
+    dispTotalCash,
+    dispTotalLiabilities,
+    dispCapitalInvested,
+    dispMarketGain,
+    dispUnrealizedPL,
+    dispIncomeYtd,
+  ] = await Promise.all([
+    CurrencyService.convert(analytics.netWorth, currency, "IDR"),
+    CurrencyService.convert(analytics.totalInvestments, currency, "IDR"),
+    CurrencyService.convert(analytics.totalCash, currency, "IDR"),
+    CurrencyService.convert(analytics.totalLiabilities, currency, "IDR"),
+    CurrencyService.convert(analytics.contributionsVsGains.totalCapitalInvested, currency, "IDR"),
+    CurrencyService.convert(analytics.contributionsVsGains.totalMarketGain, currency, "IDR"),
+    CurrencyService.convert(analytics.totalUnrealizedPL, currency, "IDR"),
+    CurrencyService.convert(analytics.totalRealizedIncomeYTD, currency, "IDR"),
+  ]);
+
+  const dispAllocations = await Promise.all(
+    analytics.assetAllocation.map(async (a) => {
+      const convVal = await CurrencyService.convert(a.value, currency, "IDR");
+      return {
+        name: a.name,
+        assetType: a.assetType,
+        value: convVal.toString(),
+        percentage: a.percentage,
+        color: a.color,
+      };
+    })
+  );
+
+  const dispSnapshots = await Promise.all(
+    snapshots.map(async (s) => ({
+      ...s,
+      reportingCurrency: currency,
+      netWorth: Number((await CurrencyService.convert(s.netWorth, currency, "IDR")).toFixed(2)),
+      totalInvestments: Number((await CurrencyService.convert(s.totalInvestments, currency, "IDR")).toFixed(2)),
+      totalCash: Number((await CurrencyService.convert(s.totalCash, currency, "IDR")).toFixed(2)),
+      totalLiabilities: Number((await CurrencyService.convert(s.totalLiabilities, currency, "IDR")).toFixed(2)),
+    }))
+  );
+
+  const dispInstitutions = await Promise.all(
+    analytics.institutionAllocation.map(async (inst) => {
+      const convVal = await CurrencyService.convert(inst.value, currency, "IDR");
+      return {
+        ...inst,
+        value: convVal.toNumber(),
+      };
+    })
+  );
 
   return (
     <div className="space-y-6">
@@ -47,14 +101,14 @@ export default async function AnalyticsPage() {
         </div>
         <div className="flex flex-wrap items-center gap-2.5">
           <SharePortfolioDialog
-            netWorth={analytics.netWorth}
-            totalInvestments={analytics.totalInvestments}
-            totalCash={analytics.totalCash}
-            totalLiabilities={analytics.totalLiabilities}
+            netWorth={dispNetWorth.toFixed(2)}
+            totalInvestments={dispTotalInvestments.toFixed(2)}
+            totalCash={dispTotalCash.toFixed(2)}
+            totalLiabilities={dispTotalLiabilities.toFixed(2)}
             overallReturnPercent={analytics.contributionsVsGains.gainPercentage}
-            allocations={analytics.assetAllocation.map((a) => ({
+            allocations={dispAllocations.map((a) => ({
               category: a.name,
-              value: a.value,
+              value: parseFloat(a.value),
               percentage: a.percentage,
               color: a.color,
             }))}
@@ -75,7 +129,7 @@ export default async function AnalyticsPage() {
             <Wallet className="h-4 w-4 text-blue-600" />
           </div>
           <div className="text-2xl font-bold font-mono text-[#1E293B]">
-            {formatCurrency(analytics.netWorth, currency)}
+            {formatCurrency(dispNetWorth, currency)}
           </div>
           <p className="text-[11px] text-[#94A3B8]">
             Investasi + Saldo Kas - Liabilitas
@@ -89,7 +143,7 @@ export default async function AnalyticsPage() {
             <Wallet className="h-4 w-4 text-purple-600" />
           </div>
           <div className="text-2xl font-bold font-mono text-[#1E293B]">
-            {formatCurrency(analytics.contributionsVsGains.totalCapitalInvested, currency)}
+            {formatCurrency(dispCapitalInvested, currency)}
           </div>
           <p className="text-[11px] text-[#94A3B8]">
             Total modal yang disetorkan
@@ -104,13 +158,13 @@ export default async function AnalyticsPage() {
           </div>
           <div
             className={`text-2xl font-bold font-mono ${
-              parseFloat(analytics.contributionsVsGains.totalMarketGain) >= 0
+              dispMarketGain.greaterThanOrEqualTo(0)
                 ? "text-emerald-600"
                 : "text-red-600"
             }`}
           >
-            {parseFloat(analytics.contributionsVsGains.totalMarketGain) >= 0 ? "+" : ""}
-            {formatCurrency(analytics.contributionsVsGains.totalMarketGain, currency)}
+            {dispMarketGain.greaterThanOrEqualTo(0) ? "+" : ""}
+            {formatCurrency(dispMarketGain, currency)}
           </div>
           <p className="text-[11px] text-[#94A3B8]">
             Return {analytics.contributionsVsGains.gainPercentage >= 0 ? "+" : ""}
@@ -156,7 +210,7 @@ export default async function AnalyticsPage() {
               </div>
             </div>
           </div>
-          <NetWorthChart initialData={snapshots} currency={currency} />
+          <NetWorthChart initialData={dispSnapshots} currency={currency} />
         </div>
 
         {/* Asset Allocation Donut (4 Columns) */}
@@ -174,12 +228,12 @@ export default async function AnalyticsPage() {
               </div>
             </div>
             <ShareAllocationDialog
-              data={analytics.assetAllocation}
+              data={dispAllocations}
               userName={session.name || (session.email ? session.email.split("@")[0] : "Investor")}
               currency={currency}
             />
           </div>
-          <AssetAllocationDonut data={analytics.assetAllocation} currency={currency} />
+          <AssetAllocationDonut data={dispAllocations} currency={currency} />
         </div>
       </div>
 
@@ -201,11 +255,11 @@ export default async function AnalyticsPage() {
             </div>
           </div>
           <ContributionsVsGrowth
-            totalCapitalInvested={analytics.contributionsVsGains.totalCapitalInvested}
-            totalMarketGain={analytics.contributionsVsGains.totalMarketGain}
+            totalCapitalInvested={dispCapitalInvested.toFixed(2)}
+            totalMarketGain={dispMarketGain.toFixed(2)}
             gainPercentage={analytics.contributionsVsGains.gainPercentage}
-            totalUnrealizedPL={analytics.totalUnrealizedPL}
-            totalRealizedIncome={analytics.totalRealizedIncomeYTD}
+            totalUnrealizedPL={dispUnrealizedPL.toFixed(2)}
+            totalRealizedIncome={dispIncomeYtd.toFixed(2)}
             currency={currency}
           />
         </div>
@@ -226,9 +280,9 @@ export default async function AnalyticsPage() {
             </div>
           </div>
 
-          {analytics.institutionAllocation.length > 0 ? (
+          {dispInstitutions.length > 0 ? (
             <div className="space-y-3.5">
-              {analytics.institutionAllocation.map((inst) => (
+              {dispInstitutions.map((inst) => (
                 <div key={inst.name} className="space-y-1.5">
                   <div className="flex items-center justify-between text-xs">
                     <div className="flex items-center gap-2">

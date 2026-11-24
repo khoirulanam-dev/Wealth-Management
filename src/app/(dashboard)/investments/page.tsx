@@ -3,6 +3,7 @@ import { HoldingsService } from "@/application/use-cases/portfolio/holdings-serv
 import { AccountsService } from "@/application/use-cases/portfolio/accounts-service";
 import { InstrumentsService } from "@/application/use-cases/portfolio/instruments-service";
 import { MarketDataSyncService } from "@/application/use-cases/portfolio/market-data-sync-service";
+import { CurrencyService } from "@/application/use-cases/system/currency-service";
 import { formatCurrency } from "@/lib/decimal";
 import { HoldingItem } from "@/presentation/components/portfolio/holdings-table";
 import { AccountItem } from "@/presentation/components/portfolio/accounts-table";
@@ -17,6 +18,7 @@ import { TrendingUp, TrendingDown, Layers, PieChart, Building2, LineChart } from
 
 export default async function InvestmentsPage() {
   const session = await requireAuth();
+  const targetCurrency = session.reportingCurrency || "IDR";
 
   // Automatic daily price sync check (triggers if quotes are > 24 hours old)
   await MarketDataSyncService.autoSyncIfStale(session.userId);
@@ -25,6 +27,12 @@ export default async function InvestmentsPage() {
     HoldingsService.listActiveHoldings(session.userId),
     AccountsService.listAccounts(session.userId),
     InstrumentsService.listInstruments(session.userId),
+  ]);
+
+  const [dispMarketValue, dispCostBasis, dispUnrealizedPL] = await Promise.all([
+    CurrencyService.convert(summary.totalMarketValue, targetCurrency, "IDR"),
+    CurrencyService.convert(summary.totalCostBasis, targetCurrency, "IDR"),
+    CurrencyService.convert(summary.totalUnrealizedPL, targetCurrency, "IDR"),
   ]);
 
   const isProfit = parseFloat(summary.totalUnrealizedPL) >= 0;
@@ -85,7 +93,7 @@ export default async function InvestmentsPage() {
             <PieChart className="h-4 w-4 text-blue-600" />
           </div>
           <div className="text-2xl font-bold text-[#1E293B] font-mono">
-            {formatCurrency(summary.totalMarketValue)}
+            {formatCurrency(dispMarketValue, targetCurrency)}
           </div>
           <span className="text-xs text-[#94A3B8] mt-1 block">
             Berdasarkan valuasi harga pasar terkini
@@ -99,7 +107,7 @@ export default async function InvestmentsPage() {
             <Layers className="h-4 w-4 text-[#475569]" />
           </div>
           <div className="text-2xl font-bold text-[#1E293B] font-mono">
-            {formatCurrency(summary.totalCostBasis)}
+            {formatCurrency(dispCostBasis, targetCurrency)}
           </div>
           <span className="text-xs text-[#94A3B8] mt-1 block">
             Total modal pokok (Weighted Average Basis)
@@ -122,7 +130,7 @@ export default async function InvestmentsPage() {
             }`}
           >
             {isProfit ? "+" : ""}
-            {formatCurrency(summary.totalUnrealizedPL)}
+            {formatCurrency(dispUnrealizedPL, targetCurrency)}
           </div>
           <span
             className={`text-xs font-semibold mt-1 block ${

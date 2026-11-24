@@ -24,7 +24,9 @@ export function formatCurrency(
     return currency === "IDR" ? "Rp 0" : `${currency} 0.00`;
   }
 
-  if (currency === "IDR") {
+  const cur = currency.toUpperCase().trim();
+
+  if (cur === "IDR") {
     // Indonesian Rupiah format: Rp 1.500.000
     const formatted = new Intl.NumberFormat(locale, {
       style: "currency",
@@ -35,9 +37,37 @@ export function formatCurrency(
     return formatted.replace("IDR", "Rp").trim();
   }
 
+  if (cur === "USD") {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: 2,
+      minimumFractionDigits: 2,
+    }).format(num);
+  }
+
+  if (cur === "SGD") {
+    const formatted = new Intl.NumberFormat("en-SG", {
+      style: "currency",
+      currency: "SGD",
+      maximumFractionDigits: 2,
+      minimumFractionDigits: 2,
+    }).format(num);
+    return formatted.replace("SGD", "S$").trim();
+  }
+
+  if (cur === "EUR") {
+    return new Intl.NumberFormat("en-IE", {
+      style: "currency",
+      currency: "EUR",
+      maximumFractionDigits: 2,
+      minimumFractionDigits: 2,
+    }).format(num);
+  }
+
   return new Intl.NumberFormat(locale, {
     style: "currency",
-    currency: currency,
+    currency: cur,
     maximumFractionDigits: 2,
     minimumFractionDigits: 2,
   }).format(num);

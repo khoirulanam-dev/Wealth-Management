@@ -1,6 +1,7 @@
 import { requireAuth } from "@/lib/auth";
 import { LiabilityService } from "@/application/use-cases/liabilities/liability-service";
 import { CashService } from "@/application/use-cases/cash/cash-service";
+import { CurrencyService } from "@/application/use-cases/system/currency-service";
 import { formatCurrency, formatDate } from "@/lib/decimal";
 import { CreditCard, CalendarClock, CheckCircle2, AlertCircle } from "lucide-react";
 import { LiabilityDialog } from "@/presentation/components/liabilities/liability-dialog";
@@ -8,11 +9,21 @@ import { LiabilitiesTable } from "@/presentation/components/liabilities/liabilit
 
 export default async function LiabilitiesPage() {
   const session = await requireAuth();
+  const targetCurrency = session.reportingCurrency || "IDR";
 
   const [liabilitiesList, summary, cashAccounts] = await Promise.all([
     LiabilityService.getLiabilities(session.userId),
     LiabilityService.getSummary(session.userId),
     CashService.listCashAccounts(session.userId),
+  ]);
+
+  const [dispOutstanding, dispOriginal, dispMonthly, dispNextDueAmount] = await Promise.all([
+    CurrencyService.convert(summary.totalOutstanding, targetCurrency, "IDR"),
+    CurrencyService.convert(summary.totalOriginalAmount, targetCurrency, "IDR"),
+    CurrencyService.convert(summary.totalMonthlyCommitment, targetCurrency, "IDR"),
+    summary.nextDuePayment
+      ? CurrencyService.convert(summary.nextDuePayment.amount, targetCurrency, "IDR")
+      : Promise.resolve(null),
   ]);
 
   const cashOptions = cashAccounts.map((c) => ({
@@ -55,10 +66,10 @@ export default async function LiabilitiesPage() {
           </div>
           <div>
             <div className="text-2xl font-bold tracking-tight text-rose-600 font-mono">
-              {formatCurrency(summary.totalOutstanding, "IDR")}
+              {formatCurrency(dispOutstanding, targetCurrency)}
             </div>
             <p className="text-xs text-[#64748B] mt-1">
-              Dari total pokok pinjaman {formatCurrency(summary.totalOriginalAmount, "IDR")}
+              Dari total pokok pinjaman {formatCurrency(dispOriginal, targetCurrency)}
             </p>
           </div>
         </div>
@@ -73,7 +84,7 @@ export default async function LiabilitiesPage() {
           </div>
           <div>
             <div className="text-2xl font-bold tracking-tight text-[#1E293B] font-mono">
-              {formatCurrency(summary.totalMonthlyCommitment, "IDR")}
+              {formatCurrency(dispMonthly, targetCurrency)}
             </div>
             <p className="text-xs text-[#64748B] mt-1">
               Total komitmen pengeluaran rutin bulanan
@@ -100,7 +111,11 @@ export default async function LiabilitiesPage() {
                   {formatDate(summary.nextDuePayment.dueDate)}
                 </div>
                 <p className="text-xs text-[#64748B] mt-1 truncate">
-                  {summary.nextDuePayment.liabilityName} ({formatCurrency(summary.nextDuePayment.amount, "IDR")})
+                  {summary.nextDuePayment.liabilityName} (
+                  {dispNextDueAmount
+                    ? formatCurrency(dispNextDueAmount, targetCurrency)
+                    : formatCurrency(summary.nextDuePayment.amount, targetCurrency)}
+                  )
                 </p>
               </>
             ) : (
