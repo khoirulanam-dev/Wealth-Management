@@ -13,6 +13,12 @@ const nextConfig: NextConfig = {
     ],
   },
   images: {
+    localPatterns: [
+      {
+        pathname: "/**",
+        search: "*",
+      },
+    ],
     remotePatterns: [
       { protocol: "https", hostname: "assets.stockbit.com" },
       { protocol: "https", hostname: "assets.coincap.io" },

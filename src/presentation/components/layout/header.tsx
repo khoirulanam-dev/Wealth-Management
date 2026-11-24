@@ -18,28 +18,28 @@ export function Header({ title = "Ringkasan Portofolio", currency = "IDR", user 
   const userInitial = displayName.charAt(0).toUpperCase();
   return (
     <header className="h-14 sm:h-[60px] flex items-center justify-between border-b border-[#E4E8EF] bg-white/95 px-4 sm:px-6 backdrop-blur-md sticky top-0 z-30">
-      {/* Left: Brand Badge on Mobile + Breadcrumb / Title */}
-      <div className="flex items-center gap-2 sm:gap-3 min-w-0 pr-2">
-        {/* Mobile Brand Icon */}
-        <div className="flex h-7 w-7 sm:hidden items-center justify-center rounded-lg bg-blue-600 text-white shadow-xs font-black text-xs shrink-0">
+      {/* Left: Brand Badge on Mobile & Tablet + Breadcrumb / Title */}
+      <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 pr-2">
+        {/* Mobile & Tablet Brand Icon (when sidebar is hidden < lg) */}
+        <div className="flex h-7.5 w-7.5 lg:hidden items-center justify-center rounded-xl bg-blue-600 text-white shadow-xs font-black text-xs shrink-0">
           W
         </div>
 
-        {/* Desktop Breadcrumb */}
-        <div className="hidden sm:flex items-center gap-2 text-xs text-[#94A3B8] shrink-0">
+        {/* Desktop Breadcrumb (when sidebar is visible >= lg) */}
+        <div className="hidden lg:flex items-center gap-2 text-xs text-[#94A3B8] shrink-0">
           <span>WEALTH OS</span>
           <span>/</span>
         </div>
 
-        <h1 className="text-sm sm:text-sm font-bold text-[#1E293B] truncate">
+        <h1 className="text-sm font-bold text-[#1E293B] truncate">
           {title}
         </h1>
       </div>
 
       {/* Right Controls */}
       <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-        {/* Currency context indicator: Hidden on mobile to avoid cramped wrapping */}
-        <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#F8FAFC] border border-[#E4E8EF] text-xs text-[#64748B]">
+        {/* Currency context indicator: Visible on desktop */}
+        <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#F8FAFC] border border-[#E4E8EF] text-xs text-[#64748B]">
           <span>Mata Uang:</span>
           <span className="font-semibold font-mono text-[#1E293B]">{currency}</span>
         </div>

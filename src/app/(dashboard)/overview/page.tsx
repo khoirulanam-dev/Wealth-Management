@@ -61,7 +61,7 @@ export default async function OverviewPage() {
   return (
     <div className="space-y-6">
       {/* Adminator Hero Section */}
-      <section className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-2">
+      <section className="flex flex-col xl:flex-row xl:items-end justify-between gap-4 pb-2">
         <div className="space-y-1">
           <span className="text-xs font-mono font-medium uppercase tracking-wider text-[#94A3B8] flex items-center gap-1.5">
             <Calendar className="h-3.5 w-3.5 text-blue-600" />
@@ -74,7 +74,7 @@ export default async function OverviewPage() {
             Konsolidasi menyeluruh posisi aset finansial, portofolio investasi, saldo kas likuid, dan jadwal liabilitas.
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
           <SharePortfolioDialog
             netWorth={netWorth}
             totalInvestments={summary.totalMarketValue}

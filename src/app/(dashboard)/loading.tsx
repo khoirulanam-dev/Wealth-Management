@@ -2,7 +2,7 @@ export default function DashboardLoading() {
   return (
     <div className="space-y-6 animate-pulse">
       {/* Top Header Skeleton */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-2 border-b border-[#E4E8EF]/50">
+      <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-4 pb-2 border-b border-[#E4E8EF]/50">
         <div className="space-y-2">
           <div className="h-3 w-32 bg-slate-200 rounded" />
           <div className="h-8 w-64 bg-slate-200 rounded-lg" />
