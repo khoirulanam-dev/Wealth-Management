@@ -7,6 +7,9 @@ import { CreditCard, CalendarClock, CheckCircle2, AlertCircle } from "lucide-rea
 import { LiabilityDialog } from "@/presentation/components/liabilities/liability-dialog";
 import { LiabilitiesTable } from "@/presentation/components/liabilities/liabilities-table";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function LiabilitiesPage() {
   const session = await requireAuth();
   const targetCurrency = session.reportingCurrency || "IDR";

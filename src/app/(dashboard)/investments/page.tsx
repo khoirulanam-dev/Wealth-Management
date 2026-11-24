@@ -16,6 +16,9 @@ import { RefreshQuotesButton } from "@/presentation/components/portfolio/refresh
 import { Button } from "@/presentation/components/ui/button";
 import { TrendingUp, TrendingDown, Layers, PieChart, Building2, LineChart, Plus } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function InvestmentsPage() {
   const session = await requireAuth();
   const targetCurrency = session.reportingCurrency || "IDR";

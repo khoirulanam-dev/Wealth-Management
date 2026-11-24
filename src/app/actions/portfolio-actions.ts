@@ -345,6 +345,7 @@ export async function recordManualValuationAction(formData: FormData) {
     revalidatePath("/market-data");
     revalidatePath("/watchlist");
     revalidatePath("/overview");
+    await touchUserSync(session.userId);
     return { success: true, ...result };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Gagal menyimpan valuasi manual";
@@ -360,6 +361,7 @@ export async function syncSingleInstrumentAction(instrumentId: string) {
     revalidatePath("/market-data");
     revalidatePath("/watchlist");
     revalidatePath("/overview");
+    await touchUserSync(session.userId);
     return result;
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Gagal memperbarui kuotasi instrumen";

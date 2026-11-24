@@ -9,6 +9,9 @@ import { InstrumentDialog } from "@/presentation/components/portfolio/instrument
 import { History, Plus, Building2, LineChart } from "lucide-react";
 import { Button } from "@/presentation/components/ui/button";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function TransactionsPage() {
   const session = await requireAuth();
 

@@ -9,6 +9,9 @@ import { PiggyBank, CalendarClock, TrendingUp, Calendar, Layers } from "lucide-r
 import { IncomeDialog } from "@/presentation/components/income/income-dialog";
 import { IncomeTable } from "@/presentation/components/income/income-table";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function IncomePage() {
   const session = await requireAuth();
   const targetCurrency = session.reportingCurrency || "IDR";

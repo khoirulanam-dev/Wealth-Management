@@ -3,8 +3,24 @@
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 
+// Global tracker for mutations made locally on THIS client session
+let lastLocalMutationTimestamp = 0;
+
+export function markLocalMutation() {
+  lastLocalMutationTimestamp = Date.now();
+  if (typeof window !== "undefined") {
+    try {
+      const channel = new BroadcastChannel("wealth_os_sync");
+      channel.postMessage({ type: "LOCAL_MUTATION", timestamp: Date.now() });
+      channel.close();
+    } catch {
+      // Ignore BroadcastChannel errors
+    }
+  }
+}
+
 /**
- * RealtimeSync provides seamless, instant synchronization across devices (e.g. mobile phone -> laptop)
+ * RealtimeSync provides instant synchronization across devices (e.g. mobile phone -> laptop)
  * and multi-tab sessions without requiring manual browser refresh.
  */
 export function RealtimeSync() {
@@ -13,48 +29,92 @@ export function RealtimeSync() {
   const isRefreshingRef = useRef(false);
 
   useEffect(() => {
-    // 1. Instant multi-tab synchronization on the same device via BroadcastChannel (< 1ms)
+    // 1. Detect any form submissions or button clicks on this page to mark as local mutation
+    const handleLocalSubmit = () => {
+      lastLocalMutationTimestamp = Date.now();
+    };
+    const handleLocalClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (target?.closest("button") || target?.closest("form")) {
+        lastLocalMutationTimestamp = Date.now();
+      }
+    };
+    window.addEventListener("submit", handleLocalSubmit, true);
+    window.addEventListener("click", handleLocalClick, true);
+
+    // 2. BroadcastChannel for instant multi-tab sync on this same machine
     let channel: BroadcastChannel | null = null;
     try {
       if (typeof window !== "undefined" && "BroadcastChannel" in window) {
         channel = new BroadcastChannel("wealth_os_sync");
         channel.onmessage = (event) => {
-          if (event.data?.type === "DATA_CHANGED") {
+          if (event.data?.type === "LOCAL_MUTATION") {
+            lastLocalMutationTimestamp = event.data.timestamp || Date.now();
             router.refresh();
           }
         };
       }
     } catch {
-      // Ignore if not supported in environment
+      // Ignore if not supported
     }
 
-    // 2. Cross-device synchronization via lightweight version heartbeat
+    // 3. Cross-device synchronization via lightweight version heartbeat
     let intervalId: NodeJS.Timeout | null = null;
 
     async function checkVersion() {
       if (isRefreshingRef.current) return;
       try {
-        const res = await fetch("/api/sync/version", {
+        // Cache-busting parameter + no-cache headers guarantees fresh response from server
+        const res = await fetch(`/api/sync/version?_t=${Date.now()}`, {
           cache: "no-store",
-          headers: { "Cache-Control": "no-cache" },
+          headers: {
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            Pragma: "no-cache",
+          },
+          credentials: "include",
         });
+
         if (!res.ok) return;
         const data = await res.json();
-        const remoteVersion = Number(data.version);
+        if (!data || typeof data.version !== "number") return;
+        const remoteVersion = data.version;
 
+        // Initialize on first successful heartbeat
         if (lastVersionRef.current === null) {
           lastVersionRef.current = remoteVersion;
           return;
         }
 
-        // If data was mutated on another device (e.g. smartphone), refresh Server Components smoothly
+        // If data version increased (someone mutated data in the database):
         if (remoteVersion > lastVersionRef.current) {
           lastVersionRef.current = remoteVersion;
-          isRefreshingRef.current = true;
-          router.refresh();
-          setTimeout(() => {
-            isRefreshingRef.current = false;
-          }, 1500);
+
+          // Check if this device triggered the mutation recently (< 4 seconds)
+          const timeSinceLocal = Date.now() - lastLocalMutationTimestamp;
+          const isLocal = timeSinceLocal < 4000;
+
+          if (isLocal) {
+            // Already handled by local Server Action response
+            router.refresh();
+          } else {
+            // DATA WAS MODIFIED ON ANOTHER DEVICE (e.g. smartphone)!
+            // Check if user is actively typing in an input on this device
+            const isTyping = Boolean(
+              document.activeElement &&
+                (document.activeElement.tagName === "INPUT" ||
+                  document.activeElement.tagName === "TEXTAREA" ||
+                  document.activeElement.getAttribute("contenteditable") === "true")
+            );
+
+            if (!isTyping) {
+              isRefreshingRef.current = true;
+              // Instantly reload page so laptop gets 100% fresh Server Component state
+              window.location.reload();
+            } else {
+              // Soft refresh so we don't clear the user's active typing
+              router.refresh();
+            }
+          }
         }
       } catch {
         // Silently tolerate transient offline/network transitions
@@ -64,10 +124,10 @@ export function RealtimeSync() {
     // Initial check on mount
     checkVersion();
 
-    // Responsive polling interval: 3 seconds when active, 15 seconds when backgrounded
+    // Responsive polling interval: 2 seconds when tab is active, 8 seconds when hidden
     const startPolling = () => {
       if (intervalId) clearInterval(intervalId);
-      const delay = document.visibilityState === "visible" ? 3000 : 15000;
+      const delay = document.visibilityState === "visible" ? 2000 : 8000;
       intervalId = setInterval(checkVersion, delay);
     };
 
@@ -91,6 +151,8 @@ export function RealtimeSync() {
     return () => {
       if (intervalId) clearInterval(intervalId);
       if (channel) channel.close();
+      window.removeEventListener("submit", handleLocalSubmit, true);
+      window.removeEventListener("click", handleLocalClick, true);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       window.removeEventListener("focus", handleFocus);
     };
@@ -98,4 +160,3 @@ export function RealtimeSync() {
 
   return null;
 }
-

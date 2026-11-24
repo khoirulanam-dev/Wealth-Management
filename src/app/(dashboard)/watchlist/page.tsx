@@ -6,6 +6,9 @@ import { RefreshWatchlistButton } from "@/presentation/components/watchlist/refr
 import { WatchlistTable } from "@/presentation/components/watchlist/watchlist-table";
 import { formatDate } from "@/lib/decimal";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function WatchlistPage() {
   const session = await requireAuth();
 

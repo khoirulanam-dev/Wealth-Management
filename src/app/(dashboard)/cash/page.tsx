@@ -9,6 +9,9 @@ import { CashAccountsTable } from "@/presentation/components/cash/cash-accounts-
 import { CashMovementsTable } from "@/presentation/components/cash/cash-movements-table";
 import { EmergencyFundCard } from "@/presentation/components/cash/emergency-fund-card";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function CashPage() {
   const session = await requireAuth();
   const targetCurrency = session.reportingCurrency || "IDR";

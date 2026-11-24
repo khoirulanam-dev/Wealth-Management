@@ -38,6 +38,9 @@ import { ImportDialog } from "@/presentation/components/import-export/import-dia
 import { SharePortfolioDialog } from "@/presentation/components/import-export/share-portfolio-dialog";
 import { ShareAllocationDialog } from "@/presentation/components/analytics/share-allocation-dialog";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function OverviewPage() {
   const session = await requireAuth();
 
