@@ -255,9 +255,9 @@ Pilih topik cepat di bawah atau tanyakan apa saja seputar portofolio Anda!`,
             type="button"
             onClick={() => setIsOpen(true)}
             aria-label="Buka AI Financial Advisor"
-            className="group relative flex h-13 w-13 items-center justify-center rounded-2xl bg-gradient-to-tr from-blue-700 via-blue-600 to-indigo-600 text-white shadow-[0_8px_25px_rgba(37,99,235,0.35)] hover:shadow-[0_12px_32px_rgba(37,99,235,0.45)] hover:scale-105 active:scale-95 transition-all duration-200 border border-white/20"
+            className="group relative flex h-15 w-15 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-gradient-to-tr from-blue-700 via-blue-600 to-indigo-600 text-white shadow-[0_10px_30px_rgba(37,99,235,0.4)] hover:shadow-[0_14px_36px_rgba(37,99,235,0.5)] hover:scale-105 active:scale-95 transition-all duration-200 border border-white/20"
           >
-            <Sparkles className="h-6 w-6 text-white group-hover:rotate-12 transition-transform duration-300" />
+            <Sparkles className="h-7.5 w-7.5 sm:h-8 sm:w-8 text-white group-hover:rotate-12 transition-transform duration-300" />
             
             {/* Pulsating badge indicator */}
             {!hasInteracted && (
