@@ -1,15 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { Mail, Lock, ArrowRight, AlertCircle, Loader2, Eye, EyeOff } from "lucide-react";
+import { Mail, Lock, ArrowRight, AlertCircle, Loader2, Eye, EyeOff, Check } from "lucide-react";
 import { Button } from "@/presentation/components/ui/button";
 import { Input } from "@/presentation/components/ui/input";
 import { loginAction } from "@/app/actions/auth-actions";
+import { cn } from "@/lib/utils";
 
 export function LoginForm() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -91,18 +93,38 @@ export function LoginForm() {
         </div>
       </div>
 
-      {/* Keep me signed in checkbox */}
-      <div className="flex items-center gap-2 pt-1">
+      {/* Keep me signed in custom wrapped card */}
+      <label
+        htmlFor="remember"
+        className="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-black/[0.06] bg-black/[0.02] hover:bg-black/[0.04] hover:border-black/[0.1] active:scale-[0.99] transition-all cursor-pointer select-none group"
+      >
         <input
           id="remember"
+          name="remember"
           type="checkbox"
-          defaultChecked
-          className="h-4 w-4 rounded border-[#E4E8EF] text-blue-600 focus:ring-blue-500"
+          checked={rememberMe}
+          onChange={(e) => setRememberMe(e.target.checked)}
+          className="sr-only"
         />
-        <label htmlFor="remember" className="text-xs text-[#64748B] select-none cursor-pointer">
-          Ingat sesi saya di perangkat ini
-        </label>
-      </div>
+        <div
+          className={cn(
+            "h-4.5 w-4.5 rounded-md flex items-center justify-center transition-all shadow-2xs shrink-0",
+            rememberMe
+              ? "bg-[#007AFF] border border-[#007AFF] text-white"
+              : "bg-white border border-[#C7C7CC] text-transparent group-hover:border-[#8E8E93]"
+          )}
+        >
+          <Check className="h-3 w-3 stroke-[3]" />
+        </div>
+        <div className="flex flex-col text-left">
+          <span className="text-xs font-semibold text-[#1C1C1E] group-hover:text-black transition-colors">
+            Ingat sesi saya di perangkat ini
+          </span>
+          <span className="text-[11px] text-[#8E8E93]">
+            Tetap masuk agar tidak perlu login berulang
+          </span>
+        </div>
+      </label>
 
       {/* Adminator Primary Submit Button */}
       <Button
