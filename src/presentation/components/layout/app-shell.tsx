@@ -16,7 +16,7 @@ interface AppShellProps {
 export function AppShell({ children, title, currency, user }: AppShellProps) {
   return (
     <ToastProvider>
-      <div className="flex min-h-screen bg-[#F0F4F8]">
+      <div className="flex min-h-screen bg-[#F2F2F7]">
         <Sidebar user={user} />
         <div className="flex flex-1 flex-col overflow-hidden min-w-0">
           <Header title={title} currency={currency} user={user} />

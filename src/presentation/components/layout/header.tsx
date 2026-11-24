@@ -17,21 +17,21 @@ export function Header({ title = "Ringkasan Portofolio", currency = "IDR", user 
   const displayName = user?.name || (user?.email ? user.email.split("@")[0] : "Profil");
   const userInitial = displayName.charAt(0).toUpperCase();
   return (
-    <header className="h-14 sm:h-[60px] flex items-center justify-between border-b border-[#E4E8EF] bg-white/95 px-4 sm:px-6 backdrop-blur-md sticky top-0 z-30">
+    <header className="h-14 sm:h-[60px] flex items-center justify-between border-b border-black/[0.06] bg-white/80 px-4 sm:px-6 backdrop-blur-xl sticky top-0 z-30 transition-all">
       {/* Left: Brand Badge on Mobile & Tablet + Breadcrumb / Title */}
       <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 pr-2">
         {/* Mobile & Tablet Brand Icon (when sidebar is hidden < lg) */}
-        <div className="flex h-7.5 w-7.5 lg:hidden items-center justify-center rounded-xl bg-blue-600 text-white shadow-xs font-black text-xs shrink-0">
+        <div className="flex h-7.5 w-7.5 lg:hidden items-center justify-center rounded-xl bg-[#007AFF] text-white shadow-xs font-black text-xs shrink-0">
           W
         </div>
 
         {/* Desktop Breadcrumb (when sidebar is visible >= lg) */}
-        <div className="hidden lg:flex items-center gap-2 text-xs text-[#94A3B8] shrink-0">
-          <span>WEALTH OS</span>
+        <div className="hidden lg:flex items-center gap-2 text-xs text-[#8E8E93] shrink-0">
+          <span className="font-semibold">WEALTH OS</span>
           <span>/</span>
         </div>
 
-        <h1 className="text-sm font-bold text-[#1E293B] truncate">
+        <h1 className="text-sm font-bold text-[#1C1C1E] truncate">
           {title}
         </h1>
       </div>
@@ -39,15 +39,15 @@ export function Header({ title = "Ringkasan Portofolio", currency = "IDR", user 
       {/* Right Controls */}
       <div className="flex items-center gap-2 sm:gap-3 shrink-0">
         {/* Currency context indicator: Visible on desktop */}
-        <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#F8FAFC] border border-[#E4E8EF] text-xs text-[#64748B]">
+        <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/[0.04] border border-black/[0.05] text-xs text-[#636366]">
           <span>Mata Uang:</span>
-          <span className="font-semibold font-mono text-[#1E293B]">{currency}</span>
+          <span className="font-semibold font-mono text-[#1C1C1E]">{currency}</span>
         </div>
 
-        {/* User Profile */}
+        {/* User Profile Pill */}
         <Link
           href="/settings"
-          className="flex items-center gap-2 h-8 px-2 sm:px-2.5 rounded-lg border border-[#E4E8EF] bg-[#F8FAFC] hover:bg-slate-100 text-[#1E293B] transition-colors"
+          className="flex items-center gap-2 h-8 px-2 sm:px-2.5 rounded-full border border-black/[0.06] bg-white/70 hover:bg-white text-[#1C1C1E] transition-all active:scale-95 shadow-2xs"
           title="Pengaturan Profil Akun"
         >
           {user?.avatarUrl ? (
@@ -57,10 +57,10 @@ export function Header({ title = "Ringkasan Portofolio", currency = "IDR", user 
               width={24}
               height={24}
               unoptimized
-              className="h-6 w-6 rounded-full object-cover ring-1 ring-slate-200"
+              className="h-6 w-6 rounded-full object-cover ring-1 ring-black/10"
             />
           ) : (
-            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-white text-[11px] font-bold shadow-xs">
+            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#007AFF] text-white text-[11px] font-bold shadow-xs">
               {user ? userInitial : <User className="h-3.5 w-3.5" />}
             </div>
           )}
@@ -74,7 +74,7 @@ export function Header({ title = "Ringkasan Portofolio", currency = "IDR", user 
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 text-[#64748B] hover:text-rose-600 hover:bg-rose-50"
+            className="h-8 w-8 text-[#8E8E93] hover:text-[#FF3B30] hover:bg-[#FF3B30]/10 rounded-full active:scale-90"
             title="Keluar"
           >
             <LogOut className="h-4 w-4" />

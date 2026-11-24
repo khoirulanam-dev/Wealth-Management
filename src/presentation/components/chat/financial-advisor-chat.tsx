@@ -255,20 +255,20 @@ Pilih topik cepat di bawah atau tanyakan apa saja seputar portofolio Anda!`,
             type="button"
             onClick={() => setIsOpen(true)}
             aria-label="Buka AI Financial Advisor"
-            className="group relative flex h-14 w-14 sm:h-15 sm:w-15 items-center justify-center rounded-2xl bg-gradient-to-tr from-blue-700 via-blue-600 to-indigo-600 text-white shadow-[0_8px_25px_rgba(37,99,235,0.35)] hover:shadow-[0_12px_32px_rgba(37,99,235,0.45)] hover:scale-105 active:scale-95 transition-all duration-200 border border-white/20"
+            className="group relative flex h-14 w-14 sm:h-15 sm:w-15 items-center justify-center rounded-[20px] bg-gradient-to-tr from-[#007AFF] via-[#0066D6] to-[#5856D6] text-white shadow-[0_8px_25px_rgba(0,122,255,0.38)] hover:shadow-[0_12px_32px_rgba(0,122,255,0.48)] hover:scale-105 active:scale-90 transition-all duration-200 border border-white/20"
           >
             <Sparkles className="h-6.5 w-6.5 sm:h-7.5 sm:w-7.5 text-white group-hover:rotate-12 transition-transform duration-300" />
             
             {/* Pulsating badge indicator */}
             {!hasInteracted && (
               <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 border-2 border-white" />
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#34C759] opacity-75" />
+                <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-[#34C759] border-2 border-white" />
               </span>
             )}
 
             {/* Micro Tooltip */}
-            <span className="absolute right-full mr-3 hidden sm:group-hover:inline-flex items-center px-2.5 py-1 rounded-lg bg-slate-900/90 text-white text-xs font-semibold whitespace-nowrap backdrop-blur-xs shadow-md pointer-events-none animate-in fade-in slide-in-from-right-2">
+            <span className="absolute right-full mr-3 hidden sm:group-hover:inline-flex items-center px-2.5 py-1 rounded-xl bg-black/85 text-white text-xs font-semibold whitespace-nowrap backdrop-blur-md shadow-md pointer-events-none animate-in fade-in slide-in-from-right-2">
               Tanya CFP Advisor
             </span>
           </button>
@@ -277,9 +277,9 @@ Pilih topik cepat di bawah atau tanyakan apa saja seputar portofolio Anda!`,
 
       {/* --- LIVECHAT DRAWER PANEL --- */}
       {isOpen && (
-        <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 w-[calc(100vw-2rem)] sm:w-[410px] h-[560px] max-h-[85vh] z-50 flex flex-col rounded-2xl border border-[#E4E8EF] bg-white shadow-[0_20px_50px_rgba(15,23,42,0.18)] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 w-[calc(100vw-2rem)] sm:w-[410px] h-[560px] max-h-[85vh] z-50 flex flex-col rounded-[26px] border border-black/[0.08] bg-white/95 backdrop-blur-2xl shadow-[0_25px_60px_rgba(0,0,0,0.18)] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-700 text-white shrink-0">
+          <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-[#007AFF] to-[#5856D6] text-white shrink-0">
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/15 backdrop-blur-md border border-white/20 shrink-0">
                 <Bot className="h-4.5 w-4.5 text-white" />

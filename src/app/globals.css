@@ -4,34 +4,35 @@
 
 @layer base {
   :root {
-    --bg-body: #F0F4F8;
+    /* Apple iOS & macOS System Color Tokens */
+    --bg-body: #F2F2F7; /* iOS System Grouped Background */
     --bg-card: #FFFFFF;
-    --bg-sidebar: #FFFFFF;
-    --bg-hover: #F8FAFC;
-    --bg-muted: #F1F5F9;
+    --bg-sidebar: rgba(251, 251, 253, 0.92);
+    --bg-hover: rgba(0, 0, 0, 0.04);
+    --bg-muted: #E5E5EA;
 
-    --t-base: #1E293B;
-    --t-muted: #64748B;
-    --t-light: #94A3B8;
+    --t-base: #1C1C1E; /* Apple System Label */
+    --t-muted: #8E8E93; /* Apple Secondary Label */
+    --t-light: #AEAEB2; /* Apple Tertiary Label */
 
-    --border: #E4E8EF;
-    --border-soft: #EEF1F5;
+    --border: rgba(0, 0, 0, 0.08);
+    --border-soft: rgba(0, 0, 0, 0.04);
 
-    --primary: #2563EB;
-    --primary-light: #3B82F6;
-    --primary-dark: #1D4ED8;
-    --primary-soft: #EFF6FF;
+    --primary: #007AFF; /* Apple System Blue */
+    --primary-light: #47A3FF;
+    --primary-dark: #0062CC;
+    --primary-soft: #EBF5FF;
 
-    --success: #10B981;
-    --success-soft: #ECFDF5;
-    --warning: #F59E0B;
-    --warning-soft: #FFFBEB;
-    --danger: #EF4444;
-    --danger-soft: #FEF2F2;
-    --purple: #8B5CF6;
-    --purple-soft: #F5F3FF;
-    --info: #0EA5E9;
-    --info-soft: #F0F9FF;
+    --success: #34C759; /* Apple System Green */
+    --success-soft: #EAF9EE;
+    --warning: #FF9500; /* Apple System Orange */
+    --warning-soft: #FFF5E5;
+    --danger: #FF3B30; /* Apple System Red */
+    --danger-soft: #FFEBEA;
+    --purple: #AF52DE; /* Apple System Purple */
+    --purple-soft: #F7EDFC;
+    --info: #32ADE6; /* Apple System Cyan */
+    --info-soft: #EDF8FD;
   }
 }
 
@@ -42,8 +43,10 @@
   body {
     background-color: var(--bg-body);
     color: var(--t-base);
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11", "tnum";
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", "Helvetica Neue", var(--font-geist-sans), sans-serif;
+    letter-spacing: -0.015em;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
@@ -51,15 +54,41 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Adminator 2026 Card Styles */
+/* Apple iOS & macOS Card Styles with Squircle Radius & Ambient Depth */
 .adm-card {
   background: #ffffff;
-  border: 1px solid #E4E8EF;
-  border-radius: 14px;
-  box-shadow: 0 1px 3px 0 rgb(15 23 42 / 0.06), 0 1px 2px -1px rgb(15 23 42 / 0.04);
-  transition: all 180ms ease;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.025), 0 1px 2px rgba(0, 0, 0, 0.02);
+  transition: all 200ms cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .adm-card:hover {
-  box-shadow: 0 4px 6px -1px rgb(15 23 42 / 0.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.03);
+  transform: translateY(-1px);
+}
+
+/* Apple Tactile Bounce Interaction */
+.apple-press {
+  transition: transform 140ms cubic-bezier(0.25, 1, 0.5, 1), opacity 140ms ease;
+}
+.apple-press:active {
+  transform: scale(0.97);
+  opacity: 0.9;
+}
+
+/* macOS Thin Smooth Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
 }

@@ -189,7 +189,7 @@ export function MobileNav({ user }: MobileNavProps) {
                   className="w-full flex items-center justify-center gap-2 py-2.5 text-xs font-medium text-rose-600 hover:text-rose-700 bg-rose-50/70 hover:bg-rose-100 active:bg-rose-200/80 rounded-xl transition-colors"
                 >
                   <LogOut className="h-3.5 w-3.5" />
-                  <span>Keluar dari Akun (Logout)</span>
+                  <span>Keluar dari Akun</span>
                 </button>
               </form>
             </div>
@@ -231,19 +231,19 @@ export function MobileNav({ user }: MobileNavProps) {
               href="/overview"
               onClick={() => setIsMenuOpen(false)}
               title="Beranda"
-              className="flex flex-col items-center justify-center h-full group select-none py-1"
+              className="flex flex-col items-center justify-center h-full group select-none py-1 active:scale-90 transition-transform duration-150"
             >
               <LayoutDashboard
                 className={cn(
                   "h-[26px] w-[26px] transition-colors",
                   isOverviewActive
-                    ? "text-blue-600 stroke-[2.25]"
+                    ? "text-[#007AFF] stroke-[2.25]"
                     : "text-slate-400 group-hover:text-slate-600 stroke-[1.85]"
                 )}
               />
               <div className="h-1.5 w-1.5 flex items-center justify-center mt-1">
                 {isOverviewActive ? (
-                  <span className="h-1.5 w-1.5 rounded-full bg-blue-600" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#007AFF]" />
                 ) : (
                   <span className="h-1.5 w-1.5 opacity-0" />
                 )}
@@ -255,19 +255,19 @@ export function MobileNav({ user }: MobileNavProps) {
               href="/cash"
               onClick={() => setIsMenuOpen(false)}
               title="Kas & Simpanan"
-              className="flex flex-col items-center justify-center h-full group select-none py-1"
+              className="flex flex-col items-center justify-center h-full group select-none py-1 active:scale-90 transition-transform duration-150"
             >
               <Wallet
                 className={cn(
                   "h-[26px] w-[26px] transition-colors",
                   isCashActive
-                    ? "text-blue-600 stroke-[2.25]"
+                    ? "text-[#007AFF] stroke-[2.25]"
                     : "text-slate-400 group-hover:text-slate-600 stroke-[1.85]"
                 )}
               />
               <div className="h-1.5 w-1.5 flex items-center justify-center mt-1">
                 {isCashActive ? (
-                  <span className="h-1.5 w-1.5 rounded-full bg-blue-600" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#007AFF]" />
                 ) : (
                   <span className="h-1.5 w-1.5 opacity-0" />
                 )}
@@ -280,13 +280,13 @@ export function MobileNav({ user }: MobileNavProps) {
                 href="/investments"
                 onClick={() => setIsMenuOpen(false)}
                 title="Portofolio Investasi"
-                className="absolute -top-4.5 flex items-center justify-center select-none active:scale-95 transition-transform group"
+                className="absolute -top-4.5 flex items-center justify-center select-none active:scale-90 transition-transform duration-150 group"
               >
                 <div
                   className={cn(
-                    "flex h-[54px] w-[54px] items-center justify-center rounded-full bg-blue-600 text-white border-[3.5px] border-white shadow-md shadow-blue-600/35 transition-all duration-200",
+                    "flex h-[54px] w-[54px] items-center justify-center rounded-full bg-[#007AFF] text-white border-[3.5px] border-white shadow-md shadow-[#007AFF]/35 transition-all duration-200",
                     isPortoActive
-                      ? "scale-105 shadow-lg shadow-blue-600/50 ring-2 ring-blue-500/30"
+                      ? "scale-105 shadow-lg shadow-[#007AFF]/50 ring-2 ring-[#007AFF]/30"
                       : "group-hover:scale-105"
                   )}
                 >
@@ -300,19 +300,19 @@ export function MobileNav({ user }: MobileNavProps) {
               href="/liabilities"
               onClick={() => setIsMenuOpen(false)}
               title="Liabilitas & Utang"
-              className="flex flex-col items-center justify-center h-full group select-none py-1"
+              className="flex flex-col items-center justify-center h-full group select-none py-1 active:scale-90 transition-transform duration-150"
             >
               <CreditCard
                 className={cn(
                   "h-[26px] w-[26px] transition-colors",
                   isLiabilitiesActive
-                    ? "text-blue-600 stroke-[2.25]"
+                    ? "text-[#007AFF] stroke-[2.25]"
                     : "text-slate-400 group-hover:text-slate-600 stroke-[1.85]"
                 )}
               />
               <div className="h-1.5 w-1.5 flex items-center justify-center mt-1">
                 {isLiabilitiesActive ? (
-                  <span className="h-1.5 w-1.5 rounded-full bg-blue-600" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#007AFF]" />
                 ) : (
                   <span className="h-1.5 w-1.5 opacity-0" />
                 )}
@@ -324,19 +324,19 @@ export function MobileNav({ user }: MobileNavProps) {
               type="button"
               onClick={() => setIsMenuOpen((prev) => !prev)}
               title="Menu Lengkap"
-              className="flex flex-col items-center justify-center h-full group select-none py-1"
+              className="flex flex-col items-center justify-center h-full group select-none py-1 active:scale-90 transition-transform duration-150"
             >
               <Grid
                 className={cn(
                   "h-[26px] w-[26px] transition-colors",
                   isMenuOpen || isMenuSectionActive
-                    ? "text-blue-600 stroke-[2.25]"
+                    ? "text-[#007AFF] stroke-[2.25]"
                     : "text-slate-400 group-hover:text-slate-600 stroke-[1.85]"
                 )}
               />
               <div className="h-1.5 w-1.5 flex items-center justify-center mt-1">
                 {(isMenuOpen || isMenuSectionActive) ? (
-                  <span className="h-1.5 w-1.5 rounded-full bg-blue-600" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#007AFF]" />
                 ) : (
                   <span className="h-1.5 w-1.5 opacity-0" />
                 )}
