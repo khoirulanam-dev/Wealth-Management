@@ -31,14 +31,14 @@ export function RefreshWatchlistButton() {
       size="sm"
       onClick={handleRefresh}
       disabled={isLoading}
-      className="gap-2 h-9 border-[#E4E8EF] bg-white text-[#1E293B] hover:bg-[#F8FAFC] shadow-sm text-xs font-semibold"
+      className="w-full sm:w-auto gap-1.5 sm:gap-2 h-10 sm:h-9.5 px-3 border border-black/[0.08] bg-white text-xs font-semibold sm:font-medium text-[#1C1C1E] hover:bg-black/[0.03] active:scale-[0.98] rounded-xl shadow-2xs transition-all justify-center whitespace-nowrap shrink-0"
     >
       {isLoading ? (
-        <Loader2 className="h-3.5 w-3.5 animate-spin text-blue-600" />
+        <Loader2 className="h-3.5 w-3.5 animate-spin text-[#007AFF] shrink-0" />
       ) : (
-        <RefreshCw className="h-3.5 w-3.5 text-blue-600" />
+        <RefreshCw className="h-3.5 w-3.5 text-[#007AFF] shrink-0" />
       )}
-      Refresh Pantauan
+      <span className="truncate">Refresh Pantauan</span>
     </Button>
   );
 }

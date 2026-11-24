@@ -61,12 +61,14 @@ export default async function IncomePage() {
             Pencatatan dividen saham, kupon obligasi/SBN, bagi hasil reksa dana, dan bunga simpanan dengan pemisahan tegas antara realisasi riil dan estimasi proyeksi.
           </p>
         </div>
-        <div className="flex items-center gap-2.5">
-          <IncomeDialog
-            instruments={instrumentOptions}
-            accounts={accountOptions}
-            cashAccounts={cashOptions}
-          />
+        <div className="w-full sm:w-auto flex flex-col sm:flex-row sm:items-center sm:flex-wrap gap-2.5 sm:gap-2 shrink-0">
+          <div className="w-full sm:w-auto shrink-0">
+            <IncomeDialog
+              instruments={instrumentOptions}
+              accounts={accountOptions}
+              cashAccounts={cashOptions}
+            />
+          </div>
         </div>
       </div>
 

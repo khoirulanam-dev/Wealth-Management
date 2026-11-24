@@ -29,9 +29,13 @@ export default async function WatchlistPage() {
             Instrumen pasar yang dipantau. Nilai watchlist terisolasi dan tidak mempengaruhi portofolio kepemilikan maupun Net Worth.
           </p>
         </div>
-        <div className="flex items-center gap-2.5">
-          <RefreshWatchlistButton />
-          <AddWatchlistDialog />
+        <div className="w-full sm:w-auto flex flex-col sm:flex-row sm:items-center sm:flex-wrap gap-2.5 sm:gap-2 shrink-0">
+          <div className="order-1 w-full sm:w-auto shrink-0">
+            <AddWatchlistDialog />
+          </div>
+          <div className="order-2 w-full sm:w-auto shrink-0">
+            <RefreshWatchlistButton />
+          </div>
         </div>
       </div>
 

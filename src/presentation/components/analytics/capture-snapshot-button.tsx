@@ -33,15 +33,18 @@ export function CaptureSnapshotButton({ className }: CaptureSnapshotButtonProps)
       size="sm"
       onClick={handleCapture}
       disabled={isLoading}
-      className={cn("gap-2 h-9 border-[#E4E8EF] bg-white text-[#1E293B] hover:bg-[#F8FAFC]", className)}
+      className={cn(
+        "w-full sm:w-auto gap-1.5 sm:gap-2 h-10 sm:h-9.5 px-3 border border-black/[0.08] bg-white text-xs font-semibold sm:font-medium text-[#1C1C1E] hover:bg-black/[0.03] active:scale-[0.98] rounded-xl shadow-2xs transition-all justify-center whitespace-nowrap shrink-0",
+        className
+      )}
       title="Ambil snapshot posisi keuangan saat ini"
     >
       {isLoading ? (
-        <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+        <Loader2 className="h-3.5 w-3.5 animate-spin text-[#007AFF] shrink-0" />
       ) : (
-        <Camera className="h-4 w-4 text-blue-600" />
+        <Camera className="h-3.5 w-3.5 text-[#007AFF] shrink-0" />
       )}
-      <span>Ambil Snapshot</span>
+      <span className="truncate">Ambil Snapshot</span>
     </Button>
   );
 }

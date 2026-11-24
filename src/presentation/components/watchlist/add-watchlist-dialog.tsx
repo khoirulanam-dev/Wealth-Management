@@ -155,10 +155,10 @@ export function AddWatchlistDialog({ onWatchlistAdded }: { onWatchlistAdded?: ()
     <>
       <Button
         onClick={() => setIsOpen(true)}
-        className="gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs h-9 shadow-sm"
+        className="w-full sm:w-auto gap-2 bg-[#007AFF] hover:bg-[#0066D6] active:scale-[0.98] text-white font-semibold text-xs h-10 sm:h-9.5 px-3.5 rounded-xl shadow-xs shadow-[#007AFF]/25 transition-all justify-center whitespace-nowrap shrink-0"
       >
-        <Plus className="h-4 w-4" />
-        Tambah Pantauan
+        <Plus className="h-4 w-4 stroke-[2.5]" />
+        <span>Tambah Pantauan</span>
       </Button>
 
       {isOpen && (

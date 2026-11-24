@@ -256,10 +256,10 @@ export function RecordTransactionDialog({
       ) : (
         <Button
           onClick={() => setIsOpen(true)}
-          className="w-full sm:w-auto gap-1.5 bg-[#007AFF] hover:bg-[#0066D6] active:scale-[0.97] text-white font-semibold shadow-xs h-10 sm:h-9 text-xs rounded-xl transition-all justify-center whitespace-nowrap"
+          className="w-full sm:w-auto gap-2 bg-[#007AFF] hover:bg-[#0066D6] active:scale-[0.98] text-white font-semibold shadow-xs shadow-[#007AFF]/25 h-10 sm:h-9.5 px-3.5 text-xs rounded-xl transition-all justify-center whitespace-nowrap shrink-0"
         >
           <Plus className="h-4 w-4 stroke-[2.5]" />
-          Catat Transaksi
+          <span>Catat Transaksi</span>
         </Button>
       )}
 

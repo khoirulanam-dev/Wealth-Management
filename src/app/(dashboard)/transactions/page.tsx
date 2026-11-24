@@ -37,8 +37,8 @@ export default async function TransactionsPage() {
               accounts={accounts}
               instruments={instruments}
               triggerButton={
-                <Button className="w-full sm:w-auto h-12 sm:h-9.5 px-4 gap-2 bg-[#007AFF] hover:bg-[#0066D6] active:scale-[0.98] text-white font-semibold text-[14px] sm:text-xs rounded-2xl sm:rounded-xl shadow-xs shadow-[#007AFF]/25 transition-all justify-center whitespace-nowrap shrink-0">
-                  <Plus className="h-4.5 w-4.5 sm:h-4 sm:w-4 stroke-[2.5]" />
+                <Button className="w-full sm:w-auto h-10 sm:h-9.5 px-3.5 gap-2 bg-[#007AFF] hover:bg-[#0066D6] active:scale-[0.98] text-white font-semibold text-xs rounded-xl shadow-xs shadow-[#007AFF]/25 transition-all justify-center whitespace-nowrap shrink-0">
+                  <Plus className="h-4 w-4 stroke-[2.5]" />
                   <span>Catat Transaksi</span>
                 </Button>
               }
@@ -50,9 +50,9 @@ export default async function TransactionsPage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="w-full sm:w-auto gap-1.5 sm:gap-2 h-12 sm:h-9.5 px-3 py-3 border border-black/[0.08] bg-white text-[13px] sm:text-xs font-semibold sm:font-medium text-[#1C1C1E] hover:bg-black/[0.03] active:scale-[0.98] rounded-2xl sm:rounded-xl shadow-xs transition-all justify-center whitespace-nowrap shrink-0"
+                  className="w-full sm:w-auto gap-1.5 sm:gap-2 h-10 sm:h-9.5 px-3 border border-black/[0.08] bg-white text-xs font-semibold sm:font-medium text-[#1C1C1E] hover:bg-black/[0.03] active:scale-[0.98] rounded-xl shadow-2xs transition-all justify-center whitespace-nowrap shrink-0"
                 >
-                  <Building2 className="h-4.5 w-4.5 sm:h-3.5 sm:w-3.5 text-[#007AFF]" />
+                  <Building2 className="h-3.5 w-3.5 text-[#007AFF] shrink-0" />
                   <span className="truncate">+ Akun</span>
                 </Button>
               }
@@ -62,9 +62,9 @@ export default async function TransactionsPage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="w-full sm:w-auto gap-1.5 sm:gap-2 h-12 sm:h-9.5 px-3 py-3 border border-black/[0.08] bg-white text-[13px] sm:text-xs font-semibold sm:font-medium text-[#1C1C1E] hover:bg-black/[0.03] active:scale-[0.98] rounded-2xl sm:rounded-xl shadow-xs transition-all justify-center whitespace-nowrap shrink-0"
+                  className="w-full sm:w-auto gap-1.5 sm:gap-2 h-10 sm:h-9.5 px-3 border border-black/[0.08] bg-white text-xs font-semibold sm:font-medium text-[#1C1C1E] hover:bg-black/[0.03] active:scale-[0.98] rounded-xl shadow-2xs transition-all justify-center whitespace-nowrap shrink-0"
                 >
-                  <LineChart className="h-4.5 w-4.5 sm:h-3.5 sm:w-3.5 text-[#AF52DE]" />
+                  <LineChart className="h-3.5 w-3.5 text-[#AF52DE] shrink-0" />
                   <span className="truncate">+ Instrumen</span>
                 </Button>
               }

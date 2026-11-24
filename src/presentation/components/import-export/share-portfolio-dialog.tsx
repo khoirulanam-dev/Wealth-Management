@@ -147,10 +147,10 @@ export function SharePortfolioDialog({
           variant="outline"
           size="sm"
           onClick={() => setIsOpen(true)}
-          className="h-9 gap-2 text-xs font-semibold text-slate-700 border-slate-200 hover:bg-slate-50"
+          className="w-full sm:w-auto h-10 sm:h-9.5 gap-1.5 sm:gap-2 px-3 border border-black/[0.08] bg-white text-xs font-semibold sm:font-medium text-[#1C1C1E] hover:bg-black/[0.03] active:scale-[0.98] rounded-xl shadow-2xs transition-all justify-center whitespace-nowrap shrink-0"
         >
-          <Share2 className="h-4 w-4 text-blue-600" />
-          <span>Bagikan Portofolio</span>
+          <Share2 className="h-3.5 w-3.5 text-[#007AFF] shrink-0" />
+          <span className="truncate">Bagikan Portofolio</span>
         </Button>
       )}
 

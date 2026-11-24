@@ -99,24 +99,26 @@ export default async function AnalyticsPage() {
             Analisis pertumbuhan kekayaan bersih, pemisahan setoran modal vs pertumbuhan pasar riil, dan alokasi aset.
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-2.5">
-          <SharePortfolioDialog
-            netWorth={dispNetWorth.toFixed(2)}
-            totalInvestments={dispTotalInvestments.toFixed(2)}
-            totalCash={dispTotalCash.toFixed(2)}
-            totalLiabilities={dispTotalLiabilities.toFixed(2)}
-            overallReturnPercent={analytics.contributionsVsGains.gainPercentage}
-            allocations={dispAllocations.map((a) => ({
-              category: a.name,
-              value: parseFloat(a.value),
-              percentage: a.percentage,
-              color: a.color,
-            }))}
-            userName={session.email ? session.email.split("@")[0] : "Investor"}
-            currency={currency}
-          />
-          <ExportDialog />
-          <CaptureSnapshotButton />
+        <div className="w-full sm:w-auto flex flex-col sm:flex-row sm:items-center sm:flex-wrap gap-2 sm:gap-2 shrink-0">
+          <div className="grid grid-cols-1 sm:flex sm:items-center gap-2 sm:gap-2 w-full sm:w-auto shrink-0">
+            <SharePortfolioDialog
+              netWorth={dispNetWorth.toFixed(2)}
+              totalInvestments={dispTotalInvestments.toFixed(2)}
+              totalCash={dispTotalCash.toFixed(2)}
+              totalLiabilities={dispTotalLiabilities.toFixed(2)}
+              overallReturnPercent={analytics.contributionsVsGains.gainPercentage}
+              allocations={dispAllocations.map((a) => ({
+                category: a.name,
+                value: parseFloat(a.value),
+                percentage: a.percentage,
+                color: a.color,
+              }))}
+              userName={session.email ? session.email.split("@")[0] : "Investor"}
+              currency={currency}
+            />
+            <ExportDialog />
+            <CaptureSnapshotButton />
+          </div>
         </div>
       </div>
 

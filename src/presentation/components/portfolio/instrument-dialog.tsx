@@ -171,10 +171,10 @@ export function InstrumentDialog({ onInstrumentCreated, triggerButton }: Instrum
           onClick={() => setIsOpen(true)}
           variant="outline"
           size="sm"
-          className="gap-1.5 border-[#E4E8EF] text-[#1E293B] hover:bg-slate-50 font-medium text-xs h-9"
+          className="w-full sm:w-auto gap-1.5 sm:gap-2 h-10 sm:h-9.5 px-3 border border-black/[0.08] bg-white text-xs font-semibold sm:font-medium text-[#1C1C1E] hover:bg-black/[0.03] active:scale-[0.98] rounded-xl shadow-2xs transition-all justify-center whitespace-nowrap shrink-0"
         >
-          <LineChart className="h-3.5 w-3.5 text-indigo-600" />
-          Tambah Instrumen
+          <LineChart className="h-3.5 w-3.5 text-[#AF52DE] shrink-0" />
+          <span className="truncate">+ Instrumen</span>
         </Button>
       )}
 

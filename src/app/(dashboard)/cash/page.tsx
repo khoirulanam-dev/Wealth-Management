@@ -52,11 +52,15 @@ export default async function CashPage() {
             Manajemen saldo rekening bank, dompet digital (e-wallet), kas tunai, dan dana darurat.
           </p>
         </div>
-        <div className="flex items-center gap-2.5">
+        <div className="w-full sm:w-auto flex flex-col sm:flex-row sm:items-center sm:flex-wrap gap-2.5 sm:gap-2 shrink-0">
+          <div className="order-1 w-full sm:w-auto shrink-0">
+            <CashAccountDialog />
+          </div>
           {accounts.length >= 2 && (
-            <InternalTransferDialog accounts={accountTransferOptions} />
+            <div className="order-2 w-full sm:w-auto shrink-0">
+              <InternalTransferDialog accounts={accountTransferOptions} />
+            </div>
           )}
-          <CashAccountDialog />
         </div>
       </div>
 

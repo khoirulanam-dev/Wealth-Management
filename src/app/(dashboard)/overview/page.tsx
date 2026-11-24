@@ -143,9 +143,9 @@ export default async function OverviewPage() {
               instruments={instruments}
               triggerButton={
                 <Button
-                  className="w-full sm:w-auto h-12 sm:h-9.5 px-4 gap-2 bg-[#007AFF] hover:bg-[#0066D6] active:scale-[0.98] text-white font-semibold text-[14px] sm:text-xs rounded-2xl sm:rounded-xl shadow-xs shadow-[#007AFF]/25 transition-all justify-center whitespace-nowrap shrink-0"
+                  className="w-full sm:w-auto h-10 sm:h-9.5 px-3.5 gap-2 bg-[#007AFF] hover:bg-[#0066D6] active:scale-[0.98] text-white font-semibold text-xs rounded-xl shadow-xs shadow-[#007AFF]/25 transition-all justify-center whitespace-nowrap shrink-0"
                 >
-                  <Plus className="h-4.5 w-4.5 sm:h-4 sm:w-4 stroke-[2.5]" />
+                  <Plus className="h-4 w-4 stroke-[2.5]" />
                   <span>Catat Transaksi</span>
                 </Button>
               }
@@ -153,7 +153,7 @@ export default async function OverviewPage() {
           </div>
 
           {/* Symmetrical 2x2 Utility Grid on Mobile (order-2), Inline on Tablet/Desktop (order-2) */}
-          <div className="grid grid-cols-2 sm:flex sm:items-center gap-2.5 sm:gap-2 order-2 w-full sm:w-auto shrink-0">
+          <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 sm:gap-2 order-2 w-full sm:w-auto shrink-0">
             <SharePortfolioDialog
               netWorth={dispNetWorth.toFixed(2)}
               totalInvestments={dispTotalInvestments.toFixed(2)}
@@ -173,15 +173,15 @@ export default async function OverviewPage() {
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="w-full sm:w-auto h-12 sm:h-9.5 gap-2 px-3.5 py-3 text-[13.5px] sm:text-xs font-semibold sm:font-medium text-[#1C1C1E] bg-white border border-black/[0.08] hover:bg-black/[0.03] rounded-2xl sm:rounded-xl justify-center shadow-xs active:scale-[0.98] transition-all whitespace-nowrap shrink-0"
+                  className="w-full sm:w-auto h-10 sm:h-9.5 gap-1.5 sm:gap-2 px-3 text-xs font-semibold sm:font-medium text-[#1C1C1E] bg-white border border-black/[0.08] hover:bg-black/[0.03] rounded-xl justify-center shadow-2xs active:scale-[0.98] transition-all whitespace-nowrap shrink-0"
                 >
-                  <Share2 className="h-4.5 w-4.5 sm:h-3.5 sm:w-3.5 text-[#007AFF]" />
+                  <Share2 className="h-3.5 w-3.5 text-[#007AFF] shrink-0" />
                   <span className="truncate">Bagikan Portofolio</span>
                 </Button>
               }
             />
 
-            <CaptureSnapshotButton className="w-full sm:w-auto h-12 sm:h-9.5 gap-2 px-3.5 py-3 text-[13.5px] sm:text-xs font-semibold sm:font-medium text-[#1C1C1E] bg-white border border-black/[0.08] hover:bg-black/[0.03] rounded-2xl sm:rounded-xl justify-center shadow-xs active:scale-[0.98] transition-all whitespace-nowrap shrink-0" />
+            <CaptureSnapshotButton className="w-full sm:w-auto h-10 sm:h-9.5 gap-1.5 sm:gap-2 px-3 text-xs font-semibold sm:font-medium text-[#1C1C1E] bg-white border border-black/[0.08] hover:bg-black/[0.03] rounded-xl justify-center shadow-2xs active:scale-[0.98] transition-all whitespace-nowrap shrink-0" />
 
             <ExportDialog
               triggerButton={
@@ -189,9 +189,9 @@ export default async function OverviewPage() {
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="w-full sm:w-auto h-12 sm:h-9.5 gap-2 px-3.5 py-3 text-[13.5px] sm:text-xs font-semibold sm:font-medium text-[#1C1C1E] bg-white border border-black/[0.08] hover:bg-black/[0.03] rounded-2xl sm:rounded-xl justify-center shadow-xs active:scale-[0.98] transition-all whitespace-nowrap shrink-0"
+                  className="w-full sm:w-auto h-10 sm:h-9.5 gap-1.5 sm:gap-2 px-3 text-xs font-semibold sm:font-medium text-[#1C1C1E] bg-white border border-black/[0.08] hover:bg-black/[0.03] rounded-xl justify-center shadow-2xs active:scale-[0.98] transition-all whitespace-nowrap shrink-0"
                 >
-                  <Download className="h-4.5 w-4.5 sm:h-3.5 sm:w-3.5 text-[#8E8E93]" />
+                  <Download className="h-3.5 w-3.5 text-[#8E8E93] shrink-0" />
                   <span className="truncate">Ekspor Data</span>
                 </Button>
               }
@@ -203,9 +203,9 @@ export default async function OverviewPage() {
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="w-full sm:w-auto h-12 sm:h-9.5 gap-2 px-3.5 py-3 text-[13.5px] sm:text-xs font-semibold sm:font-medium text-[#1C1C1E] bg-white border border-black/[0.08] hover:bg-black/[0.03] rounded-2xl sm:rounded-xl justify-center shadow-xs active:scale-[0.98] transition-all whitespace-nowrap shrink-0"
+                  className="w-full sm:w-auto h-10 sm:h-9.5 gap-1.5 sm:gap-2 px-3 text-xs font-semibold sm:font-medium text-[#1C1C1E] bg-white border border-black/[0.08] hover:bg-black/[0.03] rounded-xl justify-center shadow-2xs active:scale-[0.98] transition-all whitespace-nowrap shrink-0"
                 >
-                  <Upload className="h-4.5 w-4.5 sm:h-3.5 sm:w-3.5 text-[#007AFF]" />
+                  <Upload className="h-3.5 w-3.5 text-[#007AFF] shrink-0" />
                   <span className="truncate">Impor Data</span>
                 </Button>
               }

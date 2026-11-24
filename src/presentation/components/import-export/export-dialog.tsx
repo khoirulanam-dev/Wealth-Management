@@ -59,10 +59,10 @@ export function ExportDialog({ triggerButton }: ExportDialogProps) {
           variant="outline"
           size="sm"
           onClick={() => setIsOpen(true)}
-          className="gap-2 h-9 border-[#E4E8EF] bg-white text-[#1E293B] hover:bg-[#F8FAFC]"
+          className="w-full sm:w-auto h-10 sm:h-9.5 gap-1.5 sm:gap-2 px-3 border border-black/[0.08] bg-white text-xs font-semibold sm:font-medium text-[#1C1C1E] hover:bg-black/[0.03] active:scale-[0.98] rounded-xl shadow-2xs transition-all justify-center whitespace-nowrap shrink-0"
         >
-          <Download className="h-4 w-4 text-[#64748B]" />
-          <span>Ekspor Data</span>
+          <Download className="h-3.5 w-3.5 text-[#8E8E93] shrink-0" />
+          <span className="truncate">Ekspor Data</span>
         </Button>
       )}
 

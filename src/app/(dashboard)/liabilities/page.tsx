@@ -49,8 +49,10 @@ export default async function LiabilitiesPage() {
             Pencatatan PayLater, tagihan kartu kredit, cicilan pembelian, dan pinjaman aktif terverifikasi.
           </p>
         </div>
-        <div className="flex items-center gap-2.5">
-          <LiabilityDialog />
+        <div className="w-full sm:w-auto flex flex-col sm:flex-row sm:items-center sm:flex-wrap gap-2.5 sm:gap-2 shrink-0">
+          <div className="w-full sm:w-auto shrink-0">
+            <LiabilityDialog />
+          </div>
         </div>
       </div>
 
