@@ -175,7 +175,7 @@ export function ShareAllocationDialog({
       )}
 
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/25 backdrop-blur-md animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/[0.04] backdrop-blur-xs animate-in fade-in duration-200">
           <div className="relative w-full max-w-xl max-h-[92vh] flex flex-col rounded-[24px] bg-white shadow-2xl border border-black/[0.08] overflow-hidden">
             {/* Modal Header */}
             <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-black/[0.06] shrink-0 bg-white">

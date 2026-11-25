@@ -265,7 +265,7 @@ export function RecordTransactionDialog({
       )}
 
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/25 backdrop-blur-md p-4 overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/[0.04] backdrop-blur-xs p-4 overflow-y-auto">
           <div className="relative w-full max-w-2xl sm:max-w-3xl rounded-[24px] border border-black/[0.08] bg-white p-6 sm:p-7 shadow-2xl animate-in fade-in zoom-in-95 duration-150 my-8">
             {/* Header */}
             <div className="flex items-center justify-between pb-4 border-b border-[#E4E8EF]">

@@ -20,7 +20,7 @@ export function AppShell({ children, title, currency, user }: AppShellProps) {
       <RealtimeSync />
       <div className="flex min-h-screen bg-[#F2F2F7]">
         <Sidebar user={user} />
-        <div className="flex flex-1 flex-col overflow-hidden min-w-0">
+        <div className="flex flex-1 flex-col min-w-0">
           <Header title={title} currency={currency} user={user} />
           <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 pb-24 lg:pb-8">
             <div className="mx-auto max-w-7xl">

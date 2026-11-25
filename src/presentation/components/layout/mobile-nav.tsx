@@ -93,7 +93,7 @@ export function MobileNav({ user }: MobileNavProps) {
           {/* Frosted Soft Backdrop */}
           <div
             onClick={() => setIsMenuOpen(false)}
-            className="fixed inset-0 z-40 bg-slate-900/35 backdrop-blur-[2px] transition-all lg:hidden animate-in fade-in-0 duration-200"
+            className="fixed inset-0 z-40 bg-black/[0.04] backdrop-blur-xs transition-all lg:hidden animate-in fade-in-0 duration-200"
           />
 
           {/* Clean Apple iOS Action Sheet Style Drawer */}
