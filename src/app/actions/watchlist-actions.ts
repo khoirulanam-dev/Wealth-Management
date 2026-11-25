@@ -1,9 +1,23 @@
 "use server";
 
 import { requireAuth } from "@/lib/auth";
-import { WatchlistService } from "@/application/use-cases/portfolio/watchlist-service";
+import { WatchlistService, AddWatchlistDTO } from "@/application/use-cases/portfolio/watchlist-service";
 import { revalidatePath } from "next/cache";
 import { touchUserSync } from "@/lib/sync";
+
+export async function addBatchToWatchlistAction(items: AddWatchlistDTO[]) {
+  const session = await requireAuth();
+
+  try {
+    const result = await WatchlistService.addBatchToWatchlist(session.userId, items);
+    revalidatePath("/watchlist");
+    await touchUserSync(session.userId);
+    return { success: true as const, ...result };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Gagal menambahkan ke daftar pantauan";
+    return { success: false as const, error: message };
+  }
+}
 
 export async function addToWatchlistAction(formData: FormData) {
   const session = await requireAuth();

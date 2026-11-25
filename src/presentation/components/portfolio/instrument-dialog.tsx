@@ -69,6 +69,7 @@ export function InstrumentDialog({ onInstrumentCreated, triggerButton }: Instrum
   }, [isOpen, curatedList.length]);
 
   useEffect(() => {
+    let active = true;
     const trimmed = searchQuery.trim();
     if (!trimmed) {
       setSuggestions([]);
@@ -85,21 +86,25 @@ export function InstrumentDialog({ onInstrumentCreated, triggerButton }: Instrum
       currency: it.currency,
     }));
 
-    if (localMatches.length > 0) {
-      setSuggestions(localMatches.slice(0, 6));
-    }
+    setSuggestions(localMatches);
 
-    // 2. Debounced background enrichment (150ms) to augment with live prices & remote search
+    // 2. Debounced background enrichment (180ms) to augment with live prices & remote search
     const timer = setTimeout(async () => {
       setIsSearching(true);
-      const res = await searchMarketStocksAction(trimmed);
-      if (res.success && res.data && res.data.length > 0) {
-        setSuggestions(res.data.slice(0, 6));
+      try {
+        const res = await searchMarketStocksAction(trimmed);
+        if (active && res.success && res.data && res.data.length > 0) {
+          setSuggestions(res.data.slice(0, 6));
+        }
+      } finally {
+        if (active) setIsSearching(false);
       }
-      setIsSearching(false);
-    }, 150);
+    }, 180);
 
-    return () => clearTimeout(timer);
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
   }, [searchQuery]);
 
   const selectStockItem = (item: StockSuggestion) => {

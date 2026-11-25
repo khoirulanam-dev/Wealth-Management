@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { MarketDataService } from "@/infrastructure/services/market-data-service";
+import { searchLocalRegistry } from "@/infrastructure/services/market-instruments-registry";
 
 describe("MarketDataService Unit Tests", () => {
   it("resolves ticker symbols appropriately for IDX and global markets", () => {
@@ -53,6 +54,22 @@ describe("MarketDataService Unit Tests", () => {
     expect(bondQuote).toBeDefined();
     expect(bondQuote?.price).toBe(1000000);
     expect(bondQuote?.name).toContain("ORI026");
+  });
+
+  it("ensures instant local search ranks exact ticker matches at position 0", () => {
+    const bngaResults = searchLocalRegistry("bnga");
+    expect(bngaResults.length).toBeGreaterThan(0);
+    expect(bngaResults[0].cleanSymbol).toBe("BNGA");
+
+    const bbriResults = searchLocalRegistry("bbri");
+    expect(bbriResults.length).toBeGreaterThan(0);
+    expect(bbriResults[0].cleanSymbol).toBe("BBRI");
+
+    // Dynamic unlisted ticker synthesis
+    const unlisted = searchLocalRegistry("SGRO");
+    expect(unlisted.length).toBeGreaterThan(0);
+    expect(unlisted[0].cleanSymbol).toBe("SGRO");
+    expect(unlisted[0].exchange).toBe("IDX");
   });
 });
 

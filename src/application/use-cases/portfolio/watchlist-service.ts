@@ -10,6 +10,7 @@ export interface AddWatchlistDTO {
   market?: string;
   currency?: string;
   note?: string;
+  price?: number;
 }
 
 export interface WatchlistItemDetail {
@@ -92,28 +93,49 @@ export class WatchlistService {
       throw new Error(`Instrumen ${sym || name} sudah ada di dalam daftar pantauan`);
     }
 
-    // 3. Fetch latest quote if available
-    try {
-      const quote: MarketQuote | null = await MarketDataService.fetchQuote(sym || name, dto.assetType);
-      if (quote) {
-        const valId = `val_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-        await db.insert(valuations).values({
-          id: valId,
-          userId,
-          instrumentId,
-          price: quote.price.toString(),
-          currency: quote.currency || dto.currency || "IDR",
-          unit: dto.assetType === "gold" ? "gram" : dto.assetType === "mutual_fund" ? "unit" : "share",
-          effectiveAt: quote.timestamp,
-          fetchedAt: new Date(),
-          sourceType: "provider",
-          sourceName: quote.source,
-          status: "success",
-          isManualOverride: false,
-        });
+    // 3. Fast valuation quote assignment (zero network latency if price known)
+    if (typeof dto.price === "number" && dto.price > 0) {
+      const valId = `val_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+      await db.insert(valuations).values({
+        id: valId,
+        userId,
+        instrumentId,
+        price: dto.price.toString(),
+        currency: dto.currency || "IDR",
+        unit: dto.assetType === "gold" ? "gram" : dto.assetType === "mutual_fund" ? "unit" : "share",
+        effectiveAt: new Date(),
+        fetchedAt: new Date(),
+        sourceType: "provider",
+        sourceName: "Live Market Feed",
+        status: "success",
+        isManualOverride: false,
+      });
+    } else {
+      // Fast bounded quote fetch (max 800ms) so saving to watchlist is NEVER stalled
+      try {
+        const quotePromise = MarketDataService.fetchQuote(sym || name, dto.assetType);
+        const timeoutPromise = new Promise<null>((resolve) => setTimeout(() => resolve(null), 800));
+        const quote = await Promise.race([quotePromise, timeoutPromise]);
+        if (quote) {
+          const valId = `val_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+          await db.insert(valuations).values({
+            id: valId,
+            userId,
+            instrumentId,
+            price: quote.price.toString(),
+            currency: quote.currency || dto.currency || "IDR",
+            unit: dto.assetType === "gold" ? "gram" : dto.assetType === "mutual_fund" ? "unit" : "share",
+            effectiveAt: quote.timestamp,
+            fetchedAt: new Date(),
+            sourceType: "provider",
+            sourceName: quote.source,
+            status: "success",
+            isManualOverride: false,
+          });
+        }
+      } catch {
+        // Quote fetch failure does not block adding to watchlist
       }
-    } catch {
-      // Quote fetch failure does not block adding to watchlist
     }
 
     // 4. Insert into watchlist_items
@@ -127,6 +149,35 @@ export class WatchlistService {
     });
 
     return { watchlistId: watchId, instrumentId };
+  }
+
+  /**
+   * Add multiple instruments to watchlist in a fast batch.
+   */
+  public static async addBatchToWatchlist(userId: string, items: AddWatchlistDTO[]) {
+    if (!items || items.length === 0) {
+      throw new Error("Pilih setidaknya satu instrumen untuk ditambahkan");
+    }
+
+    const added: string[] = [];
+    const skipped: string[] = [];
+
+    for (const item of items) {
+      try {
+        await this.addToWatchlist(userId, item);
+        added.push(item.symbol || item.name);
+      } catch {
+        // Already exists or invalid item is skipped gracefully
+        skipped.push(item.symbol || item.name);
+      }
+    }
+
+    return {
+      addedCount: added.length,
+      skippedCount: skipped.length,
+      added,
+      skipped,
+    };
   }
 
   /**

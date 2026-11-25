@@ -229,14 +229,19 @@ export class MarketDataService {
     // Try primary and secondary public mirrors
     for (const mirror of this.MIRRORS) {
       try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 1500);
+
         const url = `${mirror}/v8/finance/chart/${encodeURIComponent(querySymbol)}?interval=1d&range=1d`;
         const response = await fetch(url, {
           headers: {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
             Accept: "application/json",
           },
+          signal: controller.signal,
           next: { revalidate: 60 },
         });
+        clearTimeout(timeoutId);
 
         if (!response.ok) {
           // If query failed with .JK, try without .JK (e.g. for global ticker)
@@ -308,12 +313,17 @@ export class MarketDataService {
 
   private static async fetchDirectQuote(mirror: string, sym: string, cleanSymbol: string): Promise<MarketQuote | null> {
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 1500);
+
       const url = `${mirror}/v8/finance/chart/${encodeURIComponent(sym)}?interval=1d&range=1d`;
       const response = await fetch(url, {
         headers: {
           "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         },
+        signal: controller.signal,
       });
+      clearTimeout(timeoutId);
       if (!response.ok) return null;
       const data = await response.json();
       const meta = data?.chart?.result?.[0]?.meta;
@@ -344,12 +354,17 @@ export class MarketDataService {
   public static async getUsdIdrRate(): Promise<number> {
     for (const mirror of this.MIRRORS) {
       try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 1500);
+
         const url = `${mirror}/v8/finance/chart/USDIDR=X?interval=1d&range=1d`;
         const res = await fetch(url, {
           headers: {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
           },
+          signal: controller.signal,
         });
+        clearTimeout(timeoutId);
         if (res.ok) {
           const data = await res.json();
           const price = data?.chart?.result?.[0]?.meta?.regularMarketPrice;

@@ -29,6 +29,11 @@ export const INSTANT_REGISTRY: StaticInstrument[] = [
   { symbol: "BJBR.JK", cleanSymbol: "BJBR", name: "Bank Pembangunan Daerah Jawa Barat dan Banten Tbk", exchange: "IDX", assetType: "stock", currency: "IDR", sector: "Financials" },
   { symbol: "BJTM.JK", cleanSymbol: "BJTM", name: "Bank Pembangunan Daerah Jawa Timur Tbk", exchange: "IDX", assetType: "stock", currency: "IDR", sector: "Financials" },
   { symbol: "BFIN.JK", cleanSymbol: "BFIN", name: "BFI Finance Indonesia Tbk", exchange: "IDX", assetType: "stock", currency: "IDR", sector: "Financials" },
+  { symbol: "BTPS.JK", cleanSymbol: "BTPS", name: "Bank BTPN Syariah Tbk", exchange: "IDX", assetType: "stock", currency: "IDR", sector: "Financials" },
+  { symbol: "BNLI.JK", cleanSymbol: "BNLI", name: "Bank Permata Tbk", exchange: "IDX", assetType: "stock", currency: "IDR", sector: "Financials" },
+  { symbol: "MEGA.JK", cleanSymbol: "MEGA", name: "Bank Mega Tbk", exchange: "IDX", assetType: "stock", currency: "IDR", sector: "Financials" },
+  { symbol: "BBHI.JK", cleanSymbol: "BBHI", name: "Allo Bank Indonesia Tbk", exchange: "IDX", assetType: "stock", currency: "IDR", sector: "Financials" },
+  { symbol: "BCIC.JK", cleanSymbol: "BCIC", name: "Bank JTrust Indonesia Tbk", exchange: "IDX", assetType: "stock", currency: "IDR", sector: "Financials" },
 
   // Property, Real Estate & Industrial Estates
   { symbol: "DMAS.JK", cleanSymbol: "DMAS", name: "PT Puradelta Lestari Tbk", exchange: "IDX", assetType: "stock", currency: "IDR", sector: "Real Estate" },
@@ -138,21 +143,60 @@ export const INSTANT_REGISTRY: StaticInstrument[] = [
 
 /**
  * Instant local search with zero network latency (< 1ms).
+ * Ranked by match precision: exact cleanSymbol > prefix cleanSymbol > symbol > name prefix > name substring.
+ * Automatically synthesizes an instant IDX ticker option if an uppercase ticker is typed.
  */
 export function searchLocalRegistry(query: string): StaticInstrument[] {
   const q = query.trim().toUpperCase();
   if (!q) return [];
 
   const lowerQ = query.trim().toLowerCase();
+  const scored: { item: StaticInstrument; score: number }[] = [];
 
-  return INSTANT_REGISTRY.filter((item) => {
-    // 1. Exact or prefix match on clean symbol (highest relevance)
-    if (item.cleanSymbol.toUpperCase().startsWith(q)) return true;
-    // 2. Substring match on symbol
-    if (item.symbol.toUpperCase().includes(q)) return true;
-    // 3. Substring match on full company name
-    if (item.name.toLowerCase().includes(lowerQ)) return true;
-    return false;
-  }).slice(0, 10);
+  for (const item of INSTANT_REGISTRY) {
+    const itemClean = item.cleanSymbol.toUpperCase();
+    const itemSym = item.symbol.toUpperCase();
+    const itemName = item.name.toLowerCase();
+
+    let score = 0;
+    if (itemClean === q) {
+      score = 1000;
+    } else if (itemClean.startsWith(q)) {
+      score = 800 - (itemClean.length - q.length);
+    } else if (itemSym.startsWith(q)) {
+      score = 700;
+    } else if (itemClean.includes(q)) {
+      score = 500;
+    } else if (itemName.startsWith(lowerQ)) {
+      score = 300;
+    } else if (itemName.includes(lowerQ)) {
+      score = 100;
+    }
+
+    if (score > 0) {
+      scored.push({ item, score });
+    }
+  }
+
+  scored.sort((a, b) => b.score - a.score);
+  const results = scored.slice(0, 8).map((s) => s.item);
+
+  // If query looks like a stock/crypto ticker (3-6 alphanumeric characters) and not in results with exact match,
+  // synthesize an instant IDX option directly at index 0 so user can immediately select it!
+  const hasExact = results.some((r) => r.cleanSymbol.toUpperCase() === q);
+  if (!hasExact && /^[A-Z0-9]{3,6}$/.test(q)) {
+    const synthetic: StaticInstrument = {
+      symbol: `${q}.JK`,
+      cleanSymbol: q,
+      name: `Saham Bursa Efek Indonesia (${q})`,
+      exchange: "IDX",
+      assetType: "stock",
+      currency: "IDR",
+      sector: "Saham IDX",
+    };
+    results.unshift(synthetic);
+  }
+
+  return results;
 }
 
