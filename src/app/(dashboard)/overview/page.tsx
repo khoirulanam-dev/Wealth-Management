@@ -15,6 +15,7 @@ import {
   Upload,
   RefreshCw,
 } from "lucide-react";
+import dynamicImport from "next/dynamic";
 import { formatCurrency } from "@/lib/decimal";
 import { requireAuth } from "@/lib/auth";
 import { HoldingsService } from "@/application/use-cases/portfolio/holdings-service";
@@ -30,13 +31,33 @@ import { CurrencyService } from "@/application/use-cases/system/currency-service
 import { Decimal } from "decimal.js";
 import { Button } from "@/presentation/components/ui/button";
 import { RecordTransactionDialog } from "@/presentation/components/portfolio/record-transaction-dialog";
-import { NetWorthChart } from "@/presentation/components/analytics/net-worth-chart";
-import { AssetAllocationDonut } from "@/presentation/components/analytics/asset-allocation-donut";
 import { CaptureSnapshotButton } from "@/presentation/components/analytics/capture-snapshot-button";
 import { ExportDialog } from "@/presentation/components/import-export/export-dialog";
 import { ImportDialog } from "@/presentation/components/import-export/import-dialog";
 import { SharePortfolioDialog } from "@/presentation/components/import-export/share-portfolio-dialog";
 import { ShareAllocationDialog } from "@/presentation/components/analytics/share-allocation-dialog";
+
+const NetWorthChart = dynamicImport(
+  () => import("@/presentation/components/analytics/net-worth-chart").then((m) => m.NetWorthChart),
+  {
+    loading: () => (
+      <div className="h-[280px] w-full flex items-center justify-center bg-slate-50/60 rounded-xl animate-pulse">
+        <span className="text-xs text-[#94A3B8]">Memuat riwayat kekayaan bersih...</span>
+      </div>
+    ),
+  }
+);
+
+const AssetAllocationDonut = dynamicImport(
+  () => import("@/presentation/components/analytics/asset-allocation-donut").then((m) => m.AssetAllocationDonut),
+  {
+    loading: () => (
+      <div className="h-[260px] w-full flex items-center justify-center bg-slate-50/60 rounded-xl animate-pulse">
+        <span className="text-xs text-[#94A3B8]">Memuat alokasi aset...</span>
+      </div>
+    ),
+  }
+);
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
