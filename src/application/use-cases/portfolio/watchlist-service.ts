@@ -11,6 +11,8 @@ export interface AddWatchlistDTO {
   currency?: string;
   note?: string;
   price?: number;
+  changePercent?: number;
+  change?: number;
 }
 
 export interface WatchlistItemDetail {
@@ -28,6 +30,8 @@ export interface WatchlistItemDetail {
   latestEffectiveAt: Date | null;
   sourceName: string | null;
   isManualOverride: boolean;
+  changePercent?: number | null;
+  change?: number | null;
 }
 
 export class WatchlistService {
@@ -96,6 +100,9 @@ export class WatchlistService {
     // 3. Fast valuation quote assignment (zero network latency if price known)
     if (typeof dto.price === "number" && dto.price > 0) {
       const valId = `val_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+      const noteMeta = typeof dto.changePercent === "number"
+        ? JSON.stringify({ changePercent: dto.changePercent, change: dto.change ?? null })
+        : null;
       await db.insert(valuations).values({
         id: valId,
         userId,
@@ -109,6 +116,7 @@ export class WatchlistService {
         sourceName: "Live Market Feed",
         status: "success",
         isManualOverride: false,
+        note: noteMeta,
       });
     } else {
       // Fast bounded quote fetch (max 800ms) so saving to watchlist is NEVER stalled
@@ -118,6 +126,9 @@ export class WatchlistService {
         const quote = await Promise.race([quotePromise, timeoutPromise]);
         if (quote) {
           const valId = `val_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+          const noteMeta = typeof quote.changePercent === "number"
+            ? JSON.stringify({ changePercent: quote.changePercent, change: quote.change ?? null, previousClose: quote.previousClose ?? null })
+            : null;
           await db.insert(valuations).values({
             id: valId,
             userId,
@@ -131,6 +142,7 @@ export class WatchlistService {
             sourceName: quote.source,
             status: "success",
             isManualOverride: false,
+            note: noteMeta,
           });
         }
       } catch {
@@ -222,13 +234,48 @@ export class WatchlistService {
     const result: WatchlistItemDetail[] = [];
 
     for (const item of items) {
-      // Get latest valuation for this instrument
-      const latestVal = await db
+      // Get latest valuations for this instrument (get 2 to calculate historical delta if available)
+      const recentVals = await db
         .select()
         .from(valuations)
         .where(and(eq(valuations.userId, userId), eq(valuations.instrumentId, item.instrumentId)))
         .orderBy(desc(valuations.effectiveAt), desc(valuations.createdAt))
-        .limit(1);
+        .limit(2);
+
+      let changePercent: number | null = null;
+      let change: number | null = null;
+
+      // 1. Check if latest valuation note has saved change percent metadata
+      if (recentVals.length > 0 && recentVals[0].note) {
+        try {
+          const parsed = JSON.parse(recentVals[0].note);
+          if (typeof parsed.changePercent === "number") {
+            changePercent = parsed.changePercent;
+            change = parsed.change ?? null;
+          }
+        } catch {
+          // not JSON note
+        }
+      }
+
+      // 2. If no note metadata, check historical valuations
+      if (changePercent === null && recentVals.length >= 2) {
+        const curr = parseFloat(recentVals[0].price);
+        const prev = parseFloat(recentVals[1].price);
+        if (prev > 0) {
+          change = curr - prev;
+          changePercent = ((curr - prev) / prev) * 100;
+        }
+      }
+
+      // 3. If still null, check in-memory MarketDataService quoteCache
+      if (changePercent === null && (item.symbol || item.name)) {
+        const cached = MarketDataService.getCachedQuote(item.symbol || item.name, item.assetType);
+        if (cached && typeof cached.changePercent === "number") {
+          changePercent = cached.changePercent;
+          change = cached.change ?? null;
+        }
+      }
 
       result.push({
         id: item.id,
@@ -241,10 +288,12 @@ export class WatchlistService {
         unit: item.unit,
         note: item.note,
         addedAt: item.addedAt,
-        latestPrice: latestVal.length > 0 ? latestVal[0].price : null,
-        latestEffectiveAt: latestVal.length > 0 ? latestVal[0].effectiveAt : null,
-        sourceName: latestVal.length > 0 ? latestVal[0].sourceName : null,
-        isManualOverride: latestVal.length > 0 ? latestVal[0].isManualOverride : false,
+        latestPrice: recentVals.length > 0 ? recentVals[0].price : null,
+        latestEffectiveAt: recentVals.length > 0 ? recentVals[0].effectiveAt : null,
+        sourceName: recentVals.length > 0 ? recentVals[0].sourceName : null,
+        isManualOverride: recentVals.length > 0 ? recentVals[0].isManualOverride : false,
+        changePercent,
+        change,
       });
     }
 
@@ -252,41 +301,48 @@ export class WatchlistService {
   }
 
   /**
-   * Refresh quotes for all watchlisted items.
+   * Refresh quotes for all watchlisted items in parallel.
    */
   public static async refreshWatchlistQuotes(userId: string) {
     const list = await this.listWatchlist(userId);
-    let updatedCount = 0;
 
-    for (const item of list) {
-      const sym = item.symbol || item.name;
-      if (!sym) continue;
+    const outcomes = await Promise.allSettled(
+      list.map(async (item) => {
+        const sym = item.symbol || item.name;
+        if (!sym) return false;
 
-      try {
-        const quote: MarketQuote | null = await MarketDataService.fetchQuote(sym, item.assetType);
-        if (quote) {
-          const valId = `val_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-          await db.insert(valuations).values({
-            id: valId,
-            userId,
-            instrumentId: item.instrumentId,
-            price: quote.price.toString(),
-            currency: quote.currency || item.currency,
-            unit: item.unit,
-            effectiveAt: quote.timestamp,
-            fetchedAt: new Date(),
-            sourceType: "provider",
-            sourceName: quote.source,
-            status: "success",
-            isManualOverride: false,
-          });
-          updatedCount++;
+        try {
+          const quote: MarketQuote | null = await MarketDataService.fetchQuote(sym, item.assetType);
+          if (quote) {
+            const valId = `val_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+            const noteMeta = typeof quote.changePercent === "number"
+              ? JSON.stringify({ changePercent: quote.changePercent, change: quote.change ?? null, previousClose: quote.previousClose ?? null })
+              : null;
+            await db.insert(valuations).values({
+              id: valId,
+              userId,
+              instrumentId: item.instrumentId,
+              price: quote.price.toString(),
+              currency: quote.currency || item.currency,
+              unit: item.unit,
+              effectiveAt: quote.timestamp,
+              fetchedAt: new Date(),
+              sourceType: "provider",
+              sourceName: quote.source,
+              status: "success",
+              isManualOverride: false,
+              note: noteMeta,
+            });
+            return true;
+          }
+        } catch (err) {
+          console.warn(`[WatchlistService] Gagal memperbarui kuotasi ${sym}:`, err);
         }
-      } catch (err) {
-        console.warn(`[WatchlistService] Gagal memperbarui kuotasi ${sym}:`, err);
-      }
-    }
+        return false;
+      })
+    );
 
+    const updatedCount = outcomes.filter((o) => o.status === "fulfilled" && o.value === true).length;
     return { updatedCount, total: list.length };
   }
 }

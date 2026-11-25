@@ -170,6 +170,7 @@ export function AddWatchlistDialog({ onWatchlistAdded }: { onWatchlistAdded?: ()
         market: it.exchange || "IDX",
         currency: it.currency || "IDR",
         price: it.price,
+        changePercent: it.changePercent,
       }));
 
       const res = await addBatchToWatchlistAction(itemsToSave);

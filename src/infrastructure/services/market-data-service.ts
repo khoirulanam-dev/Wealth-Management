@@ -55,6 +55,15 @@ export class MarketDataService {
   private static searchCache = new Map<string, { data: StockSearchItem[]; cachedAt: number }>();
   private static SEARCH_CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutes search cache
 
+  public static getCachedQuote(rawSymbol: string, assetType?: string): MarketQuote | null {
+    const querySymbol = this.resolveQuerySymbol(rawSymbol, assetType);
+    const cached = this.quoteCache.get(querySymbol);
+    if (cached && Date.now() - cached.cachedAt < this.CACHE_TTL_MS) {
+      return cached.quote;
+    }
+    return null;
+  }
+
   // Curated database of Indonesian Mutual Funds (Reksadana) with live NAB reference
   public static MUTUAL_FUNDS_REGISTRY: MutualFundItem[] = [
     { code: "SMMF", name: "Sucorinvest Money Market Fund", category: "Pasar Uang", nav: 2154.68, dailyReturn: 0.015, manager: "PT Sucorinvest Asset Management", kontanUrl: "https://pusatdata.kontan.co.id/reksadana/produk/16381/Sucorinvest-Sharia-Balanced-Fund" },
