@@ -1,6 +1,6 @@
 import { db } from "@/infrastructure/db/client";
 import { instruments, watchlistItems, valuations } from "@/infrastructure/db/schema";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, sql } from "drizzle-orm";
 import { MarketDataService, MarketQuote } from "@/infrastructure/services/market-data-service";
 
 export interface AddWatchlistDTO {
@@ -210,7 +210,18 @@ export class WatchlistService {
   }
 
   /**
-   * List all watchlist items for user with latest quote metadata.
+   * Get total count of watchlist items for user instantly with a single query.
+   */
+  public static async getWatchlistCount(userId: string): Promise<number> {
+    const res = await db
+      .select({ val: sql<number>`count(*)` })
+      .from(watchlistItems)
+      .where(eq(watchlistItems.userId, userId));
+    return Number(res[0]?.val || 0);
+  }
+
+  /**
+   * List all watchlist items for user with latest quote metadata in parallel.
    */
   public static async listWatchlist(userId: string): Promise<WatchlistItemDetail[]> {
     const items = await db
@@ -231,71 +242,71 @@ export class WatchlistService {
       .where(eq(watchlistItems.userId, userId))
       .orderBy(desc(watchlistItems.addedAt));
 
-    const result: WatchlistItemDetail[] = [];
+    const result = await Promise.all(
+      items.map(async (item) => {
+        // Get latest valuations for this instrument (get 2 to calculate historical delta if available)
+        const recentVals = await db
+          .select()
+          .from(valuations)
+          .where(and(eq(valuations.userId, userId), eq(valuations.instrumentId, item.instrumentId)))
+          .orderBy(desc(valuations.effectiveAt), desc(valuations.createdAt))
+          .limit(2);
 
-    for (const item of items) {
-      // Get latest valuations for this instrument (get 2 to calculate historical delta if available)
-      const recentVals = await db
-        .select()
-        .from(valuations)
-        .where(and(eq(valuations.userId, userId), eq(valuations.instrumentId, item.instrumentId)))
-        .orderBy(desc(valuations.effectiveAt), desc(valuations.createdAt))
-        .limit(2);
+        let changePercent: number | null = null;
+        let change: number | null = null;
 
-      let changePercent: number | null = null;
-      let change: number | null = null;
-
-      // 1. Check if latest valuation note has saved change percent metadata
-      if (recentVals.length > 0 && recentVals[0].note) {
-        try {
-          const parsed = JSON.parse(recentVals[0].note);
-          if (typeof parsed.changePercent === "number") {
-            changePercent = parsed.changePercent;
-            change = parsed.change ?? null;
+        // 1. Check if latest valuation note has saved change percent metadata
+        if (recentVals.length > 0 && recentVals[0].note) {
+          try {
+            const parsed = JSON.parse(recentVals[0].note);
+            if (typeof parsed.changePercent === "number") {
+              changePercent = parsed.changePercent;
+              change = parsed.change ?? null;
+            }
+          } catch {
+            // not JSON note
           }
-        } catch {
-          // not JSON note
         }
-      }
 
-      // 2. If no note metadata, check historical valuations
-      if (changePercent === null && recentVals.length >= 2) {
-        const curr = parseFloat(recentVals[0].price);
-        const prev = parseFloat(recentVals[1].price);
-        if (prev > 0) {
-          change = curr - prev;
-          changePercent = ((curr - prev) / prev) * 100;
+        // 2. If no note metadata, check historical valuations
+        if (changePercent === null && recentVals.length >= 2) {
+          const curr = parseFloat(recentVals[0].price);
+          const prev = parseFloat(recentVals[1].price);
+          if (prev > 0) {
+            change = curr - prev;
+            changePercent = ((curr - prev) / prev) * 100;
+          }
         }
-      }
 
-      // 3. If still null, check in-memory MarketDataService quoteCache
-      if (changePercent === null && (item.symbol || item.name)) {
-        const cached = MarketDataService.getCachedQuote(item.symbol || item.name, item.assetType);
-        if (cached && typeof cached.changePercent === "number") {
-          changePercent = cached.changePercent;
-          change = cached.change ?? null;
+        // 3. If still null, check in-memory MarketDataService quoteCache
+        if (changePercent === null && (item.symbol || item.name)) {
+          const cached = MarketDataService.getCachedQuote(item.symbol || item.name, item.assetType);
+          if (cached && typeof cached.changePercent === "number") {
+            changePercent = cached.changePercent;
+            change = cached.change ?? null;
+          }
         }
-      }
 
-      result.push({
-        id: item.id,
-        instrumentId: item.instrumentId,
-        symbol: item.symbol,
-        name: item.name,
-        assetType: item.assetType,
-        market: item.market,
-        currency: item.currency,
-        unit: item.unit,
-        note: item.note,
-        addedAt: item.addedAt,
-        latestPrice: recentVals.length > 0 ? recentVals[0].price : null,
-        latestEffectiveAt: recentVals.length > 0 ? recentVals[0].effectiveAt : null,
-        sourceName: recentVals.length > 0 ? recentVals[0].sourceName : null,
-        isManualOverride: recentVals.length > 0 ? recentVals[0].isManualOverride : false,
-        changePercent,
-        change,
-      });
-    }
+        return {
+          id: item.id,
+          instrumentId: item.instrumentId,
+          symbol: item.symbol,
+          name: item.name,
+          assetType: item.assetType,
+          market: item.market,
+          currency: item.currency,
+          unit: item.unit,
+          note: item.note,
+          addedAt: item.addedAt,
+          latestPrice: recentVals.length > 0 ? recentVals[0].price : null,
+          latestEffectiveAt: recentVals.length > 0 ? recentVals[0].effectiveAt : null,
+          sourceName: recentVals.length > 0 ? recentVals[0].sourceName : null,
+          isManualOverride: recentVals.length > 0 ? recentVals[0].isManualOverride : false,
+          changePercent,
+          change,
+        } as WatchlistItemDetail;
+      })
+    );
 
     return result;
   }

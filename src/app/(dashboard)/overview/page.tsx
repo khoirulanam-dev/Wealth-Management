@@ -65,19 +65,27 @@ export const revalidate = 0;
 export default async function OverviewPage() {
   const session = await requireAuth();
 
-  // Automatic daily price sync check (triggers if quotes are > 24 hours old)
-  await MarketDataSyncService.autoSyncIfStale(session.userId);
+  // Automatic daily price sync check non-blocking in background so page renders in <100ms
+  void MarketDataSyncService.autoSyncIfStale(session.userId).catch(() => {});
 
-  const [{ summary }, accounts, instruments, cashSummary, liabilitySummary, watchlistItems, incomeSummary, snapshots, analytics] = await Promise.all([
+  const [
+    { summary, assetBreakdown },
+    accounts,
+    instruments,
+    cashSummary,
+    liabilitySummary,
+    watchlistCount,
+    incomeSummary,
+    snapshots,
+  ] = await Promise.all([
     HoldingsService.listActiveHoldings(session.userId),
     AccountsService.listAccounts(session.userId),
     InstrumentsService.listInstruments(session.userId),
     CashService.getCashSummary(session.userId),
     LiabilityService.getSummary(session.userId),
-    WatchlistService.listWatchlist(session.userId),
+    WatchlistService.getWatchlistCount(session.userId),
     IncomeService.getSummary(session.userId),
     SnapshotService.listSnapshots(session.userId),
-    SnapshotService.getAnalytics(session.userId),
   ]);
 
   const rawUserName = session.email ? session.email.split("@")[0] : "Investor";
@@ -110,8 +118,61 @@ export default async function OverviewPage() {
     CurrencyService.getExchangeRateBadge(targetCurrency),
   ]);
 
+  // Fast in-memory asset allocation computation (zero duplicate DB queries)
+  const totalAssets = new Decimal(summary.totalMarketValue).plus(cashSummary.totalCashBalance);
+  const rawAllocations: { name: string; assetType: string; value: string; percentage: number; color: string }[] = [];
+
+  for (const item of assetBreakdown) {
+    const val = new Decimal(item.value);
+    const pct = totalAssets.gt(0)
+      ? val.dividedBy(totalAssets).times(100).toDecimalPlaces(2).toNumber()
+      : 0;
+
+    let label = item.assetType;
+    let color = "#3B82F6";
+    if (item.assetType === "stock") {
+      label = "Saham";
+      color = "#2563EB";
+    } else if (item.assetType === "mutual_fund") {
+      label = "Reksa Dana";
+      color = "#10B981";
+    } else if (item.assetType === "gold") {
+      label = "Emas Fisik";
+      color = "#F59E0B";
+    } else if (item.assetType === "crypto") {
+      label = "Kripto";
+      color = "#F97316";
+    } else if (item.assetType === "bond") {
+      label = "Obligasi";
+      color = "#6366F1";
+    }
+
+    rawAllocations.push({
+      name: label,
+      assetType: item.assetType,
+      value: val.toFixed(2),
+      percentage: pct,
+      color,
+    });
+  }
+
+  const totalCashDec = new Decimal(cashSummary.totalCashBalance);
+  if (totalCashDec.gt(0)) {
+    const cashPct = totalAssets.gt(0)
+      ? totalCashDec.dividedBy(totalAssets).times(100).toDecimalPlaces(2).toNumber()
+      : 0;
+    rawAllocations.push({
+      name: "Kas & Likuid",
+      assetType: "cash",
+      value: totalCashDec.toFixed(2),
+      percentage: cashPct,
+      color: "#8B5CF6",
+    });
+  }
+  rawAllocations.sort((a, b) => parseFloat(b.value) - parseFloat(a.value));
+
   const dispAllocations = await Promise.all(
-    analytics.assetAllocation.map(async (a) => {
+    rawAllocations.map(async (a) => {
       const convVal = await CurrencyService.convert(a.value, targetCurrency, "IDR");
       return {
         name: a.name,
@@ -420,7 +481,7 @@ export default async function OverviewPage() {
           <div className="space-y-1">
             <span className="text-xs font-semibold text-[#64748B]">Instrumen Pantauan</span>
             <div className="text-2xl font-bold tabular-nums text-[#1E293B]">
-              {watchlistItems.length} Ticker
+              {watchlistCount} Ticker
             </div>
             <p className="text-xs text-[#94A3B8]">Watchlist terisolasi dari Net Worth &rarr;</p>
           </div>

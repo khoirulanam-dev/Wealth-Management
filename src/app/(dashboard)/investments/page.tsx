@@ -23,8 +23,8 @@ export default async function InvestmentsPage() {
   const session = await requireAuth();
   const targetCurrency = session.reportingCurrency || "IDR";
 
-  // Automatic daily price sync check (triggers if quotes are > 24 hours old)
-  await MarketDataSyncService.autoSyncIfStale(session.userId);
+  // Automatic daily price sync check non-blocking in background
+  void MarketDataSyncService.autoSyncIfStale(session.userId).catch(() => {});
 
   const [{ holdings, summary }, accounts, instruments] = await Promise.all([
     HoldingsService.listActiveHoldings(session.userId),
