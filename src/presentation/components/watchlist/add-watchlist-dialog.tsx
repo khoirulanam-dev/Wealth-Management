@@ -396,16 +396,16 @@ export function AddWatchlistDialog({ onWatchlistAdded }: { onWatchlistAdded?: ()
                                 <div className="flex items-center justify-end gap-1">
                                   <span
                                     className={cn(
-                                      "inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-mono font-bold",
+                                      "inline-flex items-center gap-0.5 text-[11px] font-mono font-semibold",
                                       isProfit
-                                        ? "text-emerald-700 bg-emerald-50 border border-emerald-200/60"
-                                        : "text-rose-700 bg-rose-50 border border-rose-200/60"
+                                        ? "text-emerald-600"
+                                        : "text-rose-600"
                                     )}
                                   >
                                     {isProfit ? (
-                                      <TrendingUp className="h-2.5 w-2.5" />
+                                      <TrendingUp className="h-2.5 w-2.5 stroke-[2.5]" />
                                     ) : (
-                                      <TrendingDown className="h-2.5 w-2.5" />
+                                      <TrendingDown className="h-2.5 w-2.5 stroke-[2.5]" />
                                     )}
                                     <span>
                                       {isProfit ? "+" : ""}

@@ -402,23 +402,23 @@ export function WatchlistTable({ items, onDataChanged }: WatchlistTableProps) {
                           {formatCurrency(item.latestPrice, item.currency)}
                         </span>
 
-                        {/* Real-Time Price Change Badge (+% green / -% red) */}
+                        {/* Real-Time Price Change Text (+% green / -% red without background badge) */}
                         {typeof item.changePercent === "number" && (
                           <span
                             className={cn(
-                              "inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-mono font-bold tracking-tight shrink-0 whitespace-nowrap transition-all",
+                              "inline-flex items-center gap-0.5 text-xs font-mono font-semibold tracking-tight shrink-0 whitespace-nowrap",
                               item.changePercent > 0
-                                ? "text-emerald-700 bg-emerald-50 border border-emerald-200/70"
+                                ? "text-emerald-600"
                                 : item.changePercent < 0
-                                ? "text-rose-700 bg-rose-50 border border-rose-200/70"
-                                : "text-slate-600 bg-slate-100 border border-slate-200/70"
+                                ? "text-rose-600"
+                                : "text-slate-400"
                             )}
                             title={`Perubahan harga: ${item.changePercent > 0 ? "+" : ""}${item.changePercent.toFixed(2)}%`}
                           >
                             {item.changePercent > 0 ? (
-                              <TrendingUp className="h-2.5 w-2.5 stroke-[2.5]" />
+                              <TrendingUp className="h-3 w-3 stroke-[2.5]" />
                             ) : item.changePercent < 0 ? (
-                              <TrendingDown className="h-2.5 w-2.5 stroke-[2.5]" />
+                              <TrendingDown className="h-3 w-3 stroke-[2.5]" />
                             ) : null}
                             <span>
                               {item.changePercent > 0 ? "+" : ""}
