@@ -321,7 +321,7 @@ export function WatchlistTable({ items, onDataChanged }: WatchlistTableProps) {
                   className="py-3 px-4 text-right cursor-pointer hover:bg-slate-100/80 transition-colors group"
                 >
                   <div className="flex items-center justify-end gap-1.5">
-                    <span>Harga Kuotasi Terkini</span>
+                    <span>Harga Terkini</span>
                     {sortBy === "price_desc" ? (
                       <ArrowDownWideNarrow className="h-4 w-4 text-blue-600" />
                     ) : sortBy === "price_asc" ? (
